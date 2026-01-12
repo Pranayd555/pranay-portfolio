@@ -13,7 +13,7 @@ import { RouterLink } from '@angular/router';
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           <!-- Brand -->
           <div>
-            <h3 class="text-2xl font-bold text-white mb-4">
+            <h3 class="text-2xl font-bold dark:text-white text-slate-600 mb-4">
               <span class="text-neon-blue">Dev</span>eloper
             </h3>
             <p class="text-gray-400 text-sm leading-relaxed max-w-xs">
@@ -23,7 +23,7 @@ import { RouterLink } from '@angular/router';
 
           <!-- Quick Links -->
           <div>
-            <h4 class="text-white font-semibold mb-6">Navigation</h4>
+            <h4 class="dark:text-white text-slate-600 font-semibold mb-6">Navigation</h4>
             <ul class="space-y-3">
               <li>
                 <a routerLink="/" fragment="skills" class="text-gray-400 hover:text-neon-pink transition-colors text-sm flex items-center gap-2 group cursor-pointer">
@@ -48,7 +48,7 @@ import { RouterLink } from '@angular/router';
 
           <!-- Social Links -->
           <div>
-            <h4 class="text-white font-semibold mb-6">Connect</h4>
+            <h4 class="dark:text-white text-slate-600 font-semibold mb-6">Connect</h4>
             <div class="flex gap-4">
               <a 
                 href="https://github.com/pranayd555" 
