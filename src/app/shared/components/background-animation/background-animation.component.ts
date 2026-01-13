@@ -23,8 +23,8 @@ export class BackgroundAnimationComponent implements AfterViewInit, OnDestroy {
     // Theme colors
     private isDark = true;
     private colorConfig = {
-        dark: { dot: 'rgba(0, 255, 255, 0.8)', line: 'rgba(0, 255, 255, 0.15)' }, // Cyan/Teal
-        light: { dot: 'rgba(100, 100, 100, 0.8)', line: 'rgba(100, 100, 100, 0.15)' } // Gray/Blue
+        dark: { dot: 'rgba(0, 255, 255, 0.9)', line: 'rgba(0, 255, 255, 0.2)' }, // Brighter Cyan for Dark Mode
+        light: { dot: 'rgba(19, 91, 236, 0.9)', line: 'rgba(19, 91, 236, 0.25)' }  // Colorful Primary Blue for Light Mode
     };
 
     constructor(
@@ -108,6 +108,24 @@ export class BackgroundAnimationComponent implements AfterViewInit, OnDestroy {
 
         // Draw particles and lines
         const currentColors = this.isDark ? this.colorConfig.dark : this.colorConfig.light;
+
+        // Draw central glow
+        const centerX = this.canvasRef.nativeElement.width / 2;
+        const centerY = this.canvasRef.nativeElement.height / 2;
+        const gradient = this.ctx.createRadialGradient(centerX, centerY, 50, centerX, centerY, 300);
+
+        if (this.isDark) {
+            gradient.addColorStop(0, 'rgba(19, 91, 236, 0.2)'); // Primary color low opacity
+            gradient.addColorStop(0.5, 'rgba(0, 243, 255, 0.05)'); // Secondary color very low opacity
+            gradient.addColorStop(1, 'rgba(0,0,0,0)');
+        } else {
+            gradient.addColorStop(0, 'rgba(19, 91, 236, 0.1)');
+            gradient.addColorStop(0.5, 'rgba(0, 243, 255, 0.05)');
+            gradient.addColorStop(1, 'rgba(255,255,255,0)');
+        }
+
+        this.ctx.fillStyle = gradient;
+        this.ctx.fillRect(0, 0, this.canvasRef.nativeElement.width, this.canvasRef.nativeElement.height);
 
         // Projection phase
         this.particles.forEach(p => p.project(this.canvasRef.nativeElement.width, this.canvasRef.nativeElement.height, 400));
