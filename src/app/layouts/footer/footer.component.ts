@@ -14,9 +14,9 @@ import { RouterLink } from '@angular/router';
           <!-- Brand -->
           <div>
             <h3 class="text-2xl font-bold dark:text-white text-slate-600 mb-4">
-              <span class="text-neon-blue">Dev</span>eloper
+              <span class="neon-text">Dev</span>eloper
             </h3>
-            <p class="text-gray-400 text-sm leading-relaxed max-w-xs">
+            <p class="text-gray-600 dark:text-gray-200 text-sm leading-relaxed max-w-xs">
               Building the future of the web with modern architecture and immersive experiences.
             </p>
           </div>
@@ -26,19 +26,19 @@ import { RouterLink } from '@angular/router';
             <h4 class="dark:text-white text-slate-600 font-semibold mb-6">Navigation</h4>
             <ul class="space-y-3">
               <li>
-                <a routerLink="/" fragment="skills" class="text-gray-400 hover:text-neon-pink transition-colors text-sm flex items-center gap-2 group cursor-pointer">
+                <a routerLink="/" fragment="skills" class="text-gray-600 dark:text-gray-200 hover:text-neon-pink transition-colors text-sm flex items-center gap-2 group cursor-pointer">
                   <span class="w-1.5 h-1.5 rounded-full bg-gray-600 group-hover:bg-neon-pink transition-colors"></span>
                   Skills
                 </a>
               </li>
               <li>
-                <a routerLink="/" fragment="experience" class="text-gray-400 hover:text-neon-blue transition-colors text-sm flex items-center gap-2 group cursor-pointer">
+                <a routerLink="/" fragment="experience" class="text-gray-600 dark:text-gray-200 hover:text-neon-blue transition-colors text-sm flex items-center gap-2 group cursor-pointer">
                   <span class="w-1.5 h-1.5 rounded-full bg-gray-600 group-hover:bg-neon-blue transition-colors"></span>
                   Experience
                 </a>
               </li>
               <li>
-                <a routerLink="/" fragment="projects" class="text-gray-400 hover:text-neon-purple transition-colors text-sm flex items-center gap-2 group cursor-pointer">
+                <a routerLink="/" fragment="projects" class="text-gray-600 dark:text-gray-200 hover:text-neon-purple transition-colors text-sm flex items-center gap-2 group cursor-pointer">
                   <span class="w-1.5 h-1.5 rounded-full bg-gray-600 group-hover:bg-neon-purple transition-colors"></span>
                   Projects
                 </a>
@@ -54,7 +54,7 @@ import { RouterLink } from '@angular/router';
                 href="https://github.com/pranayd555" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-white/10 hover:text-white hover:neon-glow transition-all duration-300"
+                class="social-link text-gray-600 dark:text-gray-200"
                 aria-label="GitHub"
               >
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -65,7 +65,7 @@ import { RouterLink } from '@angular/router';
                 href="https://linkedin.com/in/pranay-das" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-white/10 hover:text-white hover:neon-glow transition-all duration-300"
+                class="social-link text-gray-600 dark:text-gray-200"
                 aria-label="LinkedIn"
               >
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -77,7 +77,7 @@ import { RouterLink } from '@angular/router';
                 href="https://x.com/pranaydaspr" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-white/10 hover:text-white hover:neon-glow transition-all duration-300"
+                class="social-link text-gray-600 dark:text-gray-200"
                 aria-label="X"
               >
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">

@@ -13,7 +13,7 @@ import { ThemeService } from '../../core/services/theme.service';
         <!-- Logo & Profile -->
         <div class="flex items-center gap-3">
             <div class="flex size-10 shrink-0 items-center overflow-hidden rounded-full border-2 border-primary">
-                <div class="bg-center bg-no-repeat aspect-square bg-cover size-full" data-alt="Professional headshot" style='background-image: url("assets/pranay_das.jpg");'></div>
+                <div class="bg-center bg-no-repeat aspect-square bg-cover size-full" data-alt="Professional headshot" style='background-image: url("assets/pranay_logo.png");'></div>
             </div>
             <h2 class="text-lg font-bold leading-tight tracking-tight text-slate-900 dark:text-white">Pranay Das</h2>
         </div>

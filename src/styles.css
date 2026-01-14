@@ -10,6 +10,10 @@
     /* Cyan Neon */
     --color-accent: #ff00ff;
     /* Magenta Neon */
+    --color-dark-surface: var(--dark-surface);
+    --color-neon-blue: #00f3ff;
+    --color-neon-pink: #ff00ff;
+    --color-neon-purple: #bc13fe;
     --font-display: "Space Grotesk", sans-serif;
     --radius-lg: 1.5rem;
     --radius-xl: 3rem;
@@ -89,16 +93,18 @@
 :root {
     --bg-color: #f6f6f8;
     --text-color: #0f172a;
-    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-bg: rgba(255, 255, 255, 0.45);
     --glass-border: rgba(255, 255, 255, 0.5);
+    --dark-surface: rgba(255, 255, 255, 0.7);
 }
 
 :root.dark {
     --bg-color: #050a14;
     /* Darker, deeper blue/black */
     --text-color: #e2e8f0;
-    --glass-bg: rgba(10, 20, 40, 0.6);
+    --glass-bg: rgba(10, 20, 40, 0.35);
     --glass-border: rgba(255, 255, 255, 0.08);
+    --dark-surface: rgba(0, 0, 0, 0);
 }
 
 /* Global Styles */
@@ -144,8 +150,46 @@
         box-shadow: 0 0 20px rgba(19, 91, 236, 0.15);
     }
 
+    .footer-glass {
+        background: var(--glass-bg);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+
+        border-top: 1px solid var(--glass-border);
+        box-shadow:
+            0 -10px 30px rgba(0, 0, 0, 0.15);
+        /* upward glow */
+
+        position: relative;
+    }
+
+    /* Subtle hover / interaction (optional) */
+    .footer-glass:hover {
+        border-top-color: rgba(19, 91, 236, 0.25);
+        box-shadow:
+            0 -12px 40px rgba(19, 91, 236, 0.12);
+    }
+
+
     .neon-text {
         text-shadow: 0 0 10px rgba(0, 243, 255, 0.5), 0 0 20px rgba(0, 243, 255, 0.3);
+    }
+
+    .neon-glow {
+        box-shadow: 0 0 15px var(--color-primary), 0 0 30px var(--color-primary);
+    }
+
+    .social-link {
+        @apply w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300;
+        background: rgba(255, 255, 255, 0.05);
+        color: inherit;
+    }
+
+    .social-link:hover {
+        background: var(--color-primary);
+        color: white !important;
+        box-shadow: 0 0 15px var(--color-primary), 0 0 30px var(--color-primary);
+        transform: translateY(-2px);
     }
 
     .neon-border {

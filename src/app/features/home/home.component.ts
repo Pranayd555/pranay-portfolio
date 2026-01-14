@@ -19,7 +19,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
             <div class="relative group">
                 <div class="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-full blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
                 <div class="relative w-40 h-40 md:w-48 md:h-48 rounded-full p-1 bg-white dark:bg-slate-900 ring-1 ring-slate-200 dark:ring-white/10 overflow-hidden text-slate-900 dark:text-white">
-                    <img src="assets/pranay_das.jpg" alt="Pranay Das" class="w-full h-full rounded-full object-cover" onerror="this.src='https://ui-avatars.com/api/?name=Pranay+Das&background=135bec&color=fff&size=200'"/>
+                    <img src="assets/pranay_das.jpg" alt="Pranay Das" class="w-full h-full rounded-full object-cover" onerror="this.src='assets/pranay_logo.png'"/>
                 </div>
             </div>
 
@@ -425,9 +425,6 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
                 </div>
             </div>
             
-            <footer class="mt-20 text-slate-500 text-sm">
-                <p>© {{ loopNum > 0 ? '2025' : '2024' }} Pranay Das. Engineered with <span class="text-primary">Angular</span> & <span class="text-cyan-700 dark:text-secondary">Passion</span>.</p>
-            </footer>
       </section>
     </div>
   `,
@@ -435,7 +432,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 })
 export class HomeComponent implements OnInit, OnDestroy {
     currentRole = '';
-    private roles = ['Sr. Software Engineer', 'Full Stack Web Developer', 'UI/UX Enthusiast', 'Product Engineer'];
+    private roles = ['Sr. Software Engineer', 'Full Stack Web Developer', 'Product Engineer', 'Active Learner'];
     loopNum = 0;
     private isDeleting = false;
     private typeSpeed = 150;

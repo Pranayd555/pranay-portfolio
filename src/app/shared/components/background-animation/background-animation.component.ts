@@ -19,6 +19,8 @@ export class BackgroundAnimationComponent implements AfterViewInit, OnDestroy {
     private numParticles = 100; // Adjust for density
     private sphereRadius = 250; // Radius of the sphere
     private autoRotateSpeed = 0.002;
+    private rings = 14;                 // vertical divisions
+    private pointsPerRing = Math.floor(this.numParticles / this.rings);
 
     // Theme colors
     private isDark = true;
@@ -80,18 +82,44 @@ export class BackgroundAnimationComponent implements AfterViewInit, OnDestroy {
     }
 
     private createParticles(): void {
-        this.particles = [];
-        for (let i = 0; i < this.numParticles; i++) {
-            // distribute points on sphere surface using Fibonacci sphere algorithm or random spherical
-            const theta = Math.random() * 2 * Math.PI;
-            const phi = Math.acos((Math.random() * 2) - 1);
+        // this.particles = [];
+        // for (let i = 0; i < this.numParticles; i++) {
+        //     // distribute points on sphere surface using Fibonacci sphere algorithm or random spherical
+        //     const theta = Math.random() * 2 * Math.PI;
+        //     const phi = Math.acos((Math.random() * 2) - 1);
 
-            const x = this.sphereRadius * Math.sin(phi) * Math.cos(theta);
-            const y = this.sphereRadius * Math.sin(phi) * Math.sin(theta);
-            const z = this.sphereRadius * Math.cos(phi);
+        //     const x = this.sphereRadius * Math.sin(phi) * Math.cos(theta);
+        //     const y = this.sphereRadius * Math.sin(phi) * Math.sin(theta);
+        //     const z = this.sphereRadius * Math.cos(phi);
 
-            this.particles.push(new Particle(x, y, z));
+        //     this.particles.push(new Particle(x, y, z));
+        // }
+        // const rings = 14;                 // vertical divisions
+        // const pointsPerRing = Math.floor(this.numParticles / rings);
+        const ringStep = Math.PI / this.rings;
+
+        let index = 0;
+
+        for (let i = 0; i < this.rings; i++) {
+            const phi = i * ringStep;
+            const y = this.sphereRadius * Math.cos(phi);
+            const r = this.sphereRadius * Math.sin(phi);
+
+            const offset = (i % 2) * (Math.PI / this.pointsPerRing); // ⬅ hex staggering
+
+            for (let j = 0; j < this.pointsPerRing && index < this.numParticles; j++) {
+                const theta = (j / this.pointsPerRing) * Math.PI * 2 + offset;
+
+                const x = r * Math.cos(theta);
+                const z = r * Math.sin(theta);
+
+                this.particles.push(new Particle(x, y, z));
+                index++;
+            }
         }
+
+
+
     }
 
     private animate(): void {
@@ -108,11 +136,31 @@ export class BackgroundAnimationComponent implements AfterViewInit, OnDestroy {
 
         // Draw particles and lines
         const currentColors = this.isDark ? this.colorConfig.dark : this.colorConfig.light;
+        this.ctx.save();
 
+        this.ctx.shadowBlur = 12; // glow strength
+        this.ctx.shadowColor = currentColors.dot;
         // Draw central glow
         const centerX = this.canvasRef.nativeElement.width / 2;
         const centerY = this.canvasRef.nativeElement.height / 2;
         const gradient = this.ctx.createRadialGradient(centerX, centerY, 50, centerX, centerY, 300);
+        this.ctx.save();
+
+        // Add glow
+        this.ctx.shadowBlur = this.isDark ? 14 : 10;
+        this.ctx.shadowColor = currentColors.dot;
+
+        this.ctx.fillStyle = currentColors.dot;
+
+        this.particles.forEach(p => {
+            const size = Math.max(0.6, (400 / (400 - p.z)) * 1.6);
+
+            this.ctx.beginPath();
+            this.ctx.arc(p.px, p.py, size, 0, Math.PI * 2);
+            this.ctx.fill();
+        });
+
+        this.ctx.restore();
 
         if (this.isDark) {
             gradient.addColorStop(0, 'rgba(19, 91, 236, 0.2)'); // Primary color low opacity
@@ -131,29 +179,72 @@ export class BackgroundAnimationComponent implements AfterViewInit, OnDestroy {
         this.particles.forEach(p => p.project(this.canvasRef.nativeElement.width, this.canvasRef.nativeElement.height, 400));
 
         // Drawing phase - connections first (behind dots)
-        this.ctx.strokeStyle = currentColors.line;
-        this.ctx.lineWidth = 1;
-        this.ctx.beginPath();
-        for (let i = 0; i < this.particles.length; i++) {
-            for (let j = i + 1; j < this.particles.length; j++) {
-                const p1 = this.particles[i];
-                const p2 = this.particles[j];
+        // this.ctx.strokeStyle = currentColors.line;
+        // this.ctx.lineWidth = 1;
+        // this.ctx.beginPath();
+        // for (let i = 0; i < this.particles.length; i++) {
+        //     for (let j = i + 1; j < this.particles.length; j++) {
+        //         const p1 = this.particles[i];
+        //         const p2 = this.particles[j];
 
-                // Euclidean distance in 3D is better for sphere integrity
-                const dist = Math.sqrt(
-                    Math.pow(p1.x - p2.x, 2) +
-                    Math.pow(p1.y - p2.y, 2) +
-                    Math.pow(p1.z - p2.z, 2)
-                );
+        //         // Euclidean distance in 3D is better for sphere integrity
+        //         const dist = Math.sqrt(
+        //             Math.pow(p1.x - p2.x, 2) +
+        //             Math.pow(p1.y - p2.y, 2) +
+        //             Math.pow(p1.z - p2.z, 2)
+        //         );
 
-                // Draw line if close in 3D space
-                if (dist < 60) { // connection threshold
-                    this.ctx.moveTo(p1.px, p1.py);
-                    this.ctx.lineTo(p2.px, p2.py);
-                }
-            }
-        }
-        this.ctx.stroke();
+        //         // Draw line if close in 3D space
+        //         if (dist < 60) { // connection threshold
+        //             this.ctx.moveTo(p1.px, p1.py);
+        //             this.ctx.lineTo(p2.px, p2.py);
+        //         }
+        //     }
+        // }
+        // this.ctx.stroke();
+        // const cols = this.pointsPerRing;
+
+        // this.ctx.lineWidth = 1.2;
+
+        // for (let i = 0; i < this.particles.length; i++) {
+        //     const p = this.particles[i];
+        //     const row = Math.floor(i / cols);
+        //     const col = i % cols;
+
+        //     const neighbors: number[] = [];
+
+        //     // same ring (left & right)
+        //     neighbors.push(row * cols + (col + 1) % cols);
+        //     neighbors.push(row * cols + (col - 1 + cols) % cols);
+
+        //     // upper ring
+        //     if (row > 0) {
+        //         neighbors.push((row - 1) * cols + col);
+        //         neighbors.push((row - 1) * cols + (col + (row % 2 ? 1 : -1) + cols) % cols);
+        //     }
+
+        //     // lower ring
+        //     if (row < this.rings - 1) {
+        //         neighbors.push((row + 1) * cols + col);
+        //         neighbors.push((row + 1) * cols + (col + (row % 2 ? 1 : -1) + cols) % cols);
+        //     }
+
+        //     for (const ni of neighbors) {
+        //         const n = this.particles[ni];
+        //         if (!n) continue;
+
+        //         const dz = (p.z + n.z) / 2;
+        //         const alpha = Math.max(0, 1 - Math.abs(dz) / this.sphereRadius);
+
+        //         this.ctx.strokeStyle = `rgba(0, 243, 255, ${alpha * 0.35})`;
+        //         this.ctx.beginPath();
+        //         this.ctx.moveTo(p.px, p.py);
+        //         this.ctx.lineTo(n.px, n.py);
+        //         this.ctx.stroke();
+        //     }
+        // }
+
+
 
         // Draw dots
         this.ctx.fillStyle = currentColors.dot;
