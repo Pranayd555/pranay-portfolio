@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, OnInit, OnDestroy, ViewChild, Inject, PLATFORM_ID, AfterViewInit, effect, Injector, runInInjectionContext } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, OnDestroy, ViewChild, Inject, PLATFORM_ID, AfterViewInit, effect, Injector, runInInjectionContext, DOCUMENT } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ThemeService } from '../../../core/services/theme.service';
 
@@ -7,7 +7,7 @@ import { ThemeService } from '../../../core/services/theme.service';
     standalone: true,
     imports: [CommonModule],
     template: `
-    <canvas #canvas class="background-canvas"></canvas>
+    <canvas #canvas class="background-canvas" [style.top.px]="headerHeight"></canvas>
   `,
     styleUrls: ['./background-animation.component.css']
 })
@@ -17,10 +17,12 @@ export class BackgroundAnimationComponent implements AfterViewInit, OnDestroy {
     private animationFrameId!: number;
     private particles: Particle[] = [];
     private numParticles = 100; // Adjust for density
+    private lastTime = 0;
     private sphereRadius = 250; // Radius of the sphere
     private autoRotateSpeed = 0.002;
     private rings = 14;                 // vertical divisions
     private pointsPerRing = Math.floor(this.numParticles / this.rings);
+    public headerHeight = 0;
 
     // Theme colors
     private isDark = true;
@@ -31,6 +33,7 @@ export class BackgroundAnimationComponent implements AfterViewInit, OnDestroy {
 
     constructor(
         @Inject(PLATFORM_ID) private platformId: Object,
+        @Inject(DOCUMENT) private document: Document,
         private themeService: ThemeService
     ) {
         // Track theme changes using signal effect
@@ -40,6 +43,8 @@ export class BackgroundAnimationComponent implements AfterViewInit, OnDestroy {
     }
 
     ngAfterViewInit(): void {
+        const header = this.document.querySelector('nav');
+        this.headerHeight = header?.clientHeight ?? 0;
         if (isPlatformBrowser(this.platformId)) {
             this.initCanvas();
             this.createParticles();
@@ -82,20 +87,7 @@ export class BackgroundAnimationComponent implements AfterViewInit, OnDestroy {
     }
 
     private createParticles(): void {
-        // this.particles = [];
-        // for (let i = 0; i < this.numParticles; i++) {
-        //     // distribute points on sphere surface using Fibonacci sphere algorithm or random spherical
-        //     const theta = Math.random() * 2 * Math.PI;
-        //     const phi = Math.acos((Math.random() * 2) - 1);
-
-        //     const x = this.sphereRadius * Math.sin(phi) * Math.cos(theta);
-        //     const y = this.sphereRadius * Math.sin(phi) * Math.sin(theta);
-        //     const z = this.sphereRadius * Math.cos(phi);
-
-        //     this.particles.push(new Particle(x, y, z));
-        // }
-        // const rings = 14;                 // vertical divisions
-        // const pointsPerRing = Math.floor(this.numParticles / rings);
+        this.particles = [];
         const ringStep = Math.PI / this.rings;
 
         let index = 0;
@@ -117,25 +109,31 @@ export class BackgroundAnimationComponent implements AfterViewInit, OnDestroy {
                 index++;
             }
         }
-
-
-
     }
 
-    private animate(): void {
+    private animate(time: number = 0): void {
         if (!this.ctx) return;
+
+        // Calculate delta time for consistent speed (target 60fps)
+        const deltaTime = this.lastTime ? (time - this.lastTime) / 16.67 : 1;
+        this.lastTime = time;
 
         this.ctx.clearRect(0, 0, this.canvasRef.nativeElement.width, this.canvasRef.nativeElement.height);
 
-        // Constant rotation around Y axis
+        // Update rotations with deltaTime normalization
+        const rotationSpeed = this.autoRotateSpeed * deltaTime;
         this.particles.forEach(p => {
-            p.rotateY(this.autoRotateSpeed);
-            // Optional: slow X rotation for more dynamic feel
-            p.rotateX(this.autoRotateSpeed * 0.5);
+            p.rotateY(rotationSpeed);
+            p.rotateX(rotationSpeed * 0.5);
         });
 
-        // Draw particles and lines
+        // Projection phase
+        const effectiveHeight = this.canvasRef.nativeElement.height - this.headerHeight;
+        this.particles.forEach(p => p.project(this.canvasRef.nativeElement.width, effectiveHeight, 400));
+
         const currentColors = this.isDark ? this.colorConfig.dark : this.colorConfig.light;
+
+        // 1. Draw central background glow gradient (no shadow for performance)
         this.ctx.save();
 
         this.ctx.shadowBlur = 12; // glow strength
@@ -163,8 +161,8 @@ export class BackgroundAnimationComponent implements AfterViewInit, OnDestroy {
         this.ctx.restore();
 
         if (this.isDark) {
-            gradient.addColorStop(0, 'rgba(19, 91, 236, 0.2)'); // Primary color low opacity
-            gradient.addColorStop(0.5, 'rgba(0, 243, 255, 0.05)'); // Secondary color very low opacity
+            gradient.addColorStop(0, 'rgba(19, 91, 236, 0.2)');
+            gradient.addColorStop(0.5, 'rgba(0, 243, 255, 0.05)');
             gradient.addColorStop(1, 'rgba(0,0,0,0)');
         } else {
             gradient.addColorStop(0, 'rgba(19, 91, 236, 0.1)');
@@ -174,91 +172,23 @@ export class BackgroundAnimationComponent implements AfterViewInit, OnDestroy {
 
         this.ctx.fillStyle = gradient;
         this.ctx.fillRect(0, 0, this.canvasRef.nativeElement.width, this.canvasRef.nativeElement.height);
+        this.ctx.restore();
 
-        // Projection phase
-        this.particles.forEach(p => p.project(this.canvasRef.nativeElement.width, this.canvasRef.nativeElement.height, 400));
-
-        // Drawing phase - connections first (behind dots)
-        // this.ctx.strokeStyle = currentColors.line;
-        // this.ctx.lineWidth = 1;
-        // this.ctx.beginPath();
-        // for (let i = 0; i < this.particles.length; i++) {
-        //     for (let j = i + 1; j < this.particles.length; j++) {
-        //         const p1 = this.particles[i];
-        //         const p2 = this.particles[j];
-
-        //         // Euclidean distance in 3D is better for sphere integrity
-        //         const dist = Math.sqrt(
-        //             Math.pow(p1.x - p2.x, 2) +
-        //             Math.pow(p1.y - p2.y, 2) +
-        //             Math.pow(p1.z - p2.z, 2)
-        //         );
-
-        //         // Draw line if close in 3D space
-        //         if (dist < 60) { // connection threshold
-        //             this.ctx.moveTo(p1.px, p1.py);
-        //             this.ctx.lineTo(p2.px, p2.py);
-        //         }
-        //     }
-        // }
-        // this.ctx.stroke();
-        // const cols = this.pointsPerRing;
-
-        // this.ctx.lineWidth = 1.2;
-
-        // for (let i = 0; i < this.particles.length; i++) {
-        //     const p = this.particles[i];
-        //     const row = Math.floor(i / cols);
-        //     const col = i % cols;
-
-        //     const neighbors: number[] = [];
-
-        //     // same ring (left & right)
-        //     neighbors.push(row * cols + (col + 1) % cols);
-        //     neighbors.push(row * cols + (col - 1 + cols) % cols);
-
-        //     // upper ring
-        //     if (row > 0) {
-        //         neighbors.push((row - 1) * cols + col);
-        //         neighbors.push((row - 1) * cols + (col + (row % 2 ? 1 : -1) + cols) % cols);
-        //     }
-
-        //     // lower ring
-        //     if (row < this.rings - 1) {
-        //         neighbors.push((row + 1) * cols + col);
-        //         neighbors.push((row + 1) * cols + (col + (row % 2 ? 1 : -1) + cols) % cols);
-        //     }
-
-        //     for (const ni of neighbors) {
-        //         const n = this.particles[ni];
-        //         if (!n) continue;
-
-        //         const dz = (p.z + n.z) / 2;
-        //         const alpha = Math.max(0, 1 - Math.abs(dz) / this.sphereRadius);
-
-        //         this.ctx.strokeStyle = `rgba(0, 243, 255, ${alpha * 0.35})`;
-        //         this.ctx.beginPath();
-        //         this.ctx.moveTo(p.px, p.py);
-        //         this.ctx.lineTo(n.px, n.py);
-        //         this.ctx.stroke();
-        //     }
-        // }
-
-
-
-        // Draw dots
+        // 2. Draw dots with glow
+        this.ctx.save();
+        this.ctx.shadowBlur = this.isDark ? 14 : 10;
+        this.ctx.shadowColor = currentColors.dot;
         this.ctx.fillStyle = currentColors.dot;
+
         this.particles.forEach(p => {
-            // Scale dot by perspective (optional, simple here)
-            // Only draw if z is somewhat positive (front of sphere) or just draw all with opacity? 
-            // Drawing all gives transparent glass feel.
+            const size = Math.max(0.6, (400 / (400 - p.z)) * 1.6);
             this.ctx.beginPath();
-            const size = Math.max(0.5, (400 / (400 - p.z)) * 1.5); // Perspective scaling
             this.ctx.arc(p.px, p.py, size, 0, Math.PI * 2);
             this.ctx.fill();
         });
+        this.ctx.restore();
 
-        this.animationFrameId = requestAnimationFrame(() => this.animate());
+        this.animationFrameId = requestAnimationFrame((t) => this.animate(t));
     }
 }
 
