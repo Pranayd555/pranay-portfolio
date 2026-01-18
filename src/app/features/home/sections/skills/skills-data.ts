@@ -1,4 +1,4 @@
-import { ISkillCategory } from "./skills.model";
+import { ISkillCategory } from "./types/skills.model";
 
 export const skillsData: ISkillCategory[] = [
     {

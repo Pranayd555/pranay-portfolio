@@ -1,7 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ExperienceService } from './experience-service';
-import { IExperience } from './experience.model';
+import { ExperienceService } from './services/experience-service';
+import { IExperience } from './types/experience.model';
 
 @Component({
   selector: 'app-experience',

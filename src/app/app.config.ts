@@ -11,12 +11,17 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes, withInMemoryScrolling({
-        anchorScrolling: 'enabled',
-        scrollPositionRestoration: 'enabled'
+      anchorScrolling: 'enabled',
+      scrollPositionRestoration: 'enabled'
     })),
     provideClientHydration(withEventReplay()),
     provideStore(),
     provideEffects(),
-    provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() })
-]
+    provideStoreDevtools({
+      maxAge: 25,
+      logOnly: !isDevMode(), // 👈 VERY IMPORTANT
+      trace: true,
+      traceLimit: 75
+    })
+  ]
 };

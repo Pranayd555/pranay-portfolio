@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { skillsData } from './skills-data';
 import { delay, Observable, of } from 'rxjs';
-import { ISkillCategory } from './skills.model';
+import { ISkillCategory } from '../types/skills.model';
+import { skillsData } from '../skills-data';
 
 @Injectable({
   providedIn: 'root',

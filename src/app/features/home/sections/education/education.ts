@@ -1,7 +1,7 @@
 import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IEducationSection } from './education.model';
-import { EducationService } from './education-service';
+import { IEducationSection } from './types/education.model';
+import { EducationService } from './services/education-service';
 
 @Component({
   selector: 'app-education',

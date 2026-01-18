@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { IProject } from './projects.model';
-import { projectsData } from './projects.data';
 import { delay, Observable, of } from 'rxjs';
+import { IProject } from '../types/projects.model';
+import { projectsData } from '../projects.data';
 
 @Injectable({
   providedIn: 'root',

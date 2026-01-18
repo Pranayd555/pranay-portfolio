@@ -1,7 +1,11 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ProjectsService } from './projects-service';
-import { IProject } from './projects.model';
+import { IProject } from './types/projects.model';
+import { Store } from '@ngrx/store';
+import { IProjectsState } from './types/projectsState.model';
+import { toSignal } from '@angular/core/rxjs-interop';
+import * as ProjectsSelectors from './store/selectors';
+import * as ProjectsActions from './store/actions';
 
 @Component({
   selector: 'app-projects',
@@ -12,38 +16,36 @@ import { IProject } from './projects.model';
 })
 export class Projects implements OnInit {
 
-  isLoading = signal<boolean>(true);
-  hasError = signal<boolean>(false);
-  errorMessage = signal<string>('');
-  projects = signal<IProject[]>([]);
+  private store = inject(Store<{ projects: IProjectsState }>);
 
-  constructor(private projectsService: ProjectsService) { }
+  // isLoading = signal<boolean>(true);
+  // hasError = signal<boolean>(false);
+  // errorMessage = signal<string>('');
+  // projects = signal<IProject[]>([]);
+
+  isLoading = toSignal(this.store.select(ProjectsSelectors.isProjectsIsLoadingSelector), {
+    initialValue: true
+  })
+
+  hasError = toSignal(this.store.select(ProjectsSelectors.isProjectsHasErrorSelector), {
+    initialValue: false
+  })
+
+  errorMessage = toSignal(this.store.select(ProjectsSelectors.getProjectsErrorMessageSelector), {
+    initialValue: ''
+  })
+
+  projects = toSignal(this.store.select(ProjectsSelectors.getProjectsSelector), {
+    initialValue: []
+  })
+
+  constructor() { }
 
   ngOnInit(): void {
-    this.loadProjects();
-  }
-
-  loadProjects(): void {
-    this.isLoading.set(true);
-    this.hasError.set(false);
-    this.errorMessage.set('');
-
-    this.projectsService.getProjects().subscribe({
-      next: (data) => {
-        this.projects.set(data);
-        this.isLoading.set(false);
-      },
-      error: (error) => {
-        this.isLoading.set(false);
-        this.hasError.set(true);
-        this.errorMessage.set('Failed to load projects data. Please try again.');
-        console.error('Error loading projects:', error);
-        this.projects.set([]);
-      }
-    });
+    this.store.dispatch(ProjectsActions.getProjects());
   }
 
   retryLoad(): void {
-    this.loadProjects();
+    this.store.dispatch(ProjectsActions.getProjects());
   }
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { IEducationSection } from './education.model';
+import { IEducationSection } from '../types/education.model';
 import { delay, Observable, of } from 'rxjs';
-import { educationData } from './education-data';
+import { educationData } from '../education-data';
 
 @Injectable({
   providedIn: 'root',
