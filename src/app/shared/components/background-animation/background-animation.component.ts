@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, OnInit, OnDestroy, ViewChild, Inject, PLATFORM_ID, AfterViewInit, effect, Injector, runInInjectionContext, DOCUMENT } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, OnDestroy, ViewChild, Inject, PLATFORM_ID, AfterViewInit, effect, Injector, runInInjectionContext, DOCUMENT, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ThemeService } from '../../../core/services/theme.service';
 
@@ -32,6 +32,7 @@ export class BackgroundAnimationComponent implements AfterViewInit, OnDestroy {
     };
 
     constructor(
+        private cdr: ChangeDetectorRef,
         @Inject(PLATFORM_ID) private platformId: Object,
         @Inject(DOCUMENT) private document: Document,
         private themeService: ThemeService
@@ -50,6 +51,7 @@ export class BackgroundAnimationComponent implements AfterViewInit, OnDestroy {
             this.createParticles();
             this.animate();
         }
+        this.cdr.detectChanges();
     }
 
     ngOnDestroy(): void {

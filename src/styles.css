@@ -24,6 +24,8 @@
     --animate-slide-up: slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     --animate-glitch: glitch 1s linear infinite;
     --animate-scanline: scanline 8s linear infinite;
+    --animate-tilt: tilt 10s infinite linear;
+    --animate-spin-slow: spin 8s linear infinite;
 
     @keyframes float {
 
@@ -85,6 +87,33 @@
 
         100% {
             transform: translateY(100%);
+        }
+    }
+
+    @keyframes tilt {
+
+        0%,
+        50%,
+        100% {
+            transform: rotate(0deg);
+        }
+
+        25% {
+            transform: rotate(1deg);
+        }
+
+        75% {
+            transform: rotate(-1deg);
+        }
+    }
+
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
         }
     }
 }
