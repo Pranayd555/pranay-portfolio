@@ -1,144 +1,183 @@
 <section id="projects" class="px-4 py-20 max-w-7xl mx-auto">
     <h2
         class="text-4xl md:text-5xl font-bold mb-16 text-center text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-slate-700 to-slate-500 dark:from-white dark:to-slate-400">
-        Featured Projects</h2>
+        Featured Projects
+    </h2>
 
+    <!-- Loading Skeleton State -->
+    @if (isLoading()) {
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <!-- Project 1 -->
-        <div class="tilt-card group relative">
+        @for (item of [1, 2, 3]; track $index) {
+        <div class="relative">
             <div
-                class="glass-card rounded-[2rem] p-8 h-full flex flex-col hover:border-primary/50 transition-all duration-300 relative z-10 bg-white/50 dark:bg-slate-900/40">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-[2rem]">
+                class="glass-card rounded-[2rem] p-8 h-full flex flex-col bg-white/50 dark:bg-slate-900/40 animate-pulse">
+                <!-- Header Skeleton -->
+                <div class="flex justify-between items-start mb-4">
+                    <div class="h-8 bg-slate-300 dark:bg-slate-700 rounded-lg w-2/3"></div>
+                    <div class="w-8 h-8 bg-slate-300 dark:bg-slate-700 rounded-full"></div>
                 </div>
 
-                <div class="relative z-10 flex flex-col h-full">
-                    <div class="flex justify-between items-start mb-4">
-                        <h3
-                            class="text-2xl font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">
-                            Presmistique</h3>
-                        <span
-                            class="material-symbols-outlined text-slate-600 dark:text-slate-400 group-hover:text-secondary animate-pulse">auto_awesome</span>
-                    </div>
+                <!-- Description Skeleton -->
+                <div class="space-y-2 mb-6 flex-grow">
+                    <div class="h-3 bg-slate-200 dark:bg-slate-600 rounded w-full"></div>
+                    <div class="h-3 bg-slate-200 dark:bg-slate-600 rounded w-5/6"></div>
+                    <div class="h-3 bg-slate-200 dark:bg-slate-600 rounded w-4/5"></div>
+                </div>
 
-                    <p class="text-slate-600 dark:text-slate-300 text-sm mb-6 flex-grow leading-relaxed">
-                        AI-powered resume builder featuring <strong>Google Gemini 2.5 Flash</strong> integration for
-                        intelligent parsing, keyword enhancement, and ATS scoring.
-                    </p>
+                <!-- Technologies Skeleton -->
+                <div class="flex flex-wrap gap-2 mb-6">
+                    <div class="h-6 w-16 bg-slate-300 dark:bg-slate-700 rounded"></div>
+                    <div class="h-6 w-20 bg-slate-300 dark:bg-slate-700 rounded"></div>
+                    <div class="h-6 w-24 bg-slate-300 dark:bg-slate-700 rounded"></div>
+                </div>
 
-                    <div class="space-y-4">
-                        <div class="flex flex-wrap gap-2">
-                            <span
-                                class="text-[10px] uppercase tracking-wider px-2 py-1 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-secondary border border-slate-300 dark:border-secondary/20">React</span>
-                            <span
-                                class="text-[10px] uppercase tracking-wider px-2 py-1 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-secondary border border-slate-300 dark:border-secondary/20">Node.js</span>
-                            <span
-                                class="text-[10px] uppercase tracking-wider px-2 py-1 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-secondary border border-slate-300 dark:border-secondary/20">Gemini
-                                AI</span>
-                        </div>
-
-                        <div class="flex gap-3 pt-4 border-t border-slate-200 dark:border-white/5">
-                            <a href="https://presmistique.in" target="_blank"
-                                class="flex-1 py-2 text-center rounded-lg bg-primary/20 hover:bg-primary/40 text-primary font-bold text-sm transition-colors flex items-center justify-center gap-2">
-                                <span class="material-symbols-outlined text-base">rocket_launch</span> Live Demo
-                            </a>
-                            <a href="https://github.com/Pranayd555/Resume-Builder" target="_blank"
-                                class="p-2 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-900 dark:text-white transition-colors">
-                                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg"
-                                    class="w-5 h-5 dark:invert" alt="GitHub" />
-                            </a>
-                        </div>
-                    </div>
+                <!-- Buttons Skeleton -->
+                <div class="flex gap-3 pt-4 border-t border-slate-200 dark:border-white/5">
+                    <div class="flex-1 h-10 bg-slate-300 dark:bg-slate-700 rounded-lg"></div>
+                    <div class="w-10 h-10 bg-slate-300 dark:bg-slate-700 rounded-lg"></div>
                 </div>
             </div>
         </div>
+        }
+    </div>
+    }
 
-        <!-- Project 2 -->
-        <div class="tilt-card group relative">
-            <div
-                class="glass-card rounded-[2rem] p-8 h-full flex flex-col hover:border-primary/50 transition-all duration-300 relative z-10 bg-white/50 dark:bg-slate-900/40">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-[2rem]">
-                </div>
-
-                <div class="relative z-10 flex flex-col h-full">
-                    <div class="flex justify-between items-start mb-4">
-                        <h3
-                            class="text-2xl font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">
-                            CKEditor 5 Plugin</h3>
-                        <span
-                            class="material-symbols-outlined text-slate-600 dark:text-slate-400 group-hover:text-secondary">extension</span>
-                    </div>
-
-                    <p class="text-slate-600 dark:text-slate-300 text-sm mb-6 flex-grow leading-relaxed">
-                        Custom build with proprietary file upload adapter, integrating <strong>AWS S3</strong> and
-                        <strong>Cloudflare R2</strong> for enterprise-grade asset management.
-                    </p>
-
-                    <div class="space-y-4">
-                        <div class="flex flex-wrap gap-2">
-                            <span
-                                class="text-[10px] uppercase tracking-wider px-2 py-1 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-secondary border border-slate-300 dark:border-secondary/20">CKEditor
-                                5</span>
-                            <span
-                                class="text-[10px] uppercase tracking-wider px-2 py-1 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-secondary border border-slate-300 dark:border-secondary/20">AWS
-                                S3</span>
-                            <span
-                                class="text-[10px] uppercase tracking-wider px-2 py-1 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-secondary border border-slate-300 dark:border-secondary/20">TypeScript</span>
-                        </div>
-
-                        <div class="flex gap-3 pt-4 border-t border-slate-200 dark:border-white/5">
-                            <a href="https://github.com/Pranayd555/ckEditor5" target="_blank"
-                                class="flex-1 py-2 text-center rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-900 dark:text-white font-bold text-sm transition-colors flex items-center justify-center gap-2">
-                                <span class="material-symbols-outlined text-base">code</span> View Code
-                            </a>
-                        </div>
-                    </div>
+    <!-- Error State -->
+    @if (hasError() && !isLoading()) {
+    <div class="flex flex-col items-center justify-center py-16 px-4">
+        <div class="glass-card p-8 md:p-12 rounded-2xl max-w-md w-full text-center space-y-6">
+            <!-- Error Icon -->
+            <div class="flex justify-center">
+                <div class="w-20 h-20 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                    <svg class="w-10 h-10 text-red-600 dark:text-red-400" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                        </path>
+                    </svg>
                 </div>
             </div>
-        </div>
 
-        <!-- Project 3 -->
-        <div class="tilt-card group relative">
-            <div
-                class="glass-card rounded-[2rem] p-8 h-full flex flex-col hover:border-primary/50 transition-all duration-300 relative z-10 bg-white/50 dark:bg-slate-900/40">
-                <div
-                    class="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-[2rem]">
-                </div>
-
-                <div class="relative z-10 flex flex-col h-full">
-                    <div class="flex justify-between items-start mb-4">
-                        <h3
-                            class="text-2xl font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">
-                            Fruit Basket</h3>
-                        <span
-                            class="material-symbols-outlined text-slate-600 dark:text-slate-400 group-hover:text-secondary">shopping_basket</span>
-                    </div>
-
-                    <p class="text-slate-600 dark:text-slate-300 text-sm mb-6 flex-grow leading-relaxed">
-                        Full-stack e-commerce simulation with <strong>NgRx</strong> state management, custom directives,
-                        and complex form validations.
-                    </p>
-
-                    <div class="space-y-4">
-                        <div class="flex flex-wrap gap-2">
-                            <span
-                                class="text-[10px] uppercase tracking-wider px-2 py-1 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-secondary border border-slate-300 dark:border-secondary/20">Angular</span>
-                            <span
-                                class="text-[10px] uppercase tracking-wider px-2 py-1 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-secondary border border-slate-300 dark:border-secondary/20">NgRx</span>
-                            <span
-                                class="text-[10px] uppercase tracking-wider px-2 py-1 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-secondary border border-slate-300 dark:border-secondary/20">MongoDB</span>
-                        </div>
-
-                        <div class="flex gap-3 pt-4 border-t border-slate-200 dark:border-white/5">
-                            <a href="https://github.com/Pranayd555/ZeRo" target="_blank"
-                                class="flex-1 py-2 text-center rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-900 dark:text-white font-bold text-sm transition-colors flex items-center justify-center gap-2">
-                                <span class="material-symbols-outlined text-base">code</span> View Code
-                            </a>
-                        </div>
-                    </div>
-                </div>
+            <!-- Error Message -->
+            <div class="space-y-2">
+                <h3 class="text-xl md:text-2xl font-bold text-slate-900 dark:text-white">
+                    Oops! Something went wrong
+                </h3>
+                <p class="text-slate-600 dark:text-slate-400 text-sm md:text-base">
+                    {{ errorMessage() }}
+                </p>
             </div>
+
+            <!-- Retry Button -->
+            <button (click)="retryLoad()"
+                class="px-6 py-3 rounded-full bg-gradient-to-r from-primary to-secondary text-white font-medium transition-all duration-300 hover:shadow-[0_0_20px_rgba(19,91,236,0.3)] hover:scale-105 active:scale-95">
+                <span class="flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                        </path>
+                    </svg>
+                    Try Again
+                </span>
+            </button>
         </div>
     </div>
+    }
+
+    <!-- Data Loaded State -->
+    @if (!isLoading() && !hasError()) {
+    @if (projects().length > 0) {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        @for (project of projects(); track project.id) {
+        <div class="tilt-card group relative">
+            <div
+                class="glass-card rounded-[2rem] p-8 h-full flex flex-col hover:border-primary/50 transition-all duration-300 relative z-10 bg-white/50 dark:bg-slate-900/40">
+                <div
+                    class="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-[2rem]">
+                </div>
+
+                <div class="relative z-10 flex flex-col h-full">
+                    <!-- Project Header -->
+                    <div class="flex justify-between items-start mb-4">
+                        <h3
+                            class="text-2xl font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">
+                            {{ project.title }}
+                        </h3>
+                        @if (project.icon) {
+                        <span
+                            class="material-symbols-outlined text-slate-600 dark:text-slate-400 group-hover:text-secondary transition-colors"
+                            [class.animate-pulse]="project.featured">
+                            {{ project.icon }}
+                        </span>
+                        }
+                    </div>
+
+                    <!-- Project Description -->
+                    <p class="text-slate-600 dark:text-slate-300 text-sm mb-6 flex-grow leading-relaxed"
+                        [innerHTML]="project.description">
+                    </p>
+
+                    <div class="space-y-4">
+                        <!-- Technologies -->
+                        <div class="flex flex-wrap gap-2">
+                            @for (tech of project.technologies; track tech) {
+                            <span
+                                class="text-[10px] uppercase tracking-wider px-2 py-1 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-secondary border border-slate-300 dark:border-secondary/20">
+                                {{ tech }}
+                            </span>
+                            }
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex gap-3 pt-4 border-t border-slate-200 dark:border-white/5">
+                            @if (project.links.liveDemo) {
+                            <a [href]="project.links.liveDemo" target="_blank" rel="noopener noreferrer"
+                                class="flex-1 py-2 text-center rounded-lg bg-primary/20 hover:bg-primary/40 text-primary font-bold text-sm transition-colors flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined text-base">rocket_launch</span>
+                                Live Demo
+                            </a>
+                            }
+
+                            @if (project.links.sourceCode) {
+                            <a [href]="project.links.sourceCode" target="_blank" rel="noopener noreferrer"
+                                class="p-2 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-900 dark:text-white transition-colors"
+                                [class.flex-1]="!project.links.liveDemo" [class.flex]="!project.links.liveDemo"
+                                [class.items-center]="!project.links.liveDemo"
+                                [class.justify-center]="!project.links.liveDemo"
+                                [class.gap-2]="!project.links.liveDemo">
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                                    <path
+                                        d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                                </svg>
+                                @if (!project.links.liveDemo) {
+                                <span class="font-bold text-sm">View Code</span>
+                                }
+                            </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        }
+    </div>
+    } @else {
+    <!-- Empty State (No Projects) -->
+    <div class="flex flex-col items-center justify-center py-16 px-4">
+        <div class="glass-card p-8 rounded-2xl max-w-md w-full text-center space-y-4">
+            <div class="w-20 h-20 mx-auto rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center">
+                <span class="material-symbols-outlined text-4xl text-slate-400 dark:text-slate-600">
+                    inbox
+                </span>
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 dark:text-white">
+                No Projects Found
+            </h3>
+            <p class="text-slate-600 dark:text-slate-400 text-sm">
+                There are no projects to display at the moment.
+            </p>
+        </div>
+    </div>
+    }
+    }
 </section>

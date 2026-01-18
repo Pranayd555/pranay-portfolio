@@ -1,4 +1,6 @@
-export const experienceData = [
+import { IExperience } from "./experience.model";
+
+export const experienceData: IExperience[] = [
     {
         "id": "unified-infotech",
         "role": "Associate / Senior Software Engineer",

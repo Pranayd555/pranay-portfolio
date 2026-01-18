@@ -21,9 +21,9 @@ import { ThemeService } from '../../core/services/theme.service';
         <!-- Desktop Navigation -->
         <div class="hidden md:flex items-center gap-8">
             <a [routerLink]="['/']" fragment="hero" class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors font-medium text-sm uppercase tracking-wide cursor-pointer">Home</a>
-            <a [routerLink]="['/']" fragment="skills" class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors font-medium text-sm uppercase tracking-wide cursor-pointer">Skills</a>
             <a [routerLink]="['/']" fragment="experience" class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors font-medium text-sm uppercase tracking-wide cursor-pointer">Experience</a>
             <a [routerLink]="['/']" fragment="projects" class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors font-medium text-sm uppercase tracking-wide cursor-pointer">Projects</a>
+            <a [routerLink]="['/']" fragment="skills" class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors font-medium text-sm uppercase tracking-wide cursor-pointer">Skills</a>
             <a [routerLink]="['/']" fragment="contact" class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors font-medium text-sm uppercase tracking-wide cursor-pointer">Contact</a>
         </div>
 
@@ -47,9 +47,9 @@ import { ThemeService } from '../../core/services/theme.service';
       <div *ngIf="isMenuOpen()" class="md:hidden border-t border-slate-200 dark:border-slate-800 bg-background-light dark:bg-background-dark">
         <div class="flex flex-col p-4 space-y-4">
             <a (click)="closeMenu()" [routerLink]="['/']" fragment="hero" class="text-slate-900 dark:text-white hover:text-primary font-medium text-lg">Home</a>
-            <a (click)="closeMenu()" [routerLink]="['/']" fragment="skills" class="text-slate-900 dark:text-white hover:text-primary font-medium text-lg">Skills</a>
             <a (click)="closeMenu()" [routerLink]="['/']" fragment="experience" class="text-slate-900 dark:text-white hover:text-primary font-medium text-lg">Experience</a>
             <a (click)="closeMenu()" [routerLink]="['/']" fragment="projects" class="text-slate-900 dark:text-white hover:text-primary font-medium text-lg">Projects</a>
+            <a (click)="closeMenu()" [routerLink]="['/']" fragment="skills" class="text-slate-900 dark:text-white hover:text-primary font-medium text-lg">Skills</a>
             <a (click)="closeMenu()" [routerLink]="['/']" fragment="contact" class="text-slate-900 dark:text-white hover:text-primary font-medium text-lg">Contact</a>
         </div>
       </div>
