@@ -1,7 +1,10 @@
-import { Component, OnInit, computed, signal } from '@angular/core';
+import { Component, OnInit, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IEducationSection } from './types/education.model';
-import { EducationService } from './services/education-service';
+import { IEducationState } from './types/educationState.model';
+import { Store } from '@ngrx/store';
+import * as EducationSelectors from './store/selectors';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { getEducation } from './store/actions';
 
 @Component({
   selector: 'app-education',
@@ -11,40 +14,38 @@ import { EducationService } from './services/education-service';
   styleUrl: './education.css',
 })
 export class Education implements OnInit {
+  private store = inject(Store<{ education: IEducationState }>)
 
-  isLoading = signal<boolean>(true);
-  hasError = signal<boolean>(false);
-  errorMessage = signal<string>('');
-  educationSectionData = signal<IEducationSection | null>(null);
+  public isLoading = toSignal(this.store.select(EducationSelectors.educationIsLoadingSelector), {
+    initialValue: true,
+  })
+
+  public hasError = toSignal(this.store.select(EducationSelectors.educationHasErrorSelector), {
+    initialValue: false
+  })
+
+  public errorMessage = toSignal(this.store.select(EducationSelectors.educationErrorMessageSelector), {
+    initialValue: ''
+  })
+
+  public educationSectionData = toSignal(this.store.select(EducationSelectors.educationSelector), {
+    initialValue: {
+      education: [],
+      certifications: []
+    }
+  })
+
+
   educationData = computed(() => this.educationSectionData()?.education || []);
   certificationData = computed(() => this.educationSectionData()?.certifications || []);
 
-  constructor(private educationService: EducationService) { }
-
   ngOnInit(): void {
-    this.loadEducation();
+    this.store.dispatch(getEducation())
   }
 
-  loadEducation(): void {
-    this.isLoading.set(true);
-    this.hasError.set(false);
-    this.errorMessage.set('');
 
-    this.educationService.getEducation().subscribe({
-      next: (educationData) => {
-        this.educationSectionData.set(educationData);
-        this.isLoading.set(false);
-      },
-      error: (error) => {
-        this.hasError.set(true);
-        this.errorMessage.set('Failed to load education data. Please try again.');
-        this.isLoading.set(false);
-        console.error('Error loading education:', error);
-      }
-    });
-  }
 
   retryLoad(): void {
-    this.loadEducation();
+    this.store.dispatch(getEducation())
   }
 }

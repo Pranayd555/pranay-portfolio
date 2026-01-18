@@ -9,7 +9,6 @@ import * as ProjectsActions from './store/actions';
 
 @Component({
   selector: 'app-projects',
-  standalone: true,
   imports: [CommonModule],
   templateUrl: './projects.html',
   styleUrl: './projects.css',
@@ -17,11 +16,6 @@ import * as ProjectsActions from './store/actions';
 export class Projects implements OnInit {
 
   private store = inject(Store<{ projects: IProjectsState }>);
-
-  // isLoading = signal<boolean>(true);
-  // hasError = signal<boolean>(false);
-  // errorMessage = signal<string>('');
-  // projects = signal<IProject[]>([]);
 
   isLoading = toSignal(this.store.select(ProjectsSelectors.isProjectsIsLoadingSelector), {
     initialValue: true

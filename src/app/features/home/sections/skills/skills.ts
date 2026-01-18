@@ -9,7 +9,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-skills',
-  standalone: true,
   imports: [CommonModule],
   templateUrl: './skills.html',
 })
