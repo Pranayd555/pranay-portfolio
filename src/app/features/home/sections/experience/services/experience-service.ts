@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { delay, Observable, of } from 'rxjs';
 import { IExperience } from '../types/experience.model';
-import { experienceData } from '../experience-data';
+import { experienceData } from '../../data/experience-data';
 
 @Injectable({
   providedIn: 'root',

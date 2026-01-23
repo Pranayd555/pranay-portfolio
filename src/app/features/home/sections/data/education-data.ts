@@ -1,4 +1,4 @@
-import { IEducationSection } from "./types/education.model";
+import { IEducationSection } from "../education/types/education.model";
 
 export const educationData: IEducationSection = {
     "education": [
