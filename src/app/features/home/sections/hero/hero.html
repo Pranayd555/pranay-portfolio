@@ -5,17 +5,19 @@
     <div class="max-w-5xl mx-auto text-center z-10 flex flex-col items-center gap-6 md:gap-8">
 
         <!-- Profile Image -->
-        <div class="relative group">
+        <div class="relative group draggable-wrapper" (dblclick)="isImageClicked()" [style.transform]="transform()"
+            (pointerdown)="startDrag($event)" (pointermove)="onDrag($event)" (pointerup)="endDrag()"
+            (pointerleave)="endDrag()">
             <div
                 class="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-full blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt">
             </div>
             <div
                 class="relative w-32 h-32 md:w-48 md:h-48 rounded-full p-1 bg-white dark:bg-slate-900 ring-1 ring-slate-200 dark:ring-white/10 overflow-hidden text-slate-900 dark:text-white">
-                <img src="assets/pranay_das.jpg" alt="Pranay Das" class="w-full h-full rounded-full object-cover"
-                    onerror="this.src='assets/pranay_logo.png'" />
+                <img [src]="imageChanged() ? 'assets/pranay_das.jpg' : 'assets/pranay_logo.png'" alt="Pranay Das"
+                    class="w-full h-full rounded-full object-cover" [class.fade-in]="imageClicked()"
+                    [class.fade-out]="!imageClicked()" onerror="this.src='assets/pranay_logo.png'" />
             </div>
         </div>
-
         <div class="space-y-4 md:space-y-6">
             <div class="h-8">
                 <span
@@ -35,8 +37,9 @@
 
             <p class="text-slate-600 dark:text-slate-400 text-base md:text-xl leading-relaxed max-w-2xl mx-auto font-light animate-slide-up px-4 md:px-0"
                 style="animation-delay: 0.2s;">
-                Crafting <span class="text-cyan-700 dark:text-secondary font-medium">immersive digital
-                    experiences</span> with precision engineering and creative innovation.
+                Crafting <wave-text text="immersive digital experiences"
+                    classes="text-cyan-700 dark:text-secondary font-medium"></wave-text>
+                with precision engineering and creative innovation.
             </p>
         </div>
 

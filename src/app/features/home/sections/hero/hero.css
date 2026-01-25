@@ -1,0 +1,222 @@
+.slide-in {
+    animation: slide-in 1s ease-in-out;
+}
+
+@keyframes slide-in {
+    from {
+        transform: translateX(-100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+.slide-out {
+    animation: slide-out 2s ease-in-out;
+}
+
+@keyframes slide-out {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(-100%);
+    }
+}
+
+.spin-in {
+    cursor: pointer;
+    animation: spin-in 1s ease-in-out forwards;
+}
+
+@keyframes spin-in {
+
+    /* 1️⃣ very slow start */
+    0% {
+        scale: 1;
+        transform: rotateY(0deg);
+    }
+
+    /* 2️⃣ */
+    10% {
+        scale: 0.95;
+        transform: rotateY(60deg);
+    }
+
+    /* 3️⃣ */
+    20% {
+        scale: 0.9;
+        transform: rotateY(180deg);
+    }
+
+    /* 4️⃣ accelerating */
+    30% {
+        scale: 0.8;
+        transform: rotateY(900deg);
+    }
+
+    /* 5️⃣ fast */
+    40% {
+        scale: 0.65;
+        transform: rotateY(3000deg);
+    }
+
+    /* 6️⃣ FASTEST (center) */
+    50% {
+        scale: 0.5;
+        transform: rotateY(9000deg);
+    }
+
+    /* 7️⃣ slowing */
+    60% {
+        scale: 0.65;
+        transform: rotateY(1800deg);
+    }
+
+    /* 8️⃣ */
+    70% {
+        scale: 0.8;
+        transform: rotateY(900deg);
+    }
+
+    /* 9️⃣ almost stopped */
+    85% {
+        scale: 0.9;
+        transform: rotateY(360deg);
+    }
+
+    /* 🔟 stop clean */
+    100% {
+        scale: 1;
+        transform: rotateY(0deg);
+    }
+}
+
+.spin-out {
+    cursor: pointer;
+    animation: spin-out 1s ease-in-out forwards;
+}
+
+@keyframes spin-out {
+
+    /* 1️⃣ very slow start */
+    0% {
+        scale: 1;
+        transform: rotateY(0deg);
+    }
+
+    /* 2️⃣ */
+    10% {
+        scale: 0.95;
+        transform: rotateY(60deg);
+    }
+
+    /* 3️⃣ */
+    20% {
+        scale: 0.9;
+        transform: rotateY(180deg);
+    }
+
+    /* 4️⃣ accelerating */
+    30% {
+        scale: 0.8;
+        transform: rotateY(900deg);
+    }
+
+    /* 5️⃣ fast */
+    40% {
+        scale: 0.65;
+        transform: rotateY(3000deg);
+    }
+
+    /* 6️⃣ FASTEST (center) */
+    50% {
+        scale: 0.5;
+        transform: rotateY(9000deg);
+    }
+
+    /* 7️⃣ slowing */
+    60% {
+        scale: 0.65;
+        transform: rotateY(1800deg);
+    }
+
+    /* 8️⃣ */
+    70% {
+        scale: 0.8;
+        transform: rotateY(900deg);
+    }
+
+    /* 9️⃣ almost stopped */
+    85% {
+        scale: 0.9;
+        transform: rotateY(360deg);
+    }
+
+    /* 🔟 stop clean */
+    100% {
+        scale: 1;
+        transform: rotateY(0deg);
+    }
+}
+
+.fade-in {
+    animation: fade-in 1s ease-in-out;
+}
+
+@keyframes fade-in {
+    0% {
+        scale: 1;
+    }
+
+    50% {
+        scale: 0;
+    }
+
+    100% {
+        scale: 1;
+    }
+}
+
+.fade-out {
+    animation: fade-out 1s ease-in-out;
+}
+
+@keyframes fade-out {
+    0% {
+        scale: 1;
+    }
+
+    50% {
+        scale: 0;
+    }
+
+    100% {
+        scale: 1;
+    }
+}
+
+.draggable-wrapper {
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+    will-change: transform;
+}
+
+.draggable-wrapper:active {
+    cursor: grabbing;
+}
+
+/* HARDEN CLIPPING */
+.draggable-wrapper>div {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+/* Prevent image weirdness */
+img {
+    pointer-events: none;
+    backface-visibility: hidden;
+}

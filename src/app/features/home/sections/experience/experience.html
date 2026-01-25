@@ -190,9 +190,17 @@
                                     }
                                 </h4>
                                 @if (project.responsibilities && project.responsibilities.length > 0) {
-                                <ul class="list-disc list-inside space-y-1 marker:text-primary">
+                                <ul class="space-y-3 text-sm text-slate-700 dark:text-slate-400">
                                     @for (responsibility of project.responsibilities; track responsibility) {
-                                    <li>{{ responsibility }}</li>
+                                    <li
+                                        class="flex items-start gap-2 group/cert hover:translate-x-1 transition-transform duration-200">
+                                        <span
+                                            class="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0 group-hover/cert:scale-150 transition-transform"></span>
+                                        <span
+                                            class="group-hover/cert:text-slate-900 dark:group-hover/cert:text-white transition-colors">
+                                            {{ responsibility }}
+                                        </span>
+                                    </li>
                                     }
                                 </ul>
                                 }
@@ -275,9 +283,17 @@
                                     }
                                 </h4>
                                 @if (project.responsibilities && project.responsibilities.length > 0) {
-                                <ul class="list-disc list-inside space-y-1 marker:text-primary">
+                                <ul class="space-y-3 text-sm text-slate-700 dark:text-slate-400">
                                     @for (responsibility of project.responsibilities; track responsibility) {
-                                    <li>{{ responsibility }}</li>
+                                    <li
+                                        class="flex items-start gap-2 group/cert hover:translate-x-1 transition-transform duration-200">
+                                        <span
+                                            class="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0 group-hover/cert:scale-150 transition-transform"></span>
+                                        <span
+                                            class="group-hover/cert:text-slate-900 dark:group-hover/cert:text-white transition-colors">
+                                            {{ responsibility }}
+                                        </span>
+                                    </li>
                                     }
                                 </ul>
                                 }

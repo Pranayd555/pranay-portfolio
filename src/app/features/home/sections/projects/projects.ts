@@ -6,10 +6,11 @@ import { IProjectsState } from './types/projectsState.model';
 import { toSignal } from '@angular/core/rxjs-interop';
 import * as ProjectsSelectors from './store/selectors';
 import * as ProjectsActions from './store/actions';
+import { WaveTextComponent } from "../../../../shared/components/text-animations/wave-text";
 
 @Component({
   selector: 'app-projects',
-  imports: [CommonModule],
+  imports: [CommonModule, WaveTextComponent],
   templateUrl: './projects.html',
   styleUrl: './projects.css',
 })

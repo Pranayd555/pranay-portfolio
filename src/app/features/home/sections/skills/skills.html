@@ -89,12 +89,16 @@
             <div class="flex flex-wrap gap-3">
                 @for (skill of category.skills; track skill.name) {
                 <span
-                    class="px-4 py-2 rounded-lg bg-white/80 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-300 dark:border-slate-700 transition-all cursor-crosshair"
-                    [class.hover:bg-primary/20]="category.theme === 'primary'"
+                    class="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-white/80 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-300 dark:border-slate-700 transition-all cursor-pointer skill-icon"
+                    [attr.data-tooltip]="skill.name" [class.hover:bg-primary/20]="category.theme === 'primary'"
                     [class.hover:border-primary/50]="category.theme === 'primary'"
                     [class.hover:bg-secondary/20]="category.theme === 'secondary'"
                     [class.hover:border-secondary/50]="category.theme === 'secondary'">
+                    @if(skill.icon){
+                    <img [src]="skill.icon" alt="skill.name" class="w-6 h-6">
+                    } @else {
                     {{ skill.name }}
+                    }
                 </span>
                 }
             </div>

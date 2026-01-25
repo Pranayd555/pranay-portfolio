@@ -1,0 +1,47 @@
+.skill-icon {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    position: relative;
+    perspective: 800px;
+}
+
+.skill-icon:hover {
+    transform: translateY(-4px) scale(1.05);
+    z-index: 10;
+    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
+}
+
+.skill-icon img {
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    will-change: transform;
+    transform-style: preserve-3d;
+}
+
+.skill-icon:hover img {
+    transform: scale(1.3);
+    animation-name: bounce-icons;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+}
+
+@keyframes bounce-icons {
+
+    0% {
+        transform: translateY(0);
+    }
+
+    25% {
+        transform: translateY(-20px);
+    }
+
+    50% {
+        transform: translateY(0);
+    }
+
+    75% {
+        transform: translateY(-10px);
+    }
+
+    100% {
+        transform: translateY(0);
+    }
+}

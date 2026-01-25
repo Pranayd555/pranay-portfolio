@@ -9,8 +9,10 @@ import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-skills',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './skills.html',
+  styleUrl: './skills.css',
 })
 export class Skills implements OnInit {
   private store = inject(Store<{ skills: ISkillsState }>);
