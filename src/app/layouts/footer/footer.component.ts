@@ -9,14 +9,14 @@ import { RouterLink } from '@angular/router';
       <!-- Glow effect -->
       <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[1px] bg-gradient-to-r from-transparent via-neon-purple/50 to-transparent"></div>
       
-      <div class="container mx-auto px-6 py-12">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="max-w-5xl mx-auto px-6 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left">
           <!-- Brand -->
           <div>
             <h3 class="text-2xl font-bold dark:text-white text-slate-600 mb-4">
               <span class="neon-text">Dev</span>eloper
             </h3>
-            <p class="text-gray-600 dark:text-gray-200 text-sm leading-relaxed max-w-xs">
+            <p class="text-gray-600 dark:text-gray-200 text-sm leading-relaxed max-w-xs mx-auto md:mx-0">
               Building the future of the web with modern architecture and immersive experiences.
             </p>
           </div>
@@ -26,19 +26,19 @@ import { RouterLink } from '@angular/router';
             <h4 class="dark:text-white text-slate-600 font-semibold mb-6">Navigation</h4>
             <ul class="space-y-3">
               <li>
-                <a routerLink="/" fragment="skills" class="text-gray-600 dark:text-gray-200 hover:text-neon-pink transition-colors text-sm flex items-center gap-2 group cursor-pointer">
+                <a routerLink="/" fragment="skills" class="text-gray-600 dark:text-gray-200 hover:text-neon-pink transition-colors text-sm flex items-center justify-center md:justify-start gap-2 group cursor-pointer">
                   <span class="w-1.5 h-1.5 rounded-full bg-gray-600 group-hover:bg-neon-pink transition-colors"></span>
                   Skills
                 </a>
               </li>
               <li>
-                <a routerLink="/" fragment="experience" class="text-gray-600 dark:text-gray-200 hover:text-neon-blue transition-colors text-sm flex items-center gap-2 group cursor-pointer">
+                <a routerLink="/" fragment="experience" class="text-gray-600 dark:text-gray-200 hover:text-neon-blue transition-colors text-sm flex items-center justify-center md:justify-start gap-2 group cursor-pointer">
                   <span class="w-1.5 h-1.5 rounded-full bg-gray-600 group-hover:bg-neon-blue transition-colors"></span>
                   Experience
                 </a>
               </li>
               <li>
-                <a routerLink="/" fragment="projects" class="text-gray-600 dark:text-gray-200 hover:text-neon-purple transition-colors text-sm flex items-center gap-2 group cursor-pointer">
+                <a routerLink="/" fragment="projects" class="text-gray-600 dark:text-gray-200 hover:text-neon-purple transition-colors text-sm flex items-center justify-center md:justify-start gap-2 group cursor-pointer">
                   <span class="w-1.5 h-1.5 rounded-full bg-gray-600 group-hover:bg-neon-purple transition-colors"></span>
                   Projects
                 </a>
@@ -49,7 +49,7 @@ import { RouterLink } from '@angular/router';
           <!-- Social Links -->
           <div>
             <h4 class="dark:text-white text-slate-600 font-semibold mb-6">Connect</h4>
-            <div class="flex gap-4">
+            <div class="flex gap-4 justify-center md:justify-start">
               <a 
                 href="https://github.com/pranayd555" 
                 target="_blank" 

@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ThemeService } from '../../core/services/theme.service';
 
@@ -12,7 +12,7 @@ import { ThemeService } from '../../core/services/theme.service';
       <div class="flex items-center p-4 justify-between max-w-7xl mx-auto">
         <!-- Logo & Profile -->
         <div class="flex items-center gap-3">
-            <div class="flex size-10 shrink-0 items-center overflow-hidden rounded-full border-2 border-primary">
+            <div class="flex size-10 shrink-0 items-center overflow-hidden rounded-full border-2 border-primary cursor-pointer" (click)="routeToHome()">
                 <div class="bg-center bg-no-repeat aspect-square bg-cover size-full" data-alt="Professional headshot" style='background-image: url("assets/pranay_logo.png");'></div>
             </div>
             <h2 class="text-lg font-bold leading-tight tracking-tight text-slate-900 dark:text-white">Pranay Das</h2>
@@ -60,6 +60,7 @@ import { ThemeService } from '../../core/services/theme.service';
 export class HeaderComponent {
   themeService = inject(ThemeService);
   isMenuOpen = signal(false);
+  router = inject(Router);
 
   toggleMenu() {
     this.isMenuOpen.update(v => !v);
@@ -67,5 +68,9 @@ export class HeaderComponent {
 
   closeMenu() {
     this.isMenuOpen.set(false);
+  }
+
+  routeToHome() {
+    this.router.navigate(['/']);
   }
 }
