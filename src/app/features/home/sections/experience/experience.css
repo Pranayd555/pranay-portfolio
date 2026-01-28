@@ -1,0 +1,77 @@
+.experience-container {
+    --card-perspective: 1200px;
+    --from-transform-enter: rotateY(-180deg);
+    --to-transform-enter: rotateY(0deg);
+    --from-transform-exit: rotateY(180deg);
+    --to-transform-exit: rotateY(0deg);
+    --transform-origin: center center;
+    --to-opacity: 1;
+    --from-opacity: 0;
+    perspective: var(--card-perspective);
+}
+
+.card-enter {
+    animation: card-enter 0.5s ease-in-out;
+    transform-origin: var(--transform-origin);
+}
+
+@keyframes card-enter {
+    from {
+        opacity: var(--from-opacity);
+        transform: var(--from-transform-enter);
+    }
+
+    to {
+        opacity: var(--to-opacity);
+        transform: var(--to-transform-enter);
+    }
+}
+
+.card-exit {
+    animation: card-exit 0.5s ease-in-out;
+    transform-origin: var(--transform-origin);
+}
+
+@keyframes card-exit {
+    from {
+        opacity: var(--from-opacity);
+        transform: var(--from-transform-exit);
+    }
+
+    to {
+        opacity: var(--to-opacity);
+        transform: var(--to-transform-exit);
+    }
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+    .experience-container-wrapper {
+        perspective: 1200px;
+    }
+
+    .experience-container {
+        --card-perspective: 800px;
+        --from-transform-enter: rotateY(180deg);
+        --to-transform-enter: rotateY(0deg);
+        --from-transform-exit: rotateY(180deg);
+        --to-transform-exit: rotateY(0deg);
+    }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .experience-container-wrapper {
+        perspective: 800px;
+    }
+
+    .experience-container {
+        --card-perspective: 800px;
+        --from-transform-enter: rotateY(135deg);
+        --to-transform-enter: rotateY(0deg);
+        --from-transform-exit: rotateY(135deg);
+        --to-transform-exit: rotateY(0deg);
+        --from-opacity: 1;
+        --transform-origin: left center;
+    }
+}

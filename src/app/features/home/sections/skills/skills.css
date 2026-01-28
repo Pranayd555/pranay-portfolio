@@ -11,16 +11,13 @@
 }
 
 .skill-icon img {
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: transform 0.4s ease-in-out;
     will-change: transform;
     transform-style: preserve-3d;
 }
 
 .skill-icon:hover img {
-    transform: scale(1.3);
-    animation-name: bounce-icons;
-    animation-duration: 1s;
-    animation-iteration-count: infinite;
+    animation: bounce-icons 1s ease-in-out infinite;
 }
 
 @keyframes bounce-icons {
