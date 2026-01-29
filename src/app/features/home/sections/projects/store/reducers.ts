@@ -12,5 +12,5 @@ export const initialState: IProjectsState = {
 export const reducers = createReducer(initialState,
     on(ProjectsActions.getProjects, (state) => ({ ...state, isLoading: true })),
     on(ProjectsActions.getProjectsSuccess, (state, action) => ({ ...state, isLoading: false, projects: action.projects, hasError: false, errorMessage: '' })),
-    on(ProjectsActions.getProjectsFailure, (state, action) => ({ ...state, isLoading: false, hasError: true, errorMessage: action.error }))
+    on(ProjectsActions.getProjectsFailure, (state, action) => ({ ...state, isLoading: false, hasError: true, errorMessage: action.error })),
 )

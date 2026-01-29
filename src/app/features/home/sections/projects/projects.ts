@@ -7,6 +7,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import * as ProjectsSelectors from './store/selectors';
 import * as ProjectsActions from './store/actions';
 import { WaveTextComponent } from "../../../../shared/components/text-animations/wave-text";
+import { Dialog } from '@angular/cdk/dialog';
+import { ProjDesModal } from './proj-des-modal/proj-des-modal';
 
 @Component({
   selector: 'app-projects',
@@ -34,7 +36,7 @@ export class Projects implements OnInit {
     initialValue: []
   })
 
-  constructor() { }
+  constructor(private dialog: Dialog) { }
 
   ngOnInit(): void {
     this.store.dispatch(ProjectsActions.getProjects());
@@ -42,5 +44,18 @@ export class Projects implements OnInit {
 
   retryLoad(): void {
     this.store.dispatch(ProjectsActions.getProjects());
+  }
+
+  openModal(event: Event, project: IProject): void {
+    event.stopPropagation();
+    const target = event.currentTarget as HTMLElement;
+    const rect = target.getBoundingClientRect();
+    this.dialog.open(ProjDesModal, {
+      data: { projectId: project.id, rect },
+      // Optional: Add a custom panel class for further targeting
+      panelClass: 'project-modal-panel',
+      disableClose: true,
+      hasBackdrop: true,
+    });
   }
 }

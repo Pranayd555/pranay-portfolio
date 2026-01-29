@@ -4,12 +4,14 @@ import { reducers as skillsReducers } from './features/home/sections/skills/stor
 import { reducers as projectsReducers } from './features/home/sections/projects/store/reducers';
 import { reducers as experienceReducers } from './features/home/sections/experience/store/reducers';
 import { reducers as educationReducers } from './features/home/sections/education/store/reducers';
+import { reducers as projectDetailsReducers } from './features/home/sections/projects/proj-des-modal/store/reducers';
 import { provideState } from '@ngrx/store';
 import { SkillsEffects } from './features/home/sections/skills/store/effects';
 import { ProjectsEffects } from './features/home/sections/projects/store/effects';
 import { provideEffects } from '@ngrx/effects';
 import { ExperienceEffects } from './features/home/sections/experience/store/effects';
 import { EducationEffects } from './features/home/sections/education/store/effects';
+import { ProjectDetailsEffects } from './features/home/sections/projects/proj-des-modal/store/effects';
 
 export const routes: Routes = [
     {
@@ -24,7 +26,8 @@ export const routes: Routes = [
                     provideState('projects', projectsReducers),
                     provideState('experience', experienceReducers),
                     provideState('education', educationReducers),
-                    provideEffects(SkillsEffects, ProjectsEffects, ExperienceEffects, EducationEffects),
+                    provideState('projectDetails', projectDetailsReducers),
+                    provideEffects(SkillsEffects, ProjectsEffects, ExperienceEffects, EducationEffects, ProjectDetailsEffects),
                 ]
             }
         ]
