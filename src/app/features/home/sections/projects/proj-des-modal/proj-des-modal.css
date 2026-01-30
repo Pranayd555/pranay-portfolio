@@ -108,7 +108,7 @@
 
 /* Sections */
 .modal-section {
-    margin-bottom: 32px;
+    margin: 0 32px 20px 32px;
     opacity: 0;
     animation: slide-up 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
@@ -169,19 +169,25 @@
     font-weight: bold;
 }
 
-/* Demo Image/GIF */
+/* Demo Image/GIF/Video */
 .demo-wrapper {
     width: 100%;
+    aspect-ratio: 16 / 9;
     border-radius: 16px;
     overflow: hidden;
     margin-bottom: 24px;
     border: 1px solid var(--glass-border);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .demo-img {
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: cover;
     display: block;
     transition: transform 0.5s ease;
 }

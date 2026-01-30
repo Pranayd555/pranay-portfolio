@@ -40,6 +40,14 @@
             </div>
         </div>
         }
+        @if (project.demoVideo && isBrowser() && sanitizedDemoUrl()) {
+        <div class="modal-section" style="animation-delay: 0.1s">
+            <div class="demo-wrapper">
+                <iframe [src]="sanitizedDemoUrl()" class="demo-img" width="100%" frameborder="0"
+                    allow="accelerometer; autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+            </div>
+        </div>
+        }
 
         <!-- Overview & Why -->
         <div class="info-grid">

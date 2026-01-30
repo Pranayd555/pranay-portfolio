@@ -14,6 +14,7 @@ export interface IProjectDetails {
     howTheyWereSolved: string[];
 
     demoGif?: string; // path or URL
+    demoVideo?: string; // path or URL
     liveUrl?: string;
     repoUrl?: string;
 
