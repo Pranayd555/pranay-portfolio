@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { Hero } from './hero';
+import { provideRouter } from '@angular/router';
+import { describe, it, expect, beforeEach } from 'vitest';
 
 describe('Hero', () => {
   let component: Hero;
@@ -8,13 +9,16 @@ describe('Hero', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Hero]
+      imports: [Hero],
+      providers: [
+        provideRouter([])
+      ]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(Hero);
     component = fixture.componentInstance;
-    await fixture.whenStable();
+    fixture.detectChanges();
   });
 
   it('should create', () => {

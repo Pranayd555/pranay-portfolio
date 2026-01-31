@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { describe, it, expect, beforeEach } from 'vitest';
 
 import { Contact } from './contact';
 
@@ -10,7 +11,7 @@ describe('Contact', () => {
     await TestBed.configureTestingModule({
       imports: [Contact]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(Contact);
     component = fixture.componentInstance;
