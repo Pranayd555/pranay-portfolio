@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ThemeService } from '../../core/services/theme.service';
@@ -7,13 +7,17 @@ import { ThemeService } from '../../core/services/theme.service';
   selector: 'app-header',
   standalone: true,
   imports: [RouterLink, CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <nav class="fixed top-0 w-full z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors duration-300">
       <div class="flex items-center p-4 justify-between max-w-7xl mx-auto">
         <!-- Logo & Profile -->
         <div class="flex items-center gap-3">
             <div class="flex size-10 shrink-0 items-center overflow-hidden rounded-full border-2 border-primary cursor-pointer" (click)="routeToHome()">
-                <div class="bg-center bg-no-repeat aspect-square bg-cover size-full" data-alt="Professional headshot" style='background-image: url("assets/pranay_logo.png");'></div>
+                <img src="assets/pranay_logo.png" 
+                     alt="Pranay Das Logo" 
+                     loading="lazy"
+                     class="w-full h-full object-cover">
             </div>
             <h2 class="text-lg font-bold leading-tight tracking-tight text-slate-900 dark:text-white">Pranay Das</h2>
         </div>

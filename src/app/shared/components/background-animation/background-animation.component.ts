@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, OnInit, OnDestroy, ViewChild, Inject, PLATFORM_ID, AfterViewInit, effect, Injector, runInInjectionContext, DOCUMENT, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, OnInit, OnDestroy, ViewChild, Inject, PLATFORM_ID, AfterViewInit, effect, Injector, runInInjectionContext, DOCUMENT, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ThemeService } from '../../../core/services/theme.service';
 
@@ -6,6 +6,10 @@ import { ThemeService } from '../../../core/services/theme.service';
     selector: 'app-background-animation',
     standalone: true,
     imports: [CommonModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    host: {
+        '(window:resize)': 'onResize()'
+    },
     template: `
     <canvas #canvas class="background-canvas" [style.top.px]="headerHeight"></canvas>
   `,
@@ -81,7 +85,6 @@ export class BackgroundAnimationComponent implements AfterViewInit, OnDestroy {
         this.createParticles();
     }
 
-    @HostListener('window:resize')
     onResize(): void {
         if (isPlatformBrowser(this.platformId)) {
             this.resizeCanvas();

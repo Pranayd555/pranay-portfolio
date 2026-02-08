@@ -95,7 +95,10 @@
                     [class.hover:bg-secondary/20]="category.theme === 'secondary'"
                     [class.hover:border-secondary/50]="category.theme === 'secondary'">
                     @if(skill.icon){
-                    <img [src]="skill.icon" alt="skill.name" class="w-6 h-6">
+                    <img [src]="skill.icon" 
+                         [attr.alt]="skill.name" 
+                         loading="lazy"
+                         class="w-6 h-6">
                     } @else {
                     {{ skill.name }}
                     }

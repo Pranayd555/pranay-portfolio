@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IEducationState } from './types/educationState.model';
 import { Store } from '@ngrx/store';
@@ -10,6 +10,7 @@ import { getEducation } from './store/actions';
   selector: 'app-education',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './education.html',
   styleUrl: './education.css',
 })

@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-floating-nav',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-sm z-50">
       <div class="bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-xl border border-white/10 rounded-full p-2 shadow-2xl flex items-center justify-between transition-colors duration-300">

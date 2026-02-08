@@ -1,5 +1,5 @@
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
-import { Component, computed, ElementRef, inject, Inject, signal, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, ElementRef, inject, Inject, signal, ViewChild } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { IProjectDetailsState } from '../types/projectDetailsState.model';
 import * as ProjectDetailsActions from './store/actions';
@@ -12,6 +12,7 @@ import { PLATFORM_ID } from '@angular/core';
 @Component({
   selector: 'app-proj-des-modal',
   imports: [],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './proj-des-modal.html',
   styleUrl: './proj-des-modal.css',
 })
@@ -42,31 +43,21 @@ export class ProjDesModal {
   private platformId = inject(PLATFORM_ID);
   isBrowser = signal(isPlatformBrowser(this.platformId));
 
+
   sanitizedDemoUrl = computed(() => {
     const project = this.project();
     if (!project || !project.demoVideo) return null;
 
-    let videoId = '';
-    const url = project.demoVideo;
-
-    // Handle extraction from various YouTube formats
-    if (url.includes('youtube.com/watch?v=')) {
-      videoId = url.split('v=')[1].split('&')[0];
-    } else if (url.includes('youtu.be/')) {
-      videoId = url.split('youtu.be/')[1].split('?')[0];
-    } else if (url.includes('youtube.com/embed/')) {
-      videoId = url.split('embed/')[1].split('?')[0];
-    } else if (url.length === 11) {
-      videoId = url; // Assume it's already an ID
-    }
+    const videoId = project.demoVideo;
 
     if (videoId) {
-      const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+      // Use youtube-nocookie.com for privacy (doesn't set tracking cookies)
+      // Parameters: rel=0 (no related videos), modestbranding=1 (no logo), iv_load_policy=3 (no annotations)
+      const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1&iv_load_policy=3`;
       return this.sanitizer.bypassSecurityTrustResourceUrl(embedUrl);
     }
 
-    // Fallback for non-YouTube URLs (must be a valid URL string)
-    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    return null;
   });
 
   constructor(

@@ -1,16 +1,17 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { ChangeDetectorRef, Component, Inject, PLATFORM_ID, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject, PLATFORM_ID, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { WaveTextComponent } from "../../../../shared/components/text-animations/wave-text";
 
 @Component({
   selector: 'app-hero',
   imports: [RouterLink, WaveTextComponent, CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './hero.html',
   styleUrl: './hero.css',
 })
 export class Hero {
-  currentRole = '';
+  currentRole = signal('');
   private roles = ['Sr. Software Engineer', 'Full Stack Web Developer', 'Product Engineer', 'Active Learner'];
   loopNum = 0;
   private isDeleting = false;
@@ -34,8 +35,7 @@ export class Hero {
   private spring = 0.08;
 
   constructor(
-    @Inject(PLATFORM_ID) private platformId: Object,
-    private cdr: ChangeDetectorRef
+    @Inject(PLATFORM_ID) private platformId: Object
   ) { }
 
   ngOnInit() {
@@ -43,7 +43,7 @@ export class Hero {
       this.type();
       this.isImageClicked();
     } else {
-      this.currentRole = this.roles[0]; // Fallback for SSR
+      this.currentRole.set(this.roles[0]); // Fallback for SSR
     }
   }
 
@@ -64,21 +64,19 @@ export class Hero {
     const fullTxt = this.roles[i];
 
     if (this.isDeleting) {
-      this.currentRole = fullTxt.substring(0, this.currentRole.length - 1);
+      this.currentRole.update((value) => fullTxt.substring(0, value.length - 1));
     } else {
-      this.currentRole = fullTxt.substring(0, this.currentRole.length + 1);
+      this.currentRole.update((value) => fullTxt.substring(0, value.length + 1));
     }
-
-    this.cdr.markForCheck();
 
     let delta = 200 - Math.random() * 100;
 
     if (this.isDeleting) { delta /= 2; }
 
-    if (!this.isDeleting && this.currentRole === fullTxt) {
+    if (!this.isDeleting && this.currentRole() === fullTxt) {
       delta = 2000; // Wait at end
       this.isDeleting = true;
-    } else if (this.isDeleting && this.currentRole === '') {
+    } else if (this.isDeleting && this.currentRole() === '') {
       this.isDeleting = false;
       this.loopNum++;
       delta = 500;

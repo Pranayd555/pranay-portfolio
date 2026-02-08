@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Hero } from './sections/hero/hero';
 import { Experience } from './sections/experience/experience';
@@ -9,6 +9,7 @@ import { Contact } from './sections/contact/contact';
 @Component({
   selector: 'app-home',
   imports: [CommonModule, Hero, Experience, Projects, Skills, Education, Contact],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="min-h-screen pb-24 pt-10">
       

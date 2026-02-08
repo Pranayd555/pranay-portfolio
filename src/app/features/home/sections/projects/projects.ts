@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IProject } from './types/projects.model';
 import { Store } from '@ngrx/store';
@@ -13,6 +13,7 @@ import { ProjDesModal } from './proj-des-modal/proj-des-modal';
 @Component({
   selector: 'app-projects',
   imports: [CommonModule, WaveTextComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './projects.html',
   styleUrl: './projects.css',
 })

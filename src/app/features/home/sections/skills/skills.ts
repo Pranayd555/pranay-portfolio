@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ISkillCategory } from './types/skills.model';
 import { ISkillsState } from './types/skilsState.model';
@@ -11,6 +11,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
   selector: 'app-skills',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './skills.html',
   styleUrl: './skills.css',
 })

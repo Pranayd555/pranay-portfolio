@@ -1,24 +1,24 @@
-import { Component, Input, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
 
 @Component({
   selector: 'wave-text',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <span
-      class="wave-container wrap {{ classes }}"
+      class="wave-container wrap {{ classes() }}"
       (mouseenter)="wave()"
     >
-      <span 
-      [class.wave-enter]="animationDelay()[i]"
-        *ngFor="let char of letters; let i = index"
-        class="char"
-        [style.animationDelay]="i * delay + 'ms'"
-        
-      >
-      {{ char === ' ' ? '\u00A0' : char }}
-      </span>
+      @for (char of letters(); track $index) {
+        <span 
+          [class.wave-enter]="animationDelay()[$index]"
+          class="char"
+          [style.animationDelay]="$index * delay() + 'ms'"
+        >
+          {{ char === ' ' ? '\u00A0' : char }}
+        </span>
+      }
     </span>
   `,
   styles: [`
@@ -50,35 +50,34 @@ import { CommonModule } from '@angular/common';
   `]
 })
 export class WaveTextComponent {
-  @Input() text = '';
-  @Input() classes = '';
-  @Input() delay = 60; // ms between letters
-  animationDelay = signal<Array<boolean>>([]);
+  readonly text = input<string>('');
+  readonly classes = input<string>('');
+  readonly delay = input<number>(60); // ms between letters
+  protected readonly animationDelay = signal<Array<boolean>>([]);
   private isReset: boolean = false;
   private animationTimer: number = 1000;
 
-  get letters(): string[] {
-    return this.text.split('');
-  }
+  protected readonly letters = computed(() => this.text().split(''));
 
-  wave() {
+  wave(): void {
     if (this.isReset) return;
     this.isReset = false;
     let timer = 0;
-    timer = ((this.letters.length - 1) * this.delay * 2) + this.animationTimer;
-    this.letters.forEach((_, index) => {
+    const lettersList = this.letters();
+    const delayValue = this.delay();
+    timer = ((lettersList.length - 1) * delayValue * 2) + this.animationTimer;
+    lettersList.forEach((_, index) => {
       const t = setTimeout(() => {
         clearTimeout(t);
         this.animationDelay.update(
           (prev: boolean[]) => [...prev, prev[index] = true]
         );
-      }, index * this.delay);
-      index === this.letters.length - 1 && this.resetAnimation(timer);
-    })
-
+      }, index * delayValue);
+      index === lettersList.length - 1 && this.resetAnimation(timer);
+    });
   }
 
-  resetAnimation(timer: number = 0) {
+  private resetAnimation(timer: number = 0): void {
     this.isReset = true;
     const t = setTimeout(() => {
       clearTimeout(t);

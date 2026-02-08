@@ -56,7 +56,7 @@ export const projectDetailsData: IProjectDetails[] = [
 
         demoGif: '',
         liveUrl: 'https://presmistique.in',
-        demoVideo: 'https://youtu.be/QkUQtSjI6DE',
+        demoVideo: 'QkUQtSjI6DE',
 
         technologies: [
             'React',

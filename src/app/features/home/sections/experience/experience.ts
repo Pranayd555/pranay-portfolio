@@ -1,4 +1,4 @@
-import { Component, computed, effect, HostListener, Inject, inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, HostListener, Inject, inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { IExperience } from './types/experience.model';
 import { Store } from '@ngrx/store';
@@ -9,6 +9,7 @@ import { getExperience } from './store/actions';
 @Component({
   selector: 'app-experience',
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './experience.html',
   styleUrl: './experience.css',
 })

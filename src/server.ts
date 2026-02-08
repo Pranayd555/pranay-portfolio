@@ -13,6 +13,66 @@ const app = express();
 const angularApp = new AngularNodeAppEngine();
 
 /**
+ * Content Security Policy Middleware
+ * Protects against XSS, clickjacking, and other security threats
+ */
+const cspMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const cspPolicy = [
+    // Script sources - strict CSP for security
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' *.googleapis.com *.gstatic.com",
+    // Style sources
+    "style-src 'self' 'unsafe-inline' fonts.googleapis.com",
+    // Font sources
+    "font-src 'self' fonts.gstatic.com data:",
+    // Image sources - allow https and data URIs
+    "img-src 'self' data: https: blob:",
+    // Media sources
+    "media-src 'self' https:",
+    // Connect sources - API calls
+    "connect-src 'self' https: wss:",
+    // Frame sources - allow YouTube embeds
+    "frame-src https://www.youtube.com https://www.youtube-nocookie.com",
+    // Frame ancestors - prevent clickjacking
+    "frame-ancestors 'none'",
+    // Base URI - prevent base tag injection
+    "base-uri 'self'",
+    // Form action - restrict form submissions
+    "form-action 'self'",
+    // Default fallback
+    "default-src 'self'",
+  ].join('; ');
+
+  res.setHeader('Content-Security-Policy', cspPolicy);
+  res.setHeader('Content-Security-Policy-Report-Only', cspPolicy);
+  next();
+};
+
+/**
+ * Security Headers Middleware
+ * Sets additional security headers for production
+ */
+const securityHeadersMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  // Prevent clickjacking
+  res.setHeader('X-Frame-Options', 'DENY');
+  
+  // Prevent MIME sniffing
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  
+  // Enable XSS protection
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  
+  // Referrer policy - limit referrer info
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  
+  // Feature policy / Permissions policy
+  res.setHeader('Permissions-Policy', 
+    'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()'
+  );
+  
+  next();
+};
+
+/**
  * Example Express Rest API endpoints can be defined here.
  * Uncomment and define endpoints as necessary.
  *
@@ -23,6 +83,12 @@ const angularApp = new AngularNodeAppEngine();
  * });
  * ```
  */
+
+/**
+ * Apply security middleware
+ */
+app.use(cspMiddleware);
+app.use(securityHeadersMiddleware);
 
 /**
  * Serve static files from /browser

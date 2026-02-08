@@ -36,15 +36,29 @@
         @if (project.demoGif) {
         <div class="modal-section" style="animation-delay: 0.1s">
             <div class="demo-wrapper">
-                <img [src]="project.demoGif" [alt]="project.title" class="demo-img">
+                <img [src]="project.demoGif" 
+                     [alt]="project.title" 
+                     loading="lazy"
+                     class="demo-img">
             </div>
         </div>
         }
         @if (project.demoVideo && isBrowser() && sanitizedDemoUrl()) {
         <div class="modal-section" style="animation-delay: 0.1s">
             <div class="demo-wrapper">
-                <iframe [src]="sanitizedDemoUrl()" class="demo-img" width="100%" frameborder="0"
-                    allow="accelerometer; autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+                <iframe 
+                    [src]="sanitizedDemoUrl()" 
+                    class="demo-img" 
+                    width="100%" 
+                    height="400"
+                    frameborder="0"
+                    [attr.title]="project.title + ' - Demo Video'"
+                    sandbox="allow-scripts allow-same-origin allow-presentation"
+                    allow="accelerometer; autoplay; encrypted-media; picture-in-picture; clipboard-write"
+                    referrerpolicy="strict-origin-when-cross-origin"
+                    loading="lazy"
+                    allowfullscreen>
+                </iframe>
             </div>
         </div>
         }
