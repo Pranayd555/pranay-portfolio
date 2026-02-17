@@ -50,11 +50,15 @@ export class ProjDesModal {
 
     const videoId = project.demoVideo;
 
-    if (videoId) {
+    // Security: Validate videoId format (alphanumeric, hyphens, underscores, 11 chars)
+    const youtubeIdRegex = /^[a-zA-Z0-9_-]{11}$/;
+    if (videoId && youtubeIdRegex.test(videoId)) {
       // Use youtube-nocookie.com for privacy (doesn't set tracking cookies)
       // Parameters: rel=0 (no related videos), modestbranding=1 (no logo), iv_load_policy=3 (no annotations)
       const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1&iv_load_policy=3`;
       return this.sanitizer.bypassSecurityTrustResourceUrl(embedUrl);
+    } else if (videoId) {
+      console.warn(`[Security] Invalid YouTube Video ID detected: ${videoId}`);
     }
 
     return null;
@@ -152,10 +156,6 @@ export class ProjDesModal {
     animation.onfinish = () => {
       this.dialogRef.close();
     };
-  }
-
-  getSanitizedUrl(url: string) {
-    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
 
 }

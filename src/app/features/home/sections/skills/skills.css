@@ -5,9 +5,9 @@
 }
 
 .skill-icon:hover {
-    transform: translateY(-4px) scale(1.05);
+    transform: translateY(-2px) scale(1.05);
     z-index: 10;
-    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 20px -5px var(--glass-border);
 }
 
 .skill-icon img {
