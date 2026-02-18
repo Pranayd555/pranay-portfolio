@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './header/header.component';
 import { FooterComponent } from './footer/footer.component';
-import { BackgroundAnimationComponent } from '../shared/components/background-animation/background-animation.component';
+import { BackgroundAnimationThreeComponent } from '../shared/components/background-animation-three/background-animation-three.component';
 
 /**
  * Main Layout Component
@@ -12,11 +12,11 @@ import { BackgroundAnimationComponent } from '../shared/components/background-an
  */
 @Component({
   selector: 'app-main-layout',
-  imports: [RouterOutlet, HeaderComponent, FooterComponent, BackgroundAnimationComponent],
+  imports: [RouterOutlet, HeaderComponent, FooterComponent, BackgroundAnimationThreeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-col min-h-screen bg-background-light dark:bg-background-dark text-slate-900 dark:text-white transition-colors duration-300">
-      <app-background-animation />
+      <app-background-animation-three />
       <app-header />
       
       <main class="flex-grow pt-20">

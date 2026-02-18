@@ -38,6 +38,7 @@
     "@ngrx/store-devtools": "^21.0.1",
     "express": "^5.1.0",
     "rxjs": "~7.8.0",
+    "three": "^0.183.0",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
@@ -47,6 +48,8 @@
     "@tailwindcss/postcss": "^4.1.12",
     "@types/express": "^5.0.1",
     "@types/node": "^20.17.19",
+    "@types/three": "^0.182.0",
+    "@vitest/coverage-v8": "^4.0.18",
     "jsdom": "^27.1.0",
     "postcss": "^8.5.3",
     "tailwindcss": "^4.1.12",

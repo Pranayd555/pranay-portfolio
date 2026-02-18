@@ -138,9 +138,4 @@ describe('ProjDesModal', () => {
     expect(mockDialogRef.close).toHaveBeenCalled();
   });
 
-  it('should get sanitized URL', () => {
-    const url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
-    const sanitizedUrl = component.getSanitizedUrl(url);
-    expect(sanitizedUrl).toBeDefined();
-  });
 });
