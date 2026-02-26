@@ -1,0 +1,80 @@
+---
+description: Mandatory recheck checklist after every task implementation
+alwaysApply: true
+---
+
+# Recheck Implementation Checklist
+
+Run after every implementation task — no exceptions.
+
+---
+
+## Step 1 — Code Quality
+
+- [ ] Remove all redundant, dead, and commented-out code
+- [ ] No `console.log` or debug statements left
+- [ ] No `any` TypeScript types — strict types throughout
+- [ ] No duplicate Tailwind classes or inline styles
+- [ ] Barrel exports (`index.ts`) updated if new files added
+
+## Step 2 — Acceptance Criteria
+
+- [ ] Verify each acceptance criterion is implemented
+- [ ] Verify against Figma design (if provided) — call Figma MCP `get_design_context` to confirm
+
+## Step 3 — Build Validation
+
+- [ ] Run AOT build: `ng build`
+- [ ] Zero build errors, zero warnings (treat warnings as errors)
+- [ ] Check `dist/` output size — flag if unexpectedly large
+
+## Step 4 — Browser Validation
+
+- [ ] Open in browser and visually verify
+- [ ] Test dark mode and light mode toggle
+- [ ] Test responsive breakpoints (mobile, tablet, desktop)
+- [ ] If Three.js component: verify animation runs, no console WebGL errors
+
+## Step 5 — Three.js Specific (if applicable)
+
+- [ ] `cancelAnimationFrame` called on component destroy
+- [ ] `renderer.dispose()` called on destroy
+- [ ] `geometry.dispose()` called on destroy
+- [ ] `material.dispose()` called on destroy
+- [ ] `scene.clear()` called on destroy
+- [ ] No WebGL context leaks (verify in DevTools: no "WebGL context lost" warning)
+- [ ] `setPixelRatio(Math.min(devicePixelRatio, 2))` present
+- [ ] SSR guard: Three.js init inside `afterNextRender()` + `isPlatformBrowser()`
+- [ ] Resize handler updates camera aspect, renderer size, and pixel ratio uniform
+
+## Step 6 — Performance
+
+- [ ] All components use `ChangeDetectionStrategy.OnPush`
+- [ ] No Observables without `takeUntilDestroyed()` or `DestroyRef` cleanup
+- [ ] Signals used for local state (not BehaviorSubject)
+- [ ] Lighthouse performance score ≥ 85 (check before release)
+
+## Step 7 — Security
+
+- [ ] No `innerHTML` with unsanitized data
+- [ ] No `bypassSecurityTrust*` without documented reason
+- [ ] Three.js shaders: GLSL is static string only
+- [ ] SSR: `inject(PLATFORM_ID)` used, no direct `window`/`document` access
+
+## Step 8 — Tests
+
+- [ ] Run: `ng test`
+- [ ] All tests pass
+- [ ] Run: `ng test --coverage`
+- [ ] Coverage ≥ 70%
+- [ ] Three.js component: cleanup test and theme reactivity test present
+
+## Step 9 — Documentation
+
+- [ ] Update `ARCHITECTURE.md` if structure changed
+- [ ] JSDoc on public service methods
+- [ ] Remove comment-narration (no "// increment counter" style comments)
+
+---
+
+Repeat until all checks pass. No task is complete without this checklist.

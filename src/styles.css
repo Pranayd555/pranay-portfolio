@@ -15,6 +15,9 @@
     --color-neon-blue: #00f3ff;
     --color-neon-pink: #ff00ff;
     --color-neon-purple: #bc13fe;
+    /* Layout backgrounds */
+    --color-background-light: #f6f6f8;
+    --color-background-dark: #050a14;
     --font-display: "Space Grotesk", sans-serif;
     --radius-lg: 1.5rem;
     --radius-xl: 3rem;

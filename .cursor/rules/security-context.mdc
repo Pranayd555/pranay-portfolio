@@ -1,0 +1,79 @@
+---
+description: Triggers security_officer checks for all inputs, rendering, and API work
+alwaysApply: true
+---
+
+# Security Context Rule
+
+---
+
+## When to Trigger
+
+- API integration or HTTP request
+- Form submission or user input handling
+- Dynamic HTML rendering
+- Authentication or token handling
+- Three.js / canvas component (shader strings, dynamic URLs)
+- SSR data hydration
+
+---
+
+## Angular Security Protocols
+
+- **Strict template type checking** — enabled in `tsconfig.json` (`"strict": true`)
+- **No `innerHTML`** unless sanitized via Angular `DomSanitizer.sanitizeHtml()`
+- **No `bypassSecurityTrust*`** unless explicitly justified and reviewed
+- **Use `HttpInterceptor`** for auth token injection — never append tokens manually in components
+- **Reactive forms** with strict validators — no template-driven forms for sensitive data
+- **Sanitize all user input** before use in queries, routes, or display
+- **CSP headers** configured at SSR/Express level (`app.config.server.ts` / `server.ts`)
+- **Disable `eval()`** — enforced by strict CSP; do NOT use `new Function()` either
+
+---
+
+## Three.js / WebGL Security
+
+- **No dynamic shader construction from user input** — GLSL strings are static template literals only
+- **No URL injection** into `THREE.TextureLoader` without validation
+- **No eval-like patterns** in shaders — GLSL is compiled, but dynamic string concatenation enables injection
+- **Canvas isolation**: the `<canvas>` element must not be accessible to third-party scripts
+- **No `readPixels()`** on renderers that could expose page content
+- **Cross-origin textures**: always set `crossOrigin = 'anonymous'` on loaders; verify CORS headers on asset server
+- **No sensitive data in shader uniforms** — uniforms are GPU-readable; never pass tokens or PII
+
+---
+
+## SSR Security
+
+- **No server-side DOM manipulation** with unvalidated data
+- **Validate** all route params and query strings before use in SSR rendering
+- **HTTP-only cookies** for session data (if auth is added in future)
+- **No `window` global access** in server context — use `inject(DOCUMENT)` and `inject(PLATFORM_ID)`
+
+---
+
+## Input Validation
+
+- Use Angular `Validators` (reactive forms) for all form fields
+- Sanitize and encode query params before URL use
+- No direct interpolation of user strings into `[innerHTML]` — use `{{ }}` binding (auto-escaped)
+- No `RouterLink` with unsanitized string interpolation
+
+---
+
+## Mandatory Checks per Task
+
+- [ ] XSS: no direct HTML injection, all dynamic content auto-escaped or sanitized
+- [ ] No `bypassSecurityTrust*` used without documented justification
+- [ ] Three.js shaders: GLSL strings are static, not user-constructed
+- [ ] HTTP calls use interceptor for headers; no raw token in component
+- [ ] SSR: no browser APIs called outside `isPlatformBrowser()` guard
+- [ ] No `eval()`, `new Function()`, or dynamic `<script>` injection
+
+---
+
+## Angular MCP Best Practices Required
+
+All security must follow Angular MCP guidance.
+
+Failure → Task rejected.

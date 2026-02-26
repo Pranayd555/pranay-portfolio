@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { MainLayoutComponent } from './layouts/main-layout.component';
+import { ImmersiveLayoutComponent } from './layouts/immersive-layout/immersive-layout.component';
 import { reducers as skillsReducers } from './features/home/sections/skills/store/reducers';
 import { reducers as projectsReducers } from './features/home/sections/projects/store/reducers';
 import { reducers as experienceReducers } from './features/home/sections/experience/store/reducers';
@@ -14,26 +15,89 @@ import { EducationEffects } from './features/home/sections/education/store/effec
 import { ProjectDetailsEffects } from './features/home/sections/projects/proj-des-modal/store/effects';
 
 export const routes: Routes = [
-    {
+  // Immersive landing experience (no header/footer)
+  {
+    path: '',
+    component: ImmersiveLayoutComponent,
+    children: [
+      {
         path: '',
-        component: MainLayoutComponent,
-        children: [
-            {
-                path: '',
-                loadComponent: () => import('./features/home/home.component').then(m => m.HomeComponent),
-                providers: [
-                    provideState('skills', skillsReducers),
-                    provideState('projects', projectsReducers),
-                    provideState('experience', experienceReducers),
-                    provideState('education', educationReducers),
-                    provideState('projectDetails', projectDetailsReducers),
-                    provideEffects(SkillsEffects, ProjectsEffects, ExperienceEffects, EducationEffects, ProjectDetailsEffects),
-                ]
-            }
-        ]
-    },
-    {
-        path: '**',
-        redirectTo: ''
-    }
+        loadComponent: () =>
+          import('./features/immersive/immersive-experience.component').then(
+            m => m.ImmersiveExperienceComponent
+          ),
+      },
+    ],
+  },
+
+  // Detail pages (with header/footer via MainLayoutComponent)
+  {
+    path: 'about',
+    component: MainLayoutComponent,
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/about/about.component').then(m => m.AboutComponent),
+        providers: [
+          provideState('skills', skillsReducers),
+          provideEffects(SkillsEffects),
+        ],
+      },
+    ],
+  },
+  {
+    path: 'projects',
+    component: MainLayoutComponent,
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/projects-page/projects-page.component').then(
+            m => m.ProjectsPageComponent
+          ),
+        providers: [
+          provideState('projects', projectsReducers),
+          provideState('projectDetails', projectDetailsReducers),
+          provideEffects(ProjectsEffects, ProjectDetailsEffects),
+        ],
+      },
+    ],
+  },
+  {
+    path: 'experience',
+    component: MainLayoutComponent,
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/experience-page/experience-page.component').then(
+            m => m.ExperiencePageComponent
+          ),
+        providers: [
+          provideState('experience', experienceReducers),
+          provideState('education', educationReducers),
+          provideEffects(ExperienceEffects, EducationEffects),
+        ],
+      },
+    ],
+  },
+  {
+    path: 'contact',
+    component: MainLayoutComponent,
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/contact-page/contact-page.component').then(
+            m => m.ContactPageComponent
+          ),
+      },
+    ],
+  },
+
+  {
+    path: '**',
+    redirectTo: '',
+  },
 ];

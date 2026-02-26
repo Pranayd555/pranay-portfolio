@@ -1,0 +1,103 @@
+---
+description: Triggers threejs-architect skill for any Three.js / WebGL work
+alwaysApply: true
+---
+
+# Three.js Context Rule
+
+Triggers threejs-architect skill.
+
+---
+
+## When to Trigger
+
+- New Three.js scene, mesh, geometry, or material
+- New canvas-based animation component
+- Adding GLSL shaders (vertex / fragment)
+- WebGL renderer changes
+- Particle systems, post-processing, or 3D UI elements
+- Performance issues with existing Three.js components
+- Theme-reactive Three.js updates (dark / light mode)
+
+---
+
+## Stack Facts (Non-Negotiable)
+
+- Three.js version: **0.183.0** — use only APIs that exist in this version
+- Angular version: **21** — standalone components, zoneless, no NgZone
+- SSR is active — Three.js MUST only run in the browser
+- Vitest is the test runner — mock WebGL context for unit tests
+- Tailwind v4 — canvas styling via Tailwind utility classes, no inline styles
+
+---
+
+## Mandatory Patterns
+
+### SSR Safety
+- All Three.js init MUST be inside `afterNextRender()` or `isPlatformBrowser()` guard
+- NEVER call `window`, `document`, or `canvas` APIs outside browser guard
+- Use `inject(PLATFORM_ID)` and `inject(DOCUMENT)` — never access globals directly
+- Use `inject(DestroyRef).onDestroy()` for cleanup — preferred over `ngOnDestroy`
+
+### Renderer Setup
+- Always call `renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))` — cap at 2
+- Use `alpha: true` for transparent backgrounds; `antialias: true` for quality
+- Resize handler: update `camera.aspect`, `camera.updateProjectionMatrix()`, renderer size, and pixel ratio uniform
+
+### Animation Loop
+- Use `requestAnimationFrame` stored in a private field for cancellation
+- Drive time via `THREE.Clock` — use `clock.getElapsedTime()` for uniforms
+- NEVER trigger Angular change detection inside RAF — use pure WebGL state
+
+### Theme Reactivity
+- Use Angular `effect()` to react to `ThemeService` signal changes
+- Update `ShaderMaterial.uniforms` and `blending` inside the effect
+- Dark mode: `THREE.AdditiveBlending`; Light mode: `THREE.NormalBlending`
+
+### Cleanup (Mandatory — No Exceptions)
+Every Three.js component MUST dispose ALL resources on destroy:
+```
+cancelAnimationFrame(this.animationFrameId)
+renderer.dispose()
+geometry.dispose()
+(material as THREE.Material).dispose()
+scene.clear()
+```
+Missing dispose = memory leak = task rejected.
+
+### Shader Authoring
+- Write GLSL shaders as TypeScript template literals inside `ShaderMaterial`
+- Use `uniforms` for all dynamic values (time, color, pixel ratio, dark mode flag)
+- Use `attributes` (via `BufferGeometry.setAttribute`) for per-vertex data
+- Add `varyings` for vertex-to-fragment data
+- Clamp `gl_PointSize` to prevent oversized points (e.g., `min(size, 50.0)`)
+- Always `discard` fragments outside point circle: `if (distance(gl_PointCoord, vec2(0.5)) > 0.5) discard;`
+
+### TypeScript Typing
+- Import types from `@types/three` — always type materials as `THREE.Material` before `dispose()`
+- Cast `material` to concrete type before accessing uniforms: `instanceof THREE.ShaderMaterial`
+- All private scene properties must be typed (`THREE.Scene`, `THREE.PerspectiveCamera`, etc.)
+
+---
+
+## Performance Constraints
+
+- Particle count: keep ≤ 500 for mobile-safe performance
+- No `scene.traverse()` in the animation loop
+- Use `BufferGeometry` — NEVER legacy `Geometry`
+- Avoid creating objects inside the RAF loop (no `new THREE.*` per frame)
+- Evaluate bundle impact — Three.js is large; only import what is used
+
+---
+
+## Enforcement
+
+- Three.js code without SSR guard = task rejected
+- Missing cleanup/dispose = task rejected
+- `window` / `document` accessed outside browser guard = task rejected
+- Shader uniform not cleaned up = task rejected
+- `geometry.dispose()` missing = task rejected
+
+---
+
+No Three.js implementation without following this rule.

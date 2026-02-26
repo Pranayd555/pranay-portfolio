@@ -1,0 +1,101 @@
+---
+description: Triggers technical_architect for architecture and requirement breakdown
+alwaysApply: true
+---
+
+# Technical Context Rule
+
+Triggers technical_architect skill.
+
+---
+
+## Project Stack (Source of Truth)
+
+- **Angular**: 21 — standalone components, zoneless, no NgModule, no NgZone
+- **State**: NgRx Store 21 + Signals — NgRx for global state, Signals for local/component state
+- **SSR**: `@angular/ssr` — Express 5, server-side rendering active
+- **Styling**: Tailwind CSS v4 — CSS-first config, no `tailwind.config.js`
+- **Testing**: Vitest 4 + jsdom — NOT Jest, NOT Karma
+- **3D/WebGL**: Three.js 0.183 — use `threejs-architect` skill for all canvas/WebGL work
+- **TypeScript**: ~5.9.2 strict mode
+- **Package manager**: npm 10.9.2
+
+---
+
+## When to Trigger
+
+- New feature, module, or route
+- Architecture change
+- New project initialization
+- Acceptance criteria provided
+
+---
+
+## Mandatory Process
+
+1. Read `ARCHITECTURE.md` at project root before making structural decisions
+2. Analyze Figma (if URL provided — use Figma MCP `get_design_context` first)
+3. Analyze acceptance criteria
+4. Break work into:
+   - Routes (lazy-loaded in `app.routes.ts`)
+   - Components (standalone, OnPush, in `features/` or `shared/`)
+   - Services (tree-shakable, in `core/services/` or feature-specific)
+   - NgRx (actions, reducers, effects, selectors — if global state needed)
+   - Models/interfaces (strict TypeScript, no `any`)
+   - Utilities (`shared/utils/`)
+5. Design component architecture; update `ARCHITECTURE.md` if structure changes
+6. Use Angular CLI for all scaffolding:
+   ```
+   ng generate component features/home/sections/my-section
+   ng generate service core/services/my-service
+   ng generate directive shared/directives/my-directive
+   ```
+7. Enforce:
+   - **SOLID** — single responsibility, dependency injection
+   - **Standalone components** — no NgModules
+   - **Strict TypeScript** — no `any`, explicit return types
+   - **No duplication** — extract to `shared/` before repeating
+   - **Tree-shakable** — `providedIn: 'root'` on services
+   - **OnPush everywhere** — no Default change detection
+   - **Barrel exports** — `index.ts` in `core/`, `shared/`
+   - **SSR-safe** — `isPlatformBrowser()`, `afterNextRender()`, `inject(PLATFORM_ID)`
+   - **Angular MCP best practices** — search docs before implementing
+8. Three.js components → delegate to **threejs-architect** skill
+9. After architecture → delegate to designer, security, performance
+10. Once implemented → delegate to tester
+
+---
+
+## Folder Constraints
+
+```
+core/            → singleton services, guards, interceptors, config, data
+shared/          → reusable components, directives, pipes, utils
+layouts/         → header, footer, main-layout
+features/home/   → lazy-loaded sections (hero, about, skills, experience, projects, contact)
+```
+
+No feature code in `core/`. No singletons in `shared/`. No cross-feature imports.
+
+---
+
+## SSR Mandatory Patterns
+
+```typescript
+// ✅ Correct
+private platformId = inject(PLATFORM_ID);
+private document = inject(DOCUMENT);
+
+afterNextRender(() => {
+  if (isPlatformBrowser(this.platformId)) {
+    // browser-only code here
+  }
+});
+
+// ❌ Never
+ngOnInit() { window.localStorage.getItem(...) } // SSR crash
+```
+
+---
+
+No direct coding without architectural mapping. No feature complete without SSR verification.

@@ -1,0 +1,91 @@
+---
+description: Mandatory workflow and skill usage for all development tasks
+alwaysApply: true
+---
+
+# Always Use Workflows and Skills
+
+Every change to this codebase — no matter how small — follows this workflow.
+
+---
+
+## Mandatory Workflow
+
+### Step 0: Task Intake
+- Read `ARCHITECTURE.md` at project root
+- Identify task type (feature, bugfix, refactor, 3D/WebGL, styling, test)
+- Read `.cursor/rules/` rules relevant to the task type
+
+### Step 1: Technical Architect
+- Read skill: `.cursor/skills/technical_architect/SKILL.md`
+- Break down requirements: routes, components, services, NgRx (if needed), models
+- Update `ARCHITECTURE.md` if structure changes
+- Enforce: SOLID, standalone components, strict TS, SSR-safe, tree-shakable
+- Use Angular CLI for scaffolding
+
+### Step 2: Designer Architect
+- Read skill: `.cursor/skills/designer_architect/SKILL.md`
+- If Figma URL provided: call `get_design_context` via Figma MCP FIRST — no implementation until MCP responds
+- Apply design tokens from `src/styles.css` `@theme` block
+- Tailwind v4 only — no inline styles, no duplicate classes, no `tailwind.config.js`
+- Dark mode: `dark:` prefix + CSS variables via `ThemeService` signal
+
+### Step 3: Three.js Architect (if WebGL/canvas work)
+- Read skill: `.cursor/skills/threejs-architect/SKILL.md`
+- Apply to: new canvas components, shader changes, particle systems, 3D scene changes
+- Enforce: SSR guard, `afterNextRender()`, cleanup/dispose, `DestroyRef`, theme reactivity via `effect()`
+- Reference: `.cursor/rules/threejs-context.mdc`
+
+### Step 4: Security
+- Reference: `.cursor/rules/security-context.mdc`
+- Check: XSS, static shaders, SSR safety, no `bypassSecurityTrust*` without justification
+- HTTP: interceptors for tokens, validated inputs
+
+### Step 5: Performance Monitor
+- Read skill: `.cursor/skills/performance_monitor/SKILL.md`
+- Angular: OnPush, signals, lazy routes, `DestroyRef` cleanup
+- Three.js: capped pixel ratio, particle count ≤ 500, no object creation in RAF, full dispose
+- Lighthouse ≥ 85
+
+### Step 6: Tester
+- Read skill: `.cursor/skills/tester/SKILL.md`
+- Vitest 4 + jsdom — NOT Jest/Karma
+- Unit tests for services, components, reducers, Three.js cleanup
+- Coverage ≥ 70% — run `ng test --coverage`
+
+### Step 7: Recheck
+- Reference: `.cursor/rules/recheck_implementation.mdc`
+- Run: `ng build` → zero errors
+- Run: `ng test` → all pass, coverage ≥ 70%
+- Verify: Figma match, dark/light mode, responsive, Three.js cleanup
+
+---
+
+## Skills Reference
+
+| Skill | Path | When |
+|---|---|---|
+| technical_architect | `.cursor/skills/technical_architect/SKILL.md` | Every feature/module |
+| designer_architect | `.cursor/skills/designer_architect/SKILL.md` | Any UI/styling work |
+| threejs-architect | `.cursor/skills/threejs-architect/SKILL.md` | Any WebGL/canvas/3D work |
+| performance_monitor | `.cursor/skills/performance_monitor/SKILL.md` | Heavy components, before release |
+| tester | `.cursor/skills/tester/SKILL.md` | After implementation, before merge |
+
+---
+
+## Rules Reference
+
+| Rule | Triggers When |
+|---|---|
+| `technical_context.mdc` | New feature, architecture change |
+| `designer_context.mdc` | UI work, Figma provided |
+| `threejs-context.mdc` | Three.js / WebGL / canvas work |
+| `security-context.mdc` | API, forms, dynamic HTML, Three.js |
+| `performance_context.mdc` | Heavy components, new routes, WebGL |
+| `test_context.mdc` | After implementation |
+| `recheck_implementation.mdc` | After every task |
+
+---
+
+No implementation without following the workflow and applying the relevant skills.
+Skipping a step = task rejected.

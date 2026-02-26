@@ -1,0 +1,127 @@
+---
+description: Triggers tester skill for unit testing with Vitest
+alwaysApply: true
+---
+
+# Test Context Rule
+
+Triggers tester skill.
+
+---
+
+## Test Runner: Vitest 4 + jsdom
+
+This project uses **Vitest** (NOT Jest, NOT Karma, NOT Jasmine).
+- Run tests: `ng test`
+- Coverage: `ng test --coverage` (uses `@vitest/coverage-v8`)
+- Import from `vitest`: `describe`, `it`, `expect`, `vi`, `beforeEach`, `afterEach`
+- Mock functions: `vi.fn()`, `vi.spyOn()`, `vi.stubGlobal()`
+- Mock modules: `vi.mock('module-path', () => ({ ... }))`
+
+---
+
+## When to Trigger
+
+- After any feature implementation
+- Before merge
+- Before deployment
+- When coverage drops below 70%
+
+---
+
+## Mandatory Coverage
+
+Unit tests for:
+- **Services** (core and feature-level)
+- **Critical components** (sections with business logic)
+- **NgRx** — reducers, selectors, effects
+- **Utility functions** (`shared/utils/`)
+- **Three.js components** — cleanup, resize, theme reactivity
+
+Coverage threshold: **≥ 70%** (enforced by `@vitest/coverage-v8`).
+
+---
+
+## Three.js Component Testing
+
+Three.js components require WebGL mocking. Use this pattern:
+
+```typescript
+import { vi, describe, it, expect, beforeEach } from 'vitest';
+
+const mockWebGLContext = {
+  getExtension: vi.fn(() => null),
+  getParameter: vi.fn(() => 0),
+  createBuffer: vi.fn(),
+  bindBuffer: vi.fn(),
+  bufferData: vi.fn(),
+  enable: vi.fn(),
+  disable: vi.fn(),
+  viewport: vi.fn(),
+  clear: vi.fn(),
+  useProgram: vi.fn(),
+  // extend as needed
+};
+
+beforeEach(() => {
+  vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(mockWebGLContext as any);
+});
+
+it('should cleanup on destroy', () => {
+  const spy = vi.spyOn(component as any, 'cleanup');
+  fixture.destroy();
+  expect(spy).toHaveBeenCalled();
+});
+
+it('should cancel animation frame on destroy', () => {
+  const spy = vi.spyOn(window, 'cancelAnimationFrame');
+  (component as any).animationFrameId = 42;
+  (component as any).cleanup();
+  expect(spy).toHaveBeenCalledWith(42);
+});
+```
+
+---
+
+## Angular Testing Patterns (Vitest)
+
+```typescript
+import { TestBed } from '@angular/core/testing';
+import { describe, it, expect, beforeEach } from 'vitest';
+import { signal } from '@angular/core';
+
+// Standalone component test
+beforeEach(async () => {
+  await TestBed.configureTestingModule({
+    imports: [MyComponent],
+  }).compileComponents();
+});
+
+// Signal-based service mock
+const mockThemeService = { darkMode: signal(false) };
+TestBed.overrideProvider(ThemeService, { useValue: mockThemeService });
+
+// NgRx store mock
+TestBed.overrideProvider(Store, { useValue: { select: vi.fn(), dispatch: vi.fn() } });
+```
+
+---
+
+## Edge Case Testing Requirements
+
+- **SSR guard**: verify component does not throw in non-browser environment
+- **Resize**: verify camera and renderer update on `onResize()`
+- **Theme toggle**: verify uniforms update when `darkMode` signal changes
+- **Empty/null data**: services and components with optional inputs
+- **Error states**: HTTP error handling in NgRx effects
+
+---
+
+## Validation
+
+1. Run test suite: `ng test`
+2. Run coverage: `ng test --coverage`
+3. If coverage < 70% → write additional tests before considering task complete
+4. Fix any failing tests before marking done
+
+No feature considered complete without passing tests and ≥ 70% coverage.

@@ -1,0 +1,106 @@
+---
+description: Triggers designer_architect for UI and design system work
+alwaysApply: true
+---
+
+# Designer Context Rule
+
+Triggers designer_architect skill.
+
+---
+
+## When to Trigger
+
+- New UI feature or section
+- Layout change
+- New project initialization
+- Figma design provided
+- Component redesign
+- Dark / light mode styling
+
+---
+
+## Tailwind CSS v4 — Project-Specific Rules
+
+This project uses **Tailwind CSS v4** (CSS-first configuration):
+- **No `tailwind.config.js`** — configuration lives in `src/styles.css` as CSS `@theme` block
+- **No `tailwind.config.ts`** — do NOT create config files
+- **Design tokens** are CSS custom properties defined in `:root` and `.dark`
+- Use `@theme` directive for token definitions, `@layer` for component overrides
+- Arbitrary values (`text-[#hex]`) are allowed only when the token doesn't exist in the theme
+- All Tailwind classes must use the v4 utility naming (e.g., `border-border` maps to `--color-border`)
+
+### Dark Mode
+- Class-based dark mode: `dark:` prefix in Tailwind
+- CSS variables switch via `.dark` selector on `<html>` — managed by `ThemeService`
+- Background: `bg-background-light dark:bg-background-dark`
+- Text: `text-slate-900 dark:text-white`
+
+---
+
+## Figma MCP — STRICT ENFORCEMENT (Non-Negotiable)
+
+### When a Figma URL is provided:
+
+> **ALL design implementation is BLOCKED until Figma MCP returns a valid response.**
+
+**Mandatory steps — execute in order, no exceptions:**
+
+1. **STOP** — Do not write any code, generate any layout, or make any design assumptions.
+2. Extract `fileKey` and `nodeId` from the URL:
+   - `figma.com/design/:fileKey/:name?node-id=:nodeId` → convert `-` to `:` in nodeId
+3. Call **`get_design_context`** via Figma MCP with `fileKey` and `nodeId`.
+4. **If MCP call fails or link is inaccessible:**
+   - **IMMEDIATELY STOP all tasks.**
+   - Respond with exactly:
+     > "The Figma link provided is not accessible. Please verify the link is shared publicly or with the correct permissions, and provide the correct link before I can proceed."
+   - **Wait for a valid, accessible Figma link before resuming any work.**
+5. **If MCP call succeeds:**
+   - Use ONLY the returned code, screenshot, and design tokens as the source of truth.
+   - Adapt to Angular + Tailwind v4 (output from MCP may be React — translate it).
+   - Apply Code Connect–mapped components if present.
+   - Apply design tokens to CSS custom properties in `styles.css`.
+
+### Absolute prohibitions when a Figma link is provided:
+
+- **NEVER** implement from verbal description, assumption, or guesses.
+- **NEVER** hallucinate colors, spacing, typography, or layout.
+- **NEVER** proceed if `get_design_context` has not returned successfully.
+- **NEVER** use placeholder or estimated values.
+
+---
+
+## Mandatory Process
+
+### New project or design token update:
+- Extract tokens from Figma MCP response
+- Define in `src/styles.css` `@theme` block:
+  - Color palette (background, primary, accent, text)
+  - Spacing scale
+  - Typography (font family, size, weight, line height)
+  - Border radius
+  - Shadow levels
+- Dark mode tokens in `.dark` selector overrides
+
+### Existing project (adding a section/component):
+- Reuse existing Tailwind utility classes from the design system
+- No inline styles — ever
+- No duplicate class definitions
+- Extract repeated class combinations into component-level `@apply` if used 3+ times
+- Canvas elements (Three.js): position with Tailwind `absolute`, `fixed`, `inset-0`, `z-*`
+
+---
+
+## Enforcement
+
+- No overlapping class definitions
+- No deviation from design tokens without explicit approval
+- No arbitrary color values if a token exists
+- Design must match Figma pixel-perfect
+- Reusable components prioritized over one-off styling
+- **Figma link + no MCP call = immediate task rejection**
+- **Continuing after failed MCP = immediate task rejection**
+
+---
+
+If rule violated → Rejection. No exceptions.
