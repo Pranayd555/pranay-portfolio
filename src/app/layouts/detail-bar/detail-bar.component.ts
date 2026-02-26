@@ -16,7 +16,7 @@ import { RouterLink } from '@angular/router';
     >
       <img
         src="assets/pranay_logo.png"
-        alt="Pranav Das"
+        alt="Pranay Das"
         loading="lazy"
         class="h-full w-full object-cover"
       />

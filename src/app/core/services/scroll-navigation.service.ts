@@ -12,7 +12,7 @@ export interface SlideConfig {
 export const SLIDES: readonly SlideConfig[] = [
   {
     id: 'hero',
-    title: 'PRANAV DAS',
+    title: 'PRANAY DAS',
     subtitle: 'Sr. Software Engineer',
     description: 'Building the future of the web',
     enterLabel: 'Explore',

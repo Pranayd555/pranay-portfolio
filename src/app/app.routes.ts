@@ -95,6 +95,19 @@ export const routes: Routes = [
       },
     ],
   },
+  {
+    path: 'playground',
+    component: MainLayoutComponent,
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/playground-page/playground-page').then(
+            m => m.PlaygroundPageComponent
+          ),
+      },
+    ],
+  },
 
   {
     path: '**',

@@ -16,25 +16,24 @@ import { AboutSlideComponent } from './slides/about-slide/about-slide.component'
 import { ProjectsSlideComponent } from './slides/projects-slide/projects-slide.component';
 import { ExperienceSlideComponent } from './slides/experience-slide/experience-slide.component';
 import { ContactSlideComponent } from './slides/contact-slide/contact-slide.component';
-import { ImmersiveParticleComponent } from '../../shared/components/immersive-particle/immersive-particle.component';
+import { PlaygroundSlideComponent } from './slides/playground-slide/playground-slide';
 
 @Component({
   selector: 'app-immersive-experience',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    ImmersiveParticleComponent,
     HeroSlideComponent,
     AboutSlideComponent,
     ProjectsSlideComponent,
     ExperienceSlideComponent,
     ContactSlideComponent,
+    PlaygroundSlideComponent,
   ],
   template: `
-    <div class="fixed inset-0 w-screen h-screen overflow-hidden" style="background:#050a14;">
+    <div class="fixed inset-0 w-dvw h-dvh overflow-hidden bg-background-dark text-white">
 
       <!-- Persistent mouse-reactive particle background (behavior switches per slide) -->
-      <app-immersive-particle [slideIndex]="currentSlide()" />
+      <!-- <app-immersive-particle [slideIndex]="currentSlide()" /> -->
 
       <!-- Slide overlays: only the active slide is shown, fades in with CSS animation -->
       <div class="absolute inset-0">
@@ -54,41 +53,44 @@ import { ImmersiveParticleComponent } from '../../shared/components/immersive-pa
         @if (currentSlide() === 4) {
           <app-contact-slide class="animate-slide-up" />
         }
+        @if (currentSlide() === 5) {
+          <app-playground-slide class="animate-slide-up" />
+        }
 
       </div>
 
       <!-- Left arrow -->
       <button
-        class="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-20
-               w-12 h-12 flex items-center justify-center
+        class="absolute left-2 sm:left-8 top-1/2 -translate-y-1/2 z-20
+               w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center
                text-white/40 hover:text-white/90 transition-colors duration-300
                disabled:opacity-20 disabled:cursor-not-allowed"
         [disabled]="currentSlide() === 0"
         (click)="navService.prev()"
         aria-label="Previous slide"
       >
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+        <svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
           <path d="M15 18l-6-6 6-6"/>
         </svg>
       </button>
 
       <!-- Right arrow -->
       <button
-        class="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 z-20
-               w-12 h-12 flex items-center justify-center
+        class="absolute right-2 sm:right-8 top-1/2 -translate-y-1/2 z-20
+               w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center
                text-white/40 hover:text-white/90 transition-colors duration-300
                disabled:opacity-20 disabled:cursor-not-allowed"
         [disabled]="currentSlide() === navService.TOTAL_SLIDES - 1"
         (click)="navService.next()"
         aria-label="Next slide"
       >
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+        <svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
           <path d="M9 18l6-6-6-6"/>
         </svg>
       </button>
 
       <!-- Slide indicators (dots) -->
-      <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-3">
+      <div class="absolute bottom-[calc(1rem+env(safe-area-inset-bottom))] sm:bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2 sm:gap-3">
         @for (slide of navService.slides; track slide.id; let i = $index) {
           <button
             class="transition-all duration-400 rounded-full"
@@ -102,7 +104,7 @@ import { ImmersiveParticleComponent } from '../../shared/components/immersive-pa
       </div>
 
       <!-- Slide title indicator (top-left, like particle-love) -->
-      <div class="absolute top-6 left-6 z-20">
+      <div class="absolute top-[calc(1rem+env(safe-area-inset-top))] sm:top-6 left-4 sm:left-6 z-20">
         <p class="text-white/20 text-xs tracking-[0.4em] uppercase font-light">
           {{ currentSlideConfig().subtitle }}
         </p>

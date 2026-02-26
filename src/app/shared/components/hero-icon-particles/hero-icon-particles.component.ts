@@ -15,10 +15,12 @@ import { skillsData } from '../../../features/home/sections/data/skills-data';
 
 interface IconSprite {
   sprite: THREE.Sprite;
+  orbitRadiusFactor: number;
   orbitRadius: number;
   orbitSpeed: number;
   orbitPhase: number;
   bobPhase: number;
+  bobAmplitudeFactor: number;
   bobAmplitude: number;
   tiltX: number;
   tiltZ: number;
@@ -28,7 +30,6 @@ interface IconSprite {
   selector: 'app-hero-icon-particles',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { '(window:resize)': 'onResize()' },
   template: `<canvas #canvas class="absolute inset-0 w-full h-full"></canvas>`,
   styles: [`
     :host { display: block; position: absolute; inset: 0; pointer-events: none; z-index: 5; }
@@ -46,6 +47,8 @@ export class HeroIconParticlesComponent implements OnDestroy {
   private iconSprites: IconSprite[] = [];
   private animationFrameId?: number;
   private clock = new THREE.Clock();
+  private resizeObserver?: ResizeObserver;
+  private viewport = { w: 0, h: 0, min: 0 };
 
   private readonly ICON_PATHS = skillsData
     .flatMap(cat => cat.skills)
@@ -63,22 +66,34 @@ export class HeroIconParticlesComponent implements OnDestroy {
     this.destroyRef.onDestroy(() => this.cleanup());
   }
 
+  private readViewport(): { w: number; h: number; min: number } {
+    const canvas = this.canvasRef.nativeElement;
+    const rect = canvas.getBoundingClientRect();
+    const w = Math.max(1, Math.floor(rect.width));
+    const h = Math.max(1, Math.floor(rect.height));
+    return { w, h, min: Math.min(w, h) };
+  }
+
   private initThree(): void {
     const canvas = this.canvasRef.nativeElement;
     this.scene = new THREE.Scene();
 
-    const aspect = window.innerWidth / window.innerHeight;
-    this.camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 3000);
-    this.camera.position.z = 700;
+    this.viewport = this.readViewport();
+    const aspect = this.viewport.w / this.viewport.h;
+    this.camera = new THREE.PerspectiveCamera(60, aspect, 0.1, this.viewport.min * 10);
+    this.camera.position.z = this.viewport.min * 1.25;
 
-    this.renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false });
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    this.renderer.setSize(this.viewport.w, this.viewport.h);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    this.resizeObserver = new ResizeObserver(() => this.onResize());
+    this.resizeObserver.observe(canvas);
   }
 
   private loadIconsAndAnimate(): void {
     const loader = new THREE.TextureLoader();
-    const scale = Math.min(window.innerWidth, window.innerHeight);
+    loader.setCrossOrigin('anonymous');
 
     let loaded = 0;
     const total = this.ICON_PATHS.length;
@@ -95,23 +110,27 @@ export class HeroIconParticlesComponent implements OnDestroy {
           });
           const sprite = new THREE.Sprite(material);
 
-          const spriteScale = scale * 0.05;
+          const spriteScale = this.viewport.min * 0.055;
           sprite.scale.set(spriteScale, spriteScale, 1);
 
-          const orbitRadius = 180 + Math.random() * 220;
+          const orbitRadiusFactor = 0.22 + Math.random() * 0.24;
+          const orbitRadius = this.viewport.min * orbitRadiusFactor;
           const orbitSpeed  = 0.12 + Math.random() * 0.25;
           const orbitPhase  = (i / total) * Math.PI * 2;
           const bobPhase    = Math.random() * Math.PI * 2;
-          const bobAmp      = 18 + Math.random() * 28;
+          const bobAmplitudeFactor = 0.03 + Math.random() * 0.03;
+          const bobAmp = this.viewport.min * bobAmplitudeFactor;
           const tiltX       = (Math.random() - 0.5) * 0.8;
           const tiltZ       = (Math.random() - 0.5) * 0.4;
 
           const iconSprite: IconSprite = {
             sprite,
+            orbitRadiusFactor,
             orbitRadius,
             orbitSpeed,
             orbitPhase,
             bobPhase,
+            bobAmplitudeFactor,
             bobAmplitude: bobAmp,
             tiltX,
             tiltZ,
@@ -160,22 +179,29 @@ export class HeroIconParticlesComponent implements OnDestroy {
   }
 
   onResize(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
     if (!this.renderer || !this.camera) return;
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-    this.camera.aspect = w / h;
+
+    this.viewport = this.readViewport();
+    this.camera.aspect = this.viewport.w / this.viewport.h;
+    this.camera.far = this.viewport.min * 10;
+    this.camera.position.z = this.viewport.min * 1.25;
     this.camera.updateProjectionMatrix();
-    this.renderer.setSize(w, h);
+    this.renderer.setSize(this.viewport.w, this.viewport.h);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    const scale = Math.min(w, h) * 0.05;
+    const scale = this.viewport.min * 0.055;
     for (const icon of this.iconSprites) {
       icon.sprite.scale.set(scale, scale, 1);
+      icon.orbitRadius = this.viewport.min * icon.orbitRadiusFactor;
+      icon.bobAmplitude = this.viewport.min * icon.bobAmplitudeFactor;
     }
   }
 
   private cleanup(): void {
     if (this.animationFrameId) cancelAnimationFrame(this.animationFrameId);
+    this.resizeObserver?.disconnect();
+    this.resizeObserver = undefined;
     for (const icon of this.iconSprites) {
       if (icon.sprite.material instanceof THREE.SpriteMaterial) {
         icon.sprite.material.map?.dispose();

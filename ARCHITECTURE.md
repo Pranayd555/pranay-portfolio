@@ -25,7 +25,7 @@ src/app/
 │   │           ├── starfield.slide.ts           # Slide 2 — warp starfield
 │   │           ├── wave-grid.slide.ts           # Slide 3 — GPU wave terrain
 │   │           ├── handshake.slide.ts           # Slide 4 — handshake FSM
-│   │           └── text-particle.slide.ts       # Slide 0 — PRANAV DAS text
+│   │           └── text-particle.slide.ts       # Slide 0 — PRANAY DAS text
 │   ├── directives/            # Shared directives (reveal, etc.)
 │   ├── pipes/                 # Shared pipes
 │   ├── utils/                 # Utility functions

@@ -19,7 +19,7 @@ import { ThemeService } from '../../core/services/theme.service';
                  loading="lazy"
                  class="w-full h-full object-cover">
           </div>
-          <h2 class="text-lg font-bold leading-tight tracking-tight text-slate-900 dark:text-white">Pranav Das</h2>
+          <h2 class="text-lg font-bold leading-tight tracking-tight text-slate-900 dark:text-white">Pranay Das</h2>
         </div>
 
         <!-- Desktop Navigation -->
