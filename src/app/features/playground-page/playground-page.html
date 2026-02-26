@@ -1,34 +1,16 @@
-<div class="mx-auto w-full max-w-6xl px-5 sm:px-8 py-12 sm:py-16">
-  <header class="mb-8 sm:mb-12">
-    <p class="text-[0.7rem] sm:text-xs tracking-[0.45em] uppercase text-slate-600 dark:text-white/50 font-light">
-      Playground
-    </p>
-    <h1 class="mt-3 text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 dark:text-white">
-      Experiments & Demos
-    </h1>
-    <p class="mt-4 max-w-2xl text-slate-700 dark:text-white/70 leading-relaxed">
-      A sandbox for interactive UI and WebGL ideas used across this portfolio.
-    </p>
-  </header>
-
-  <div class="grid gap-6 md:grid-cols-2">
-    <section class="glass-card rounded-[var(--radius-lg)] p-5 sm:p-6">
-      <h2 class="text-lg font-semibold text-slate-900 dark:text-white">Hero Icon Particles</h2>
-      <p class="mt-2 text-sm text-slate-700 dark:text-white/70">
-        Responsive Three.js sprite orbit preview (runs only in the browser).
-      </p>
-
-      <div class="relative mt-5 aspect-[16/10] overflow-hidden rounded-2xl border border-white/10 bg-background-dark">
-        <app-hero-icon-particles />
-        <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-      </div>
-    </section>
-
-    <section class="glass-card rounded-[var(--radius-lg)] p-5 sm:p-6">
-      <h2 class="text-lg font-semibold text-slate-900 dark:text-white">More coming soon</h2>
-      <p class="mt-2 text-sm text-slate-700 dark:text-white/70">
-        This page will host small experiments (motion, shaders, micro-interactions) as they’re added.
-      </p>
-    </section>
-  </div>
+<app-detail-bar />
+<main class="flex-grow pt-16 pb-8">
+  <nav class="flex flex-wrap justify-center items-center gap-2 mb-8">
+    @for (anim of animations; track anim.id) {
+      <button class="relative z-0 h-12 rounded-full bg-cyan-500 px-6 text-neutral-50 after:absolute after:left-0 after:top-0 after:-z-10 after:h-full after:w-full after:rounded-full after:bg-cyan-500 hover:after:scale-x-125 hover:after:scale-y-150 hover:after:opacity-0 hover:after:transition hover:after:duration-500 mr-2 cursor-pointer" (click)="select(anim.id)">{{ anim.label }}</button>
+    }
+  </nav>
+@if (selectedId() === 'hero-icon-particles') {
+  <div class="bg-background-dark">
+  <app-hero-icon-particles ></app-hero-icon-particles>
 </div>
+}
+@if (selectedId() === 'spinning-sphere') {
+  <app-background-animation-three></app-background-animation-three>
+}
+</main>

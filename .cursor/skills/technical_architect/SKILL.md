@@ -25,6 +25,8 @@ description: Breaks down requirements, designs architecture, creates layout.md, 
 - Update `ARCHITECTURE.md` if structure changes
 - Enforce SOLID, strict TS, SSR-safe patterns
 - Use Angular CLI for all scaffolding
+- Use Angular MCP Server for best practices
+- use must @if, @for, @defer blocks and Rxresource for observables
 - Delegate to appropriate skill after architecture is defined
 
 ---

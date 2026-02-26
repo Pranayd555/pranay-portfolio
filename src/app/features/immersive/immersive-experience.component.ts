@@ -17,6 +17,7 @@ import { ProjectsSlideComponent } from './slides/projects-slide/projects-slide.c
 import { ExperienceSlideComponent } from './slides/experience-slide/experience-slide.component';
 import { ContactSlideComponent } from './slides/contact-slide/contact-slide.component';
 import { PlaygroundSlideComponent } from './slides/playground-slide/playground-slide';
+import { HeroIconParticlesComponent } from '../../shared';
 
 @Component({
   selector: 'app-immersive-experience',
@@ -28,6 +29,7 @@ import { PlaygroundSlideComponent } from './slides/playground-slide/playground-s
     ExperienceSlideComponent,
     ContactSlideComponent,
     PlaygroundSlideComponent,
+    HeroIconParticlesComponent,
   ],
   template: `
     <div class="fixed inset-0 w-dvw h-dvh overflow-hidden bg-background-dark text-white">
@@ -39,22 +41,22 @@ import { PlaygroundSlideComponent } from './slides/playground-slide/playground-s
       <div class="absolute inset-0">
 
         @if (currentSlide() === 0) {
-          <app-hero-slide class="animate-slide-up" />
+          <app-hero-slide class="animate-slide-up" ><app-hero-icon-particles /></app-hero-slide>
         }
         @if (currentSlide() === 1) {
-          <app-about-slide class="animate-slide-up" />
+          <app-about-slide class="animate-slide-up" ><app-hero-icon-particles /></app-about-slide>
         }
         @if (currentSlide() === 2) {
-          <app-projects-slide class="animate-slide-up" />
+          <app-projects-slide class="animate-slide-up" ><app-hero-icon-particles /></app-projects-slide>
         }
         @if (currentSlide() === 3) {
-          <app-experience-slide class="animate-slide-up" />
+          <app-experience-slide class="animate-slide-up" ><app-hero-icon-particles /></app-experience-slide>
         }
         @if (currentSlide() === 4) {
-          <app-contact-slide class="animate-slide-up" />
+          <app-contact-slide class="animate-slide-up" ><app-hero-icon-particles /></app-contact-slide>
         }
         @if (currentSlide() === 5) {
-          <app-playground-slide class="animate-slide-up" />
+          <app-playground-slide class="animate-slide-up" ><app-hero-icon-particles /></app-playground-slide>
         }
 
       </div>

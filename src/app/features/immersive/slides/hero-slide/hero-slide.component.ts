@@ -1,15 +1,14 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ScrollNavigationService } from '../../../../core/services/scroll-navigation.service';
-import { HeroIconParticlesComponent } from '../../../../shared/components/hero-icon-particles/hero-icon-particles.component';
 
 @Component({
   selector: 'app-hero-slide',
-  imports: [HeroIconParticlesComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="absolute inset-0 flex items-center justify-center select-none px-5 sm:px-10">
       <!-- Skill icon sprites (Three.js) -->
-      <app-hero-icon-particles />
+      <!-- <app-hero-icon-particles /> -->
+       <ng-content></ng-content>
 
       <!-- Center overlay content -->
       <div class="relative z-10 flex flex-col items-center text-center w-full max-w-[46rem]">

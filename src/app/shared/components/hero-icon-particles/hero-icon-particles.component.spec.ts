@@ -59,32 +59,58 @@ describe('HeroIconParticlesComponent', () => {
     component.renderer = { setSize, setPixelRatio } as any;
     component.camera = {
       aspect: 1,
-      far: 0,
-      position: { z: 0 },
       updateProjectionMatrix: vi.fn(),
     } as any;
-
-    const spriteScaleSet = vi.fn();
-    component.iconSprites = [
-      {
-        sprite: { scale: { set: spriteScaleSet } } as any,
-        orbitRadiusFactor: 0.3,
-        orbitRadius: 0,
-        orbitSpeed: 0,
-        orbitPhase: 0,
-        bobPhase: 0,
-        bobAmplitudeFactor: 0.05,
-        bobAmplitude: 0,
-        tiltX: 0,
-        tiltZ: 0,
-      },
-    ];
 
     component.onResize();
 
     expect(setSize).toHaveBeenCalledWith(320, 200);
     expect(component.camera.aspect).toBeCloseTo(320 / 200);
-    expect(spriteScaleSet).toHaveBeenCalled();
+
+    fixture.destroy();
+  });
+
+  it('should update ring rotation while dragging', async () => {
+    await TestBed.configureTestingModule({
+      imports: [HeroIconParticlesComponent],
+      providers: [{ provide: PLATFORM_ID, useValue: 'server' }],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(HeroIconParticlesComponent);
+    fixture.detectChanges();
+
+    const component = fixture.componentInstance as any;
+    component.platformId = 'browser';
+
+    component.ringGroup = { rotation: { y: 0 } };
+    component.attachPointerControls();
+
+    const EventCtor: any = (window as any).PointerEvent ?? (window as any).MouseEvent;
+    const down = new EventCtor('pointerdown', {
+      pointerId: 1,
+      isPrimary: true,
+      clientX: 200,
+      clientY: 20,
+    });
+    document.dispatchEvent(down);
+
+    const move = new EventCtor('pointermove', {
+      pointerId: 1,
+      isPrimary: true,
+      clientX: 260,
+      clientY: 20,
+    });
+    document.dispatchEvent(move);
+
+    expect(component.ringGroup.rotation.y).not.toBe(0);
+
+    const up = new EventCtor('pointerup', {
+      pointerId: 1,
+      isPrimary: true,
+      clientX: 260,
+      clientY: 20,
+    });
+    document.dispatchEvent(up);
 
     fixture.destroy();
   });
