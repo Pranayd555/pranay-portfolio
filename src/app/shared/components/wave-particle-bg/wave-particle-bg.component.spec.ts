@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { SlideParticleBgComponent } from './slide-particle-bg.component';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { WaveParticleBgComponent } from './wave-particle-bg.component';
 
 const mockWebGLContext = {
   getExtension: vi.fn(() => null),
@@ -51,21 +51,21 @@ beforeEach(() => {
   vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(mockWebGLContext as any);
 });
 
-describe('SlideParticleBgComponent', () => {
+describe('WaveParticleBgComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SlideParticleBgComponent],
+      imports: [WaveParticleBgComponent],
     }).compileComponents();
   });
 
   it('should create', () => {
-    const fixture = TestBed.createComponent(SlideParticleBgComponent);
+    const fixture = TestBed.createComponent(WaveParticleBgComponent);
     fixture.detectChanges();
     expect(fixture.componentInstance).toBeTruthy();
   });
 
   it('should call cleanup on destroy', () => {
-    const fixture = TestBed.createComponent(SlideParticleBgComponent);
+    const fixture = TestBed.createComponent(WaveParticleBgComponent);
     const cleanupSpy = vi.spyOn(fixture.componentInstance as any, 'cleanup');
     fixture.detectChanges();
     fixture.destroy();
@@ -73,7 +73,7 @@ describe('SlideParticleBgComponent', () => {
   });
 
   it('should cancel animation frame on cleanup', () => {
-    const fixture = TestBed.createComponent(SlideParticleBgComponent);
+    const fixture = TestBed.createComponent(WaveParticleBgComponent);
     const cancelSpy = vi.spyOn(window, 'cancelAnimationFrame');
     const instance = fixture.componentInstance as any;
     instance.animationFrameId = 42;
@@ -81,3 +81,4 @@ describe('SlideParticleBgComponent', () => {
     expect(cancelSpy).toHaveBeenCalledWith(42);
   });
 });
+

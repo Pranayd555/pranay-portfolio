@@ -5,12 +5,35 @@
       <button class="relative z-0 h-12 rounded-full bg-cyan-500 px-6 text-neutral-50 after:absolute after:left-0 after:top-0 after:-z-10 after:h-full after:w-full after:rounded-full after:bg-cyan-500 hover:after:scale-x-125 hover:after:scale-y-150 hover:after:opacity-0 hover:after:transition hover:after:duration-500 mr-2 cursor-pointer" (click)="select(anim.id)">{{ anim.label }}</button>
     }
   </nav>
-@if (selectedId() === 'hero-icon-particles') {
-  <div class="bg-background-dark">
-  <app-hero-icon-particles ></app-hero-icon-particles>
-</div>
-}
-@if (selectedId() === 'spinning-sphere') {
-  <app-background-animation-three></app-background-animation-three>
-}
+
+  @switch (selectedId()) {
+    @case ('hero-icon-particles') {
+      <div class="bg-background-dark">
+        <app-hero-icon-particles></app-hero-icon-particles>
+      </div>
+    }
+    @case ('spinning-sphere') {
+      <app-background-animation-three></app-background-animation-three>
+    }
+    @case ('slide-particle-bg') {
+      <div class="bg-background-dark">
+        <app-slide-particle-bg></app-slide-particle-bg>
+      </div>
+    }
+    @case ('about-particle-bg') {
+      <div class="bg-background-dark">
+        <app-about-particle-bg></app-about-particle-bg>
+      </div>
+    }
+    @case ('wave-particle-bg') {
+      <div class="bg-background-dark">
+        <app-wave-particle-bg></app-wave-particle-bg>
+      </div>
+    }
+    @case ('text-scrapper-animation') {
+      <div class="relative min-h-[70vh] w-full overflow-hidden bg-background-dark">
+        <app-text-scrapper-animation />
+      </div>
+    }
+  }
 </main>

@@ -17,7 +17,7 @@ import { skillsData } from '../../../features/home/sections/data/skills-data';
   selector: 'app-hero-icon-particles',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'absolute inset-0 pointer-events-none z-5' },
+  host: { class: 'absolute inset-0 pointer-events-none z-5', '(window:resize)': 'onResize()'  },
   template: `<canvas #canvas class="absolute inset-0 h-full w-full touch-none select-none"></canvas>`,
 })
 export class HeroIconParticlesComponent implements OnDestroy {
@@ -33,7 +33,7 @@ export class HeroIconParticlesComponent implements OnDestroy {
   private ringGroup!: THREE.Group;
   private sprites: THREE.Sprite[] = [];
   private animationFrameId?: number;
-  private clock = new THREE.Clock();
+  private timer?: THREE.Timer;
 
   private isDestroyed = false;
   private isDragging = false;
@@ -71,11 +71,14 @@ export class HeroIconParticlesComponent implements OnDestroy {
 
     this.camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
     this.camera.position.z = 16;
-    this.camera.position.y = -6;
+    this.camera.position.y = 0;
 
     this.renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.onResize();
+
+    this.timer = new THREE.Timer();
+    this.timer.connect(this.document);
 
     const light = new THREE.DirectionalLight(0xffffff, 1);
     light.position.set(5, 5, 5);
@@ -171,11 +174,12 @@ export class HeroIconParticlesComponent implements OnDestroy {
           const angle = i * angleStep;
           sprite.position.x = this.RING_RADIUS * Math.cos(angle);
           sprite.position.z = this.RING_RADIUS * Math.sin(angle);
+          sprite.position.y = 6;
 
           this.sprites.push(sprite);
           this.ringGroup.add(sprite);
         },
-        undefined,
+        undefined, 
         () => {
           // Silently skip failed icon loads
         }
@@ -184,10 +188,11 @@ export class HeroIconParticlesComponent implements OnDestroy {
   }
 
   private animate(): void {
-    if (!this.renderer || !this.scene || !this.camera) return;
+    if (!this.renderer || !this.scene || !this.camera || !this.timer) return;
     this.animationFrameId = requestAnimationFrame(() => this.animate());
 
-    const dt = this.clock.getDelta();
+    this.timer.update();
+    const dt = this.timer.getDelta();
 
     if (this.ringGroup && !this.isDragging) {
       this.ringGroup.rotation.y += this.AUTO_ROTATE_SPEED * dt;
@@ -206,20 +211,19 @@ export class HeroIconParticlesComponent implements OnDestroy {
     if (!isPlatformBrowser(this.platformId)) return;
     if (!this.renderer || !this.camera) return;
 
-    const canvas = this.canvasRef.nativeElement;
-    const rect = canvas.getBoundingClientRect();
-    const w = Math.max(1, Math.floor(rect.width));
-    const h = Math.max(1, Math.floor(rect.height));
-
-    this.camera.aspect = w / h;
+    this.camera.aspect = window.innerWidth / window.innerHeight;
     this.camera.updateProjectionMatrix();
-    this.renderer.setSize(w, h);
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   }
 
   private cleanup(): void {
     this.isDestroyed = true;
     if (this.animationFrameId) cancelAnimationFrame(this.animationFrameId);
+
+    this.timer?.dispose();
+    this.timer = undefined;
+
     if (this.onWindowResize) window.removeEventListener('resize', this.onWindowResize);
     this.onWindowResize = undefined;
     this.removePointerListeners?.();

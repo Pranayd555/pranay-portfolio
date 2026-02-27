@@ -15,16 +15,15 @@ import * as THREE from 'three';
 import { ThemeService } from '../../../core/services/theme.service';
 
 @Component({
-  selector: 'app-slide-particle-bg',
-  standalone: true,
+  selector: 'app-wave-particle-bg',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { '(window:resize)': 'onResize()' },
-  template: `<canvas #canvas class="absolute inset-0 w-full h-full"></canvas>`,
-  styles: [`
-    :host { display: block; position: absolute; inset: 0; pointer-events: none; }
-  `],
+  host: {
+    class: 'block absolute inset-0 pointer-events-none',
+    '(window:resize)': 'onResize()',
+  },
+  template: `<canvas #canvas class="absolute inset-0 h-full w-full"></canvas>`,
 })
-export class SlideParticleBgComponent implements OnDestroy {
+export class WaveParticleBgComponent implements OnDestroy {
   @ViewChild('canvas') canvasRef!: ElementRef<HTMLCanvasElement>;
 
   private destroyRef = inject(DestroyRef);
@@ -33,12 +32,10 @@ export class SlideParticleBgComponent implements OnDestroy {
   private themeService = inject(ThemeService);
 
   private scene?: THREE.Scene;
-  private camera?: THREE.OrthographicCamera;
+  private camera?: THREE.PerspectiveCamera;
   private renderer?: THREE.WebGLRenderer;
   private particles?: THREE.Points<THREE.BufferGeometry, THREE.ShaderMaterial>;
 
-  private positions?: Float32Array;
-  private speeds?: Float32Array;
   private animationFrameId?: number;
   private timer?: THREE.Timer;
 
@@ -46,23 +43,24 @@ export class SlideParticleBgComponent implements OnDestroy {
   private pendingPointer?: { x: number; y: number };
   private pointerInside = false;
 
-  private readonly COUNT = 480; // keep <= 500 for mobile GPU safety
-  private readonly BASE_SIZE_PX = 3.4;
+  private readonly GRID_X = 24;
+  private readonly GRID_Y = 18;
+  private readonly BASE_SIZE_PX = 3.2;
   private readonly HOVER_RADIUS_NDC = 0.22;
-  private readonly SPEED_MIN = 0.08;
-  private readonly SPEED_MAX = 2;
 
   constructor() {
     effect(() => {
-      const isDark = this.themeService.darkMode();
       const material = this.particles?.material;
       if (!material) return;
 
+      const isDark = this.themeService.darkMode();
       material.uniforms['uIsDark'].value = isDark ? 1.0 : 0.0;
       material.blending = isDark ? THREE.AdditiveBlending : THREE.NormalBlending;
 
-      const color = isDark ? new THREE.Color(0x00f3ff) : new THREE.Color(0x135bec);
-      material.uniforms['uColor'].value.copy(color);
+      const colorA = isDark ? new THREE.Color(0x00f3ff) : new THREE.Color(0x135bec);
+      const colorB = isDark ? new THREE.Color(0x6d2cff) : new THREE.Color(0x00a8ff);
+      (material.uniforms['uColorA'].value as THREE.Color).copy(colorA);
+      (material.uniforms['uColorB'].value as THREE.Color).copy(colorB);
     });
 
     afterNextRender(() => {
@@ -79,22 +77,12 @@ export class SlideParticleBgComponent implements OnDestroy {
 
   private initThree(): void {
     const canvas = this.canvasRef.nativeElement;
+    const { width, height, aspect } = this.getCanvasMetrics();
 
     this.scene = new THREE.Scene();
 
-    const { width, height, aspect } = this.getCanvasMetrics();
-    const viewHalfHeight = 1;
-    const viewHalfWidth = viewHalfHeight * aspect;
-
-    this.camera = new THREE.OrthographicCamera(
-      -viewHalfWidth,
-      viewHalfWidth,
-      viewHalfHeight,
-      -viewHalfHeight,
-      0.1,
-      10
-    );
-    this.camera.position.z = 2;
+    this.camera = new THREE.PerspectiveCamera(58, aspect, 0.1, 12);
+    this.camera.position.set(0, 0, 2.7);
 
     this.renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
     this.renderer.setSize(width, height, false);
@@ -104,27 +92,51 @@ export class SlideParticleBgComponent implements OnDestroy {
     this.timer.connect(this.document);
 
     const geometry = new THREE.BufferGeometry();
-    this.positions = new Float32Array(this.COUNT * 3);
-    this.speeds = new Float32Array(this.COUNT);
-    const seeds = new Float32Array(this.COUNT);
 
-    for (let i = 0; i < this.COUNT; i++) {
-      const i3 = i * 3;
-      this.positions[i3] = this.rand(-viewHalfWidth, viewHalfWidth);
-      this.positions[i3 + 1] = this.rand(-viewHalfHeight, viewHalfHeight);
-      this.positions[i3 + 2] = 0;
-      this.speeds[i] = this.rand(this.SPEED_MIN, this.SPEED_MAX);
-      seeds[i] = Math.random();
+    const count = Math.min(500, this.GRID_X * this.GRID_Y);
+    const positions = new Float32Array(count * 3);
+    const seeds = new Float32Array(count);
+
+    const viewHalfHeight = 1.0;
+    const viewHalfWidth = viewHalfHeight * aspect;
+
+    // Grid with jitter for "random wave" look.
+    let idx = 0;
+    for (let y = 0; y < this.GRID_Y && idx < count; y++) {
+      const v = y / (this.GRID_Y - 1);
+      const py = (v * 2 - 1) * viewHalfHeight;
+      for (let x = 0; x < this.GRID_X && idx < count; x++) {
+        const u = x / (this.GRID_X - 1);
+        const px = (u * 2 - 1) * viewHalfWidth;
+
+        const i3 = idx * 3;
+        const seed = Math.random();
+
+        // Small jitter that stays stable across frames.
+        const jx = (seed - 0.5) * 0.06;
+        const jy = (Math.sin(seed * 12.345) - 0.5) * 0.06;
+
+        positions[i3] = px + jx;
+        positions[i3 + 1] = py + jy;
+        positions[i3 + 2] = 0;
+
+        seeds[idx] = seed;
+        idx++;
+      }
     }
 
-    geometry.setAttribute('position', new THREE.BufferAttribute(this.positions, 3));
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     geometry.setAttribute('aSeed', new THREE.BufferAttribute(seeds, 1));
 
     const isDark = this.themeService.darkMode();
     const material = new THREE.ShaderMaterial({
+      transparent: true,
+      depthWrite: false,
+      blending: isDark ? THREE.AdditiveBlending : THREE.NormalBlending,
       uniforms: {
         uTime: { value: 0 },
-        uColor: { value: new THREE.Color(isDark ? 0x00f3ff : 0x135bec) },
+        uColorA: { value: new THREE.Color(isDark ? 0x00f3ff : 0x135bec) },
+        uColorB: { value: new THREE.Color(isDark ? 0x6d2cff : 0x00a8ff) },
         uIsDark: { value: isDark ? 1.0 : 0.0 },
         uMouse: { value: new THREE.Vector2(999, 999) },
         uHoverRadius: { value: this.HOVER_RADIUS_NDC },
@@ -141,110 +153,86 @@ export class SlideParticleBgComponent implements OnDestroy {
         attribute float aSeed;
 
         varying float vHover;
-        varying float vPulse;
+        varying float vGlow;
+
+        float hash(float n) { return fract(sin(n) * 43758.5453123); }
 
         void main() {
-          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+          vec3 p = position;
+
+          float t = uTime;
+          float s = aSeed;
+
+          // Two-wave interference with per-point randomness.
+          float w1 = sin(p.x * 3.6 + t * 1.35 + s * 6.2831) * (0.18 + hash(s * 11.1) * 0.10);
+          float w2 = sin(p.y * 4.1 - t * 1.10 + s * 12.0) * (0.12 + hash(s * 19.7) * 0.08);
+          float wave = w1 + w2;
+
+          p.z += wave;
+
+          vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
           gl_Position = projectionMatrix * mvPosition;
 
           vec2 ndc = gl_Position.xy / gl_Position.w;
           float dist = distance(ndc, uMouse);
           float hover = smoothstep(uHoverRadius, 0.0, dist);
 
-          float pulse = sin(uTime * 1.2 + aSeed * 6.2831) * 0.5 + 0.5;
+          // Subtle ripple that follows the pointer.
+          float ripple = sin(dist * 18.0 - t * 4.2) * exp(-dist * 5.5) * 0.18;
+          mvPosition.z += ripple;
 
-          float size = uBaseSize * (0.9 + pulse * 0.6);
-          size *= (1.0 + hover * 1.9);
+          gl_Position = projectionMatrix * mvPosition;
 
-          gl_PointSize = min(size * uPixelRatio, 48.0);
+          float perspective = 1.0 / max(0.001, -mvPosition.z);
+          float pulse = sin(t * 1.4 + s * 6.2831) * 0.5 + 0.5;
+
+          float size = uBaseSize * (0.85 + pulse * 0.55);
+          size *= (1.0 + hover * 1.65);
+          gl_PointSize = min(size * uPixelRatio * perspective, 50.0);
+
           vHover = hover;
-          vPulse = pulse;
+          vGlow = 0.55 + pulse * 0.35 + hover * 0.75;
         }
       `,
       fragmentShader: `
-        uniform vec3 uColor;
+        uniform vec3 uColorA;
+        uniform vec3 uColorB;
         uniform float uIsDark;
 
         varying float vHover;
-        varying float vPulse;
+        varying float vGlow;
 
         void main() {
           float d = distance(gl_PointCoord, vec2(0.5));
           if (d > 0.5) discard;
 
-          float core = smoothstep(0.16, 0.0, d);
+          float core = smoothstep(0.18, 0.0, d);
           float halo = smoothstep(0.5, 0.14, d);
 
-          float glowBoost = 0.55 + vHover * 1.15;
-          float pulseBoost = 0.85 + vPulse * 0.15;
+          vec3 base = mix(uColorA, uColorB, core);
+          vec3 highlight = mix(base, vec3(1.0), (uIsDark > 0.5) ? 0.55 : 0.25);
+          vec3 color = mix(base, highlight, core);
 
-          vec3 highlight = mix(uColor, vec3(1.0), (uIsDark > 0.5) ? 0.55 : 0.25);
-          vec3 color = mix(uColor, highlight, core);
+          float alphaBase = (uIsDark > 0.5)
+            ? (halo * 0.30 + core * 0.70)
+            : (halo * 0.45 + core * 0.80);
 
-          float alphaBase = (uIsDark > 0.5) ? (halo * 0.35 + core * 0.75) : (halo * 0.45 + core * 0.85);
-          float alpha = alphaBase * glowBoost * pulseBoost;
-
+          float alpha = alphaBase * vGlow * (0.92 + vHover * 0.25);
           gl_FragColor = vec4(color, alpha);
         }
       `,
-      transparent: true,
-      depthWrite: false,
-      blending: isDark ? THREE.AdditiveBlending : THREE.NormalBlending,
     });
 
     this.particles = new THREE.Points(geometry, material);
     this.scene.add(this.particles);
   }
 
-  private attachPointerTracking(): void {
-    if (this.removePointerListener) return;
-
-    const onPointerMove = (ev: PointerEvent): void => {
-      const canvas = this.canvasRef?.nativeElement;
-      if (!canvas) return;
-      const rect = canvas.getBoundingClientRect();
-
-      const inside =
-        ev.clientX >= rect.left &&
-        ev.clientX <= rect.right &&
-        ev.clientY >= rect.top &&
-        ev.clientY <= rect.bottom;
-
-      this.pointerInside = inside;
-      if (!inside) return;
-
-      this.pendingPointer = { x: ev.clientX - rect.left, y: ev.clientY - rect.top };
-    };
-
-    const doc = this.document;
-    doc.addEventListener('pointermove', onPointerMove, { passive: true });
-
-    this.removePointerListener = () => doc.removeEventListener('pointermove', onPointerMove);
-  }
-
   private animate(): void {
-    if (!this.renderer || !this.scene || !this.camera || !this.particles || !this.positions || !this.speeds || !this.timer) return;
+    if (!this.renderer || !this.scene || !this.camera || !this.particles || !this.timer) return;
     this.animationFrameId = requestAnimationFrame(() => this.animate());
 
     this.timer.update();
-    const dt = Math.min(this.timer.getDelta(), 0.05);
     const elapsed = this.timer.getElapsed();
-
-    const { aspect } = this.getCanvasMetrics();
-    const viewHalfHeight = 1;
-    const viewHalfWidth = viewHalfHeight * aspect;
-
-    for (let i = 0; i < this.COUNT; i++) {
-      const i3 = i * 3;
-      this.positions[i3] += this.speeds[i] * dt;
-      if (this.positions[i3] > viewHalfWidth + 0.05) {
-        this.positions[i3] = -viewHalfWidth - 0.05;
-        this.positions[i3 + 1] = this.rand(-viewHalfHeight, viewHalfHeight);
-      }
-    }
-
-    const positionAttr = this.particles.geometry.getAttribute('position') as THREE.BufferAttribute;
-    positionAttr.needsUpdate = true;
 
     const material = this.particles.material;
     material.uniforms['uTime'].value = elapsed;
@@ -261,16 +249,29 @@ export class SlideParticleBgComponent implements OnDestroy {
     this.renderer.render(this.scene, this.camera);
   }
 
-  private getCanvasMetrics(): { width: number; height: number; aspect: number } {
-    const canvas = this.canvasRef.nativeElement;
-    const rect = canvas.getBoundingClientRect();
-    const width = Math.max(1, Math.floor(rect.width || canvas.clientWidth || 1));
-    const height = Math.max(1, Math.floor(rect.height || canvas.clientHeight || 1));
-    return { width, height, aspect: width / height };
-  }
+  private attachPointerTracking(): void {
+    if (this.removePointerListener) return;
 
-  private rand(min: number, max: number): number {
-    return min + Math.random() * (max - min);
+    const onPointerMove = (ev: PointerEvent): void => {
+      const canvas = this.canvasRef?.nativeElement;
+      if (!canvas) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const inside =
+        ev.clientX >= rect.left &&
+        ev.clientX <= rect.right &&
+        ev.clientY >= rect.top &&
+        ev.clientY <= rect.bottom;
+
+      this.pointerInside = inside;
+      if (!inside) return;
+
+      this.pendingPointer = { x: ev.clientX - rect.left, y: ev.clientY - rect.top };
+    };
+
+    const doc = this.document;
+    doc.addEventListener('pointermove', onPointerMove, { passive: true });
+    this.removePointerListener = () => doc.removeEventListener('pointermove', onPointerMove);
   }
 
   onResize(): void {
@@ -278,19 +279,21 @@ export class SlideParticleBgComponent implements OnDestroy {
     if (!this.renderer || !this.camera || !this.particles) return;
 
     const { width, height, aspect } = this.getCanvasMetrics();
-    const viewHalfHeight = 1;
-    const viewHalfWidth = viewHalfHeight * aspect;
-
-    this.camera.left = -viewHalfWidth;
-    this.camera.right = viewHalfWidth;
-    this.camera.top = viewHalfHeight;
-    this.camera.bottom = -viewHalfHeight;
+    this.camera.aspect = aspect;
     this.camera.updateProjectionMatrix();
 
     this.renderer.setSize(width, height, false);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
     this.particles.material.uniforms['uPixelRatio'].value = Math.min(window.devicePixelRatio, 2);
+  }
+
+  private getCanvasMetrics(): { width: number; height: number; aspect: number } {
+    const canvas = this.canvasRef.nativeElement;
+    const rect = canvas.getBoundingClientRect();
+    const width = Math.max(1, Math.floor(rect.width || canvas.clientWidth || 1));
+    const height = Math.max(1, Math.floor(rect.height || canvas.clientHeight || 1));
+    return { width, height, aspect: width / height };
   }
 
   private cleanup(): void {
@@ -312,11 +315,10 @@ export class SlideParticleBgComponent implements OnDestroy {
     this.camera = undefined;
     this.renderer = undefined;
     this.particles = undefined;
-    this.positions = undefined;
-    this.speeds = undefined;
     this.pendingPointer = undefined;
     this.pointerInside = false;
   }
 
   ngOnDestroy(): void {}
 }
+

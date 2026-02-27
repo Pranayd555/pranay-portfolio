@@ -36,7 +36,6 @@ Triggers performance_monitor skill.
 ## Three.js / WebGL Performance (Mandatory)
 
 - **Cap pixel ratio**: `renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))`
-- **Particle count**: keep ≤ 500 for mobile-safe GPU load
 - **No object creation inside RAF loop** — pre-allocate all `THREE.*` instances
 - **`BufferGeometry` only** — never legacy `Geometry`
 - **`depthWrite: false`** on all transparent/additive materials

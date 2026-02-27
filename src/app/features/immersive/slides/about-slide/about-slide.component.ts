@@ -1,12 +1,16 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { AboutParticleBgComponent } from '../../../../shared/components/about-particle-bg/about-particle-bg.component';
 
 @Component({
   selector: 'app-about-slide',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [AboutParticleBgComponent],
   template: `
-    <div class="absolute inset-0 flex items-center justify-center select-none px-5 sm:px-10">
-    <ng-content></ng-content>
+    <div class="absolute inset-0 flex items-center justify-center select-none px-5 sm:px-10
+                bg-[radial-gradient(circle_at_center,#071428,#050b1a_70%)]">
+      <app-about-particle-bg />
+      <ng-content></ng-content>
       <div class="relative z-10 flex flex-col items-center text-center w-full max-w-[44rem]">
 
         <p class="text-[0.65rem] sm:text-xs tracking-[0.45em] text-white/40 uppercase mb-5 sm:mb-6 font-light">

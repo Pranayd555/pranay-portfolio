@@ -43,7 +43,7 @@ export class BackgroundAnimationThreeComponent implements OnDestroy {
     private renderer!: THREE.WebGLRenderer;
     private particles!: THREE.Points;
     private animationFrameId?: number;
-    private clock = new THREE.Clock();
+    private timer?: THREE.Timer;
 
     private numParticles = 140;
     private rings = 14;
@@ -98,6 +98,9 @@ export class BackgroundAnimationThreeComponent implements OnDestroy {
         });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        this.timer = new THREE.Timer();
+        this.timer.connect(this.document);
 
         this.createParticles();
         this.updateRadius();
@@ -215,10 +218,11 @@ export class BackgroundAnimationThreeComponent implements OnDestroy {
     }
 
     private animate(): void {
-        if (!this.renderer || !this.scene || !this.camera) return;
+        if (!this.renderer || !this.scene || !this.camera || !this.timer) return;
         this.animationFrameId = requestAnimationFrame(() => this.animate());
 
-        const elapsedTime = this.clock.getElapsedTime();
+        this.timer.update();
+        const elapsedTime = this.timer.getElapsed();
         if (this.particles && this.particles.material instanceof THREE.ShaderMaterial) {
             this.particles.material.uniforms['uTime'].value = elapsedTime;
         }
@@ -260,6 +264,10 @@ export class BackgroundAnimationThreeComponent implements OnDestroy {
 
     private cleanup(): void {
         if (this.animationFrameId) cancelAnimationFrame(this.animationFrameId);
+
+        this.timer?.dispose();
+        this.timer = undefined;
+
         if (this.renderer) this.renderer.dispose();
         if (this.particles) {
             this.particles.geometry.dispose();
