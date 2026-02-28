@@ -69,9 +69,9 @@ export class HeroIconParticlesComponent implements OnDestroy {
     const canvas = this.canvasRef.nativeElement;
     this.scene = new THREE.Scene();
 
-    this.camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
-    this.camera.position.z = 16;
-    this.camera.position.y = 0;
+    this.camera = new THREE.PerspectiveCamera(75, 1, 0.1, 2000);
+    this.camera.position.z = 2;
+    this.camera.position.y = 3;
 
     this.renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));

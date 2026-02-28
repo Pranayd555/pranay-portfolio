@@ -2,7 +2,7 @@
 <main class="flex-grow pt-16 pb-8">
   <nav class="flex flex-wrap justify-center items-center gap-2 mb-8">
     @for (anim of animations; track anim.id) {
-      <button class="relative z-0 h-12 rounded-full bg-cyan-500 px-6 text-neutral-50 after:absolute after:left-0 after:top-0 after:-z-10 after:h-full after:w-full after:rounded-full after:bg-cyan-500 hover:after:scale-x-125 hover:after:scale-y-150 hover:after:opacity-0 hover:after:transition hover:after:duration-500 mr-2 cursor-pointer" (click)="select(anim.id)">{{ anim.label }}</button>
+      <button class="relative z-0 h-12 rounded-full bg-cyan-500 px-6 text-neutral-50 after:absolute after:left-0 after:top-0 after:-z-10 after:h-full after:w-full after:rounded-full after:bg-cyan-500 hover:after:scale-x-125 hover:after:scale-y-150 hover:after:opacity-0 hover:after:transition hover:after:duration-500 mr-2 cursor-pointer" [ngClass]="{'z-10': selectedId() !== 'hero-icon-particles', 'bg-orange-500 after:bg-orange-500': selectedId() === anim.id}" (click)="select(anim.id)">{{ anim.label }}</button>
     }
   </nav>
 
@@ -31,9 +31,7 @@
       </div>
     }
     @case ('text-scrapper-animation') {
-      <div class="relative min-h-[70vh] w-full overflow-hidden bg-background-dark">
         <app-text-scrapper-animation />
-      </div>
     }
   }
 </main>

@@ -43,9 +43,9 @@ export class WaveParticleBgComponent implements OnDestroy {
   private pendingPointer?: { x: number; y: number };
   private pointerInside = false;
 
-  private readonly GRID_X = 24;
-  private readonly GRID_Y = 18;
-  private readonly BASE_SIZE_PX = 3.2;
+  private readonly GRID_X = 300;
+  private readonly GRID_Y = 300;
+  private readonly BASE_SIZE_PX = 2;
   private readonly HOVER_RADIUS_NDC = 0.22;
 
   constructor() {
@@ -81,8 +81,8 @@ export class WaveParticleBgComponent implements OnDestroy {
 
     this.scene = new THREE.Scene();
 
-    this.camera = new THREE.PerspectiveCamera(58, aspect, 0.1, 12);
-    this.camera.position.set(0, 0, 2.7);
+    this.camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1);
+    this.camera.position.set(1.5, -0.3, 0.4);
 
     this.renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
     this.renderer.setSize(width, height, false);
@@ -93,35 +93,47 @@ export class WaveParticleBgComponent implements OnDestroy {
 
     const geometry = new THREE.BufferGeometry();
 
-    const count = Math.min(500, this.GRID_X * this.GRID_Y);
+    const count = Math.min(10000, this.GRID_X * this.GRID_Y);
     const positions = new Float32Array(count * 3);
     const seeds = new Float32Array(count);
 
-    const viewHalfHeight = 1.0;
-    const viewHalfWidth = viewHalfHeight * aspect;
+    // Compute the visible frustum at z=0 (the particle base plane) so the
+    // grid always fills the screen on any aspect ratio (portrait mobile included).
+    const camZ = 0.7;   // camera.position.z
+    const camX = 1;   // camera.position.x
+    const camY = -0.3;  // camera.position.y
+    const fovHalfRad = (75 / 2) * (Math.PI / 180);
+    const halfH = Math.tan(fovHalfRad) * camZ * 1.2; // 20% bleed margin for edge coverage
+    const halfW = halfH * aspect * 1.1;
 
-    // Grid with jitter for "random wave" look.
+    // Two mirrored bands: each band covers the outer 45% of the frustum height,
+    // leaving the centre clear so the content can breathe.
+    const bandDepth = halfH * 0.6;
+    const innerEdge = halfH - bandDepth; // distance from camY where each band starts
+
+    const halfCount = Math.floor(count / 2);
+    const cols = this.GRID_X;
+    const rowsPerBand = Math.ceil(halfCount / cols);
+
     let idx = 0;
-    for (let y = 0; y < this.GRID_Y && idx < count; y++) {
-      const v = y / (this.GRID_Y - 1);
-      const py = (v * 2 - 1) * viewHalfHeight;
-      for (let x = 0; x < this.GRID_X && idx < count; x++) {
-        const u = x / (this.GRID_X - 1);
-        const px = (u * 2 - 1) * viewHalfWidth;
-
-        const i3 = idx * 3;
-        const seed = Math.random();
-
-        // Small jitter that stays stable across frames.
-        const jx = (seed - 0.5) * 0.06;
-        const jy = (Math.sin(seed * 12.345) - 0.5) * 0.06;
-
-        positions[i3] = px + jx;
-        positions[i3 + 1] = py + jy;
-        positions[i3 + 2] = 0;
-
-        seeds[idx] = seed;
-        idx++;
+    for (let band = 0; band < 2; band++) {
+      const sign = band === 0 ? 1.0 : -1.0; // +1 = top, -1 = bottom
+      for (let r = 0; r < rowsPerBand && idx < count; r++) {
+        const v = r / rowsPerBand;
+        // v=0 → inner edge of band (near centre), v=1 → outer screen edge
+        const py = camY + sign * (innerEdge + v * bandDepth);
+        for (let c = 0; c < cols && idx < count; c++) {
+          const u = c / cols;
+          const px = camX + (u - 0.5) * 2 * halfW;
+          const seed = Math.random();
+          const jx = (seed - 0.5) * 0.08;
+          const jy = (Math.sin(seed * 12.345) - 0.5) * 0.08;
+          const i3 = idx * 3;
+          positions[i3]     = px + jx;
+          positions[i3 + 1] = py + jy;
+          seeds[idx] = seed;
+          idx++;
+        }
       }
     }
 
@@ -135,8 +147,8 @@ export class WaveParticleBgComponent implements OnDestroy {
       blending: isDark ? THREE.AdditiveBlending : THREE.NormalBlending,
       uniforms: {
         uTime: { value: 0 },
-        uColorA: { value: new THREE.Color(isDark ? 0x00f3ff : 0x135bec) },
-        uColorB: { value: new THREE.Color(isDark ? 0x6d2cff : 0x00a8ff) },
+        uColorA: { value: new THREE.Color(isDark ? 0xBF00FF : 0xBC13FE ) },
+        uColorB: { value: new THREE.Color(isDark ? 0xBC13FE  : 0xBF00FF) },
         uIsDark: { value: isDark ? 1.0 : 0.0 },
         uMouse: { value: new THREE.Vector2(999, 999) },
         uHoverRadius: { value: this.HOVER_RADIUS_NDC },
@@ -170,7 +182,7 @@ export class WaveParticleBgComponent implements OnDestroy {
 
           p.z += wave;
 
-          vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
+          vec4 mvPosition = modelViewMatrix * vec4(p, 0.75);
           gl_Position = projectionMatrix * mvPosition;
 
           vec2 ndc = gl_Position.xy / gl_Position.w;
@@ -184,11 +196,11 @@ export class WaveParticleBgComponent implements OnDestroy {
           gl_Position = projectionMatrix * mvPosition;
 
           float perspective = 1.0 / max(0.001, -mvPosition.z);
-          float pulse = sin(t * 1.4 + s * 6.2831) * 0.5 + 0.5;
+          float pulse = sin(t * 10.4 + s * 6.2831) * 0.5 + 0.5;
 
           float size = uBaseSize * (0.85 + pulse * 0.55);
-          size *= (1.0 + hover * 1.65);
-          gl_PointSize = min(size * uPixelRatio * perspective, 50.0);
+          size *= (1.0 + hover * 0.65);
+          gl_PointSize = min(size * uPixelRatio * perspective, 30.0);
 
           vHover = hover;
           vGlow = 0.55 + pulse * 0.35 + hover * 0.75;
@@ -210,14 +222,14 @@ export class WaveParticleBgComponent implements OnDestroy {
           float halo = smoothstep(0.5, 0.14, d);
 
           vec3 base = mix(uColorA, uColorB, core);
-          vec3 highlight = mix(base, vec3(1.0), (uIsDark > 0.5) ? 0.55 : 0.25);
+          vec3 highlight = mix(base, vec3(1.0), (uIsDark > 0.5) ? 0.75 : 0.25);
           vec3 color = mix(base, highlight, core);
 
           float alphaBase = (uIsDark > 0.5)
-            ? (halo * 0.30 + core * 0.70)
-            : (halo * 0.45 + core * 0.80);
+            ? (halo * 0.70 + core * 0.90)
+            : (halo * 0.65 + core * 0.90);
 
-          float alpha = alphaBase * vGlow * (0.92 + vHover * 0.25);
+          float alpha = alphaBase * vGlow * (0.62 + vHover * 0.25);
           gl_FragColor = vec4(color, alpha);
         }
       `,

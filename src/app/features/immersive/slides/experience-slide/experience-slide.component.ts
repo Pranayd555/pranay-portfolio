@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { WaveParticleBgComponent } from '../../../../shared';
 
 @Component({
   selector: 'app-experience-slide',

@@ -4,11 +4,9 @@ import { SlideParticleBgComponent } from '../../../../shared';
 
 @Component({
   selector: 'app-projects-slide',
-  imports: [SlideParticleBgComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="absolute inset-0 flex items-center justify-center select-none px-5 sm:px-10">
-    <app-slide-particle-bg/>
       <ng-content></ng-content>
       <div class="relative z-10 flex flex-col items-center text-center w-full max-w-[46rem]">
 
