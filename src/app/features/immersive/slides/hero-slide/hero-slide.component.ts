@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ScrollNavigationService } from '../../../../core/services/scroll-navigation.service';
-import { TextScrapperAnimation } from '../../../../shared/components/text-scrapper-animation/text-scrapper-animation';
 
 @Component({
   selector: 'app-hero-slide',
@@ -14,17 +13,17 @@ import { TextScrapperAnimation } from '../../../../shared/components/text-scrapp
 
       <!-- Center overlay content -->
       <div class="relative z-10 flex flex-col items-center text-center w-full max-w-[46rem]">
-        <p class="text-[0.65rem] sm:text-xs tracking-[0.45em] text-white/40 uppercase mb-5 sm:mb-6 font-light">
+        <p class="text-[0.65rem] sm:text-xs tracking-[0.45em] text-white/50 uppercase mb-5 sm:mb-6 font-light slide-text-contrast-soft">
           01 / 06
         </p>
 
         <h1 class="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold
                    tracking-[0.12em] sm:tracking-[0.18em] md:tracking-[0.2em]
-                   text-white uppercase leading-[0.9] mb-3 neon-text">
+                   text-white uppercase leading-[0.9] mb-3 neon-text slide-text-contrast">
           PRANAY DAS
         </h1>
 
-        <p class="text-[0.7rem] sm:text-sm text-white/50 tracking-[0.28em] sm:tracking-[0.35em] uppercase mb-8 sm:mb-10 font-light">
+        <p class="text-[0.7rem] sm:text-sm text-white tracking-[0.28em] sm:tracking-[0.35em] uppercase mb-8 sm:mb-10 font-light slide-text-contrast">
           Sr. Software Engineer
         </p>
 
@@ -39,9 +38,9 @@ import { TextScrapperAnimation } from '../../../../shared/components/text-scrapp
                        flex items-center justify-center cursor-pointer
                        hover:bg-white/15 hover:border-white/60 transition-all duration-300
                        hover:shadow-[0_0_30px_rgba(0,243,255,0.3)]">
-            <span class="-rotate-45 text-white/80 font-light text-xs sm:text-sm tracking-widest">Explore</span>
+            <span class="-rotate-45 text-white font-light text-xs sm:text-sm tracking-widest slide-text-contrast">Explore</span>
           </span>
-          <span class="text-white/35 text-[0.65rem] sm:text-xs tracking-[0.35em] sm:tracking-[0.4em] uppercase mt-1">
+          <span class="text-white/80 text-[0.65rem] sm:text-xs tracking-[0.35em] sm:tracking-[0.4em] uppercase mt-1 slide-text-contrast-soft">
             Building the future of the web
           </span>
         </button>

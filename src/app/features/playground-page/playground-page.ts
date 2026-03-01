@@ -42,6 +42,11 @@ interface PlaygroundAnimation {
 })
 export class PlaygroundPageComponent {
   protected readonly animations: readonly PlaygroundAnimation[] = [
+    
+    {
+      id: 'text-scrapper-animation',
+      label: 'Text Scrapper Animation',
+    },
     {
       id: 'spinning-sphere',
       label: 'Spinning Sphere',
@@ -61,10 +66,6 @@ export class PlaygroundPageComponent {
     {
       id: 'wave-particle-bg',
       label: 'Wave Particle BG',
-    },
-    {
-      id: 'text-scrapper-animation',
-      label: 'Text Scrapper Animation',
     }
   ] as const;
 

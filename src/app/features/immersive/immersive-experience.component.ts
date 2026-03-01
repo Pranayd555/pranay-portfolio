@@ -7,9 +7,11 @@ import {
   OnInit,
   PLATFORM_ID,
   inject,
-  signal,
 } from '@angular/core';
 import { isPlatformBrowser, DOCUMENT } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { filter } from 'rxjs';
+import { Router, Event, NavigationStart, NavigationEnd } from '@angular/router';
 import { ScrollNavigationService } from '../../core/services/scroll-navigation.service';
 import { HeroSlideComponent } from './slides/hero-slide/hero-slide.component';
 import { AboutSlideComponent } from './slides/about-slide/about-slide.component';
@@ -129,6 +131,7 @@ export class ImmersiveExperienceComponent implements OnInit, OnDestroy {
   private platformId = inject(PLATFORM_ID);
   private document = inject(DOCUMENT);
   private el = inject(ElementRef);
+  private router = inject(Router);
 
   currentSlide = this.navService.currentSlide;
 
@@ -169,7 +172,26 @@ export class ImmersiveExperienceComponent implements OnInit, OnDestroy {
   };
 
   ngOnInit(): void {
-    this.navService.resetToFirst();
+    let lastTrigger: string | undefined;
+    this.router.events
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        filter((e: Event): e is NavigationStart => e instanceof NavigationStart)
+      )
+      .subscribe((e: NavigationStart) => {
+        lastTrigger = e.navigationTrigger;
+      });
+    this.router.events
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        filter((e: Event): e is NavigationEnd => e instanceof NavigationEnd),
+        filter(() => this.router.url === '' || this.router.url === '/')
+      )
+      .subscribe(() => {
+        if (lastTrigger !== 'popstate') {
+          this.navService.resetToFirst();
+        }
+      });
 
     if (isPlatformBrowser(this.platformId)) {
       this.el.nativeElement.addEventListener('wheel', this.onWheel, { passive: false });

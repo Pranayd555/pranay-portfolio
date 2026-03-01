@@ -6,23 +6,22 @@ import { AboutParticleBgComponent } from '../../../../shared/components/about-pa
   selector: 'app-about-slide',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="absolute inset-0 flex items-center justify-center select-none px-5 sm:px-10
-                bg-[radial-gradient(circle_at_center,#071428,#050b1a_70%)]">
+    <div class="absolute inset-0 flex items-center justify-center select-none px-5 sm:px-10">
       
       <ng-content></ng-content>
       <div class="relative z-10 flex flex-col items-center text-center w-full max-w-[44rem]">
 
-        <p class="text-[0.65rem] sm:text-xs tracking-[0.45em] text-white/40 uppercase mb-5 sm:mb-6 font-light">
+        <p class="text-[0.65rem] sm:text-xs tracking-[0.45em] text-white/50 uppercase mb-5 sm:mb-6 font-light slide-text-contrast-soft">
           02 / 06
         </p>
 
         <h1 class="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold uppercase leading-[0.9] mb-3
                    tracking-[0.16em] sm:tracking-[0.22em] md:tracking-[0.3em]
-                   text-[#f3a000] drop-shadow-[0_0_40px_rgba(243,160,0,0.4)]">
+                   text-[#f3a000] drop-shadow-[0_0_40px_rgba(243,160,0,0.4)] slide-text-contrast">
           ABOUT
         </h1>
 
-        <p class="text-[0.7rem] sm:text-sm text-white/50 tracking-[0.28em] sm:tracking-[0.35em] uppercase mb-8 sm:mb-10 font-light">
+        <p class="text-[0.7rem] sm:text-sm text-white tracking-[0.28em] sm:tracking-[0.35em] uppercase mb-8 sm:mb-10 font-light slide-text-contrast">
           By Pranay Das
         </p>
 
@@ -37,9 +36,9 @@ import { AboutParticleBgComponent } from '../../../../shared/components/about-pa
                        flex items-center justify-center cursor-pointer
                        hover:bg-white/15 hover:border-[#f3a000]/60 transition-all duration-300
                        hover:shadow-[0_0_30px_rgba(243,160,0,0.35)]">
-            <span class="-rotate-45 text-white/80 font-light text-xs sm:text-sm tracking-widest">Enter</span>
+            <span class="-rotate-45 text-white font-light text-xs sm:text-sm tracking-widest slide-text-contrast">Enter</span>
           </span>
-          <span class="text-white/35 text-[0.65rem] sm:text-xs tracking-[0.35em] sm:tracking-[0.4em] uppercase mt-1">
+          <span class="text-white/80 text-[0.65rem] sm:text-xs tracking-[0.35em] sm:tracking-[0.4em] uppercase mt-1 slide-text-contrast-soft">
             The Story
           </span>
         </button>

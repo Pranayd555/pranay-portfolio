@@ -124,7 +124,7 @@ export class TextScrapperAnimation {
   private ambientSpeeds?: Float32Array;
   private ambientPositionAttr?: THREE.BufferAttribute;
   private ambientCount = 0;
-  private readonly AMBIENT_COUNT = 280;
+  private readonly AMBIENT_COUNT = 560;
   private readonly AMBIENT_DRIFT_AMP = 28;
   private readonly AMBIENT_SCRAMBLE_BOOST = 1.4;
 
@@ -599,10 +599,10 @@ export class TextScrapperAnimation {
       this.ambientPhases[i * 2 + 1] = Math.random() * Math.PI * 2;
       this.ambientAmps[i * 2] = this.AMBIENT_DRIFT_AMP * (0.4 + Math.random() * 0.6);
       this.ambientAmps[i * 2 + 1] = this.AMBIENT_DRIFT_AMP * (0.4 + Math.random() * 0.6);
-      this.ambientSpeeds[i * 2] = 0.4 + Math.random() * 0.5;
+      this.ambientSpeeds[i * 2] = 0.4 + Math.random() * 2.5;
       this.ambientSpeeds[i * 2 + 1] = 0.35 + Math.random() * 0.55;
-      this.ambientPositions[i * 3] = bx;
-      this.ambientPositions[i * 3 + 1] = by;
+      this.ambientPositions[i * 3] = Math.tan(bx) * 0.15;
+      this.ambientPositions[i * 3 + 1] = Math.sin(by) * 0.15;
       this.ambientPositions[i * 3 + 2] = 0;
       randoms[i] = Math.random();
     }
