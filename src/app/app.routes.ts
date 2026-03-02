@@ -59,7 +59,8 @@ export const routes: Routes = [
         providers: [
           provideState('projects', projectsReducers),
           provideState('projectDetails', projectDetailsReducers),
-          provideEffects(ProjectsEffects, ProjectDetailsEffects),
+          provideState('skills', skillsReducers),
+          provideEffects(ProjectsEffects, ProjectDetailsEffects, SkillsEffects),
         ],
       },
     ],

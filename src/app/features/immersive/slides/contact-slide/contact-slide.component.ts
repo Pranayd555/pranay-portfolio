@@ -19,14 +19,10 @@ import { Router } from '@angular/router';
           CONTACT
         </h1>
 
-        <p class="text-[0.7rem] sm:text-sm text-white tracking-[0.28em] sm:tracking-[0.35em] uppercase mb-8 sm:mb-10 font-light slide-text-contrast">
-          By Pranay Das
-        </p>
-
         <!-- Diamond Enter button -->
         <button
           type="button"
-          class="relative flex flex-col items-center gap-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-pink/60 rounded-2xl"
+          class="relative flex flex-col items-center gap-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-pink/60 rounded-2xl mt-3"
           (click)="enter()"
           aria-label="Enter Contact page"
         >
@@ -36,7 +32,7 @@ import { Router } from '@angular/router';
                        hover:shadow-[0_0_30px_rgba(255,0,255,0.35)]">
             <span class="-rotate-45 text-white font-light text-xs sm:text-sm tracking-widest slide-text-contrast">Say Hello</span>
           </span>
-          <span class="text-white/80 text-[0.65rem] sm:text-xs tracking-[0.35em] sm:tracking-[0.4em] uppercase mt-1 slide-text-contrast-soft">
+          <span class="text-white/80 text-[0.65rem] sm:text-xs tracking-[0.35em] sm:tracking-[0.4em] uppercase mt-1 slide-text-contrast-soft mt-2">
             Let's Talk
           </span>
         </button>

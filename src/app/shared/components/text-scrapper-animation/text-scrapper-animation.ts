@@ -151,7 +151,7 @@ export class TextScrapperAnimation {
 
   // When icon is first detected as settled, we wait this long before starting scramble.
   private settledAt: number | null = null;
-  private readonly settledPauseMs = 200;
+  private readonly settledPauseMs = 100;
 
   private readonly currentColor = new THREE.Color(ICON_ENTRIES[0].color);
   private readonly targetColor  = new THREE.Color(ICON_ENTRIES[0].color);
@@ -223,8 +223,8 @@ export class TextScrapperAnimation {
   private desiredCountForWidth(width: number): number {
     // CPU-updated particles: keep mobile-safe.
     if (width >= 1280) return 5000;
-    if (width >= 768) return 3500;
-    return 3500;
+    if (width >= 768) return 2500;
+    return 2500;
   }
 
   /** Max points across all cached shapes; used as the fixed particle pool size. */
