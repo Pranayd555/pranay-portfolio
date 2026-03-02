@@ -11,6 +11,11 @@
     background: radial-gradient(circle at 50% 50%, rgba(19, 91, 236, 0.2) 0%, rgba(0, 243, 255, 0.08) 15%, transparent 40%);
 }
 
+/* When used as embedded content (e.g. playground), show above page background */
+:host.embedded .background-canvas {
+    z-index: 0;
+}
+
 :host-context(.dark) .background-canvas {
     /* Tighter neon glow for dark mode */
     background: radial-gradient(circle at 50% 50%, rgba(19, 91, 236, 0.28) 0%, rgba(0, 243, 255, 0.12) 18%, transparent 45%);

@@ -2,6 +2,7 @@ import {
     ChangeDetectionStrategy,
     Component,
     ElementRef,
+    Input,
     OnDestroy,
     ViewChild,
     Inject,
@@ -22,6 +23,7 @@ import * as THREE from 'three';
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {
         '(window:resize)': 'onResize()',
+        '[class.embedded]': 'embedded',
     },
     template: `
     <canvas #canvas class="background-canvas" [style.top.px]="headerHeight"></canvas>
@@ -29,6 +31,8 @@ import * as THREE from 'three';
     styleUrls: ['./background-animation-three.component.css'],
 })
 export class BackgroundAnimationThreeComponent implements OnDestroy {
+    @Input() embedded = false;
+
     @ViewChild('canvas') canvasRef!: ElementRef<HTMLCanvasElement>;
 
     private destroyRef = inject(DestroyRef);
