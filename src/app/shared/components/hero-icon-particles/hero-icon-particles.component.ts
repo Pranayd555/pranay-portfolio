@@ -18,11 +18,13 @@ import { skillsData } from '../../../features/home/sections/data/skills-data';
 const CYCLE_DURATION = 14;
 const LID_OPEN_ANGLE = -Math.PI * 0.65;
 const MAX_ICONS = 24;
-const RATTLE_AMP = 0.018;
+/** Spin speed in radians per second (box + particles rotate; camera and lights stay fixed) */
+const SPIN_SPEED = (3 * Math.PI/ 20) ;
+const RATTLE_AMP = 0.028;
 const RATTLE_FREQ = 45;
 
 const PHASE = {
-  RATTLE_END: 0.06,
+  RATTLE_END: 0.12,
   OPEN_END: 0.18,
   FLY_OUT_END: 0.36,
   HOVER_END: 0.58,
@@ -66,6 +68,7 @@ export class HeroIconParticlesComponent implements OnDestroy {
   private scene?: THREE.Scene;
   private camera?: THREE.PerspectiveCamera;
   private renderer?: THREE.WebGLRenderer;
+  private spinGroup?: THREE.Group;
   private container?: THREE.Mesh;
   private coverGroup?: THREE.Group;
   private coverCap?: THREE.Mesh;
@@ -117,9 +120,10 @@ export class HeroIconParticlesComponent implements OnDestroy {
     this.camera = new THREE.PerspectiveCamera(80, aspect, 0.1, 100);
     this.controls = new OrbitControls(this.camera, canvas);
     this.controls.enableZoom = false;
-    this.controls.autoRotate = true;
-    this.controls.autoRotateSpeed = -3;
-    this.camera.position.set(-3.5, -1.5, 2);
+    this.controls.autoRotate = false;
+    this.controls.enableDamping = false;
+    this.controls.target.set(0, 0, 0);
+    this.camera.position.set(-3.5, -1.3, 2);
     this.controls.update();
 
     this.renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
@@ -127,21 +131,23 @@ export class HeroIconParticlesComponent implements OnDestroy {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
     this.ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
+    this.scene.add(this.ambientLight);
+
     this.directionalLight = new THREE.DirectionalLight(0xffffff, 1.8);
     this.directionalLight.position.set(2, 2, 3);
-    this.scene.add(this.ambientLight, this.directionalLight);
+    this.directionalLight.target.position.set(0, 0, 0);
 
     const rim = new THREE.DirectionalLight(0x00f3ff, 0.7);
     rim.position.set(-5, 3, -5);
-    this.scene.add(rim);
+    rim.target.position.set(0, 0, 0);
     this.rimLight = rim;
 
     this.fillLightA = new THREE.DirectionalLight(0xffffff, 0.75);
     this.fillLightA.position.set(4, 2, 4);
-    this.scene.add(this.fillLightA);
+    this.fillLightA.target.position.set(0, 0, 0);
     this.fillLightB = new THREE.DirectionalLight(0xffffff, 0.7);
     this.fillLightB.position.set(-4, 1, -4);
-    this.scene.add(this.fillLightB);
+    this.fillLightB.target.position.set(0, 0, 0);
 
     this.parcelMaterial = new THREE.MeshStandardMaterial({
       color: 0x14253d,
@@ -166,7 +172,6 @@ export class HeroIconParticlesComponent implements OnDestroy {
     inner.geometry.dispose();
 
     this.container.position.set(0, 0, 0);
-    this.scene.add(this.container);
 
     const capGeom = new THREE.BoxGeometry(1.12, 0.04, 1.12);
     this.coverCap = new THREE.Mesh(capGeom, this.parcelMaterial);
@@ -179,10 +184,22 @@ export class HeroIconParticlesComponent implements OnDestroy {
     this.coverGroup = new THREE.Group();
     this.coverGroup.position.set(0, 0.5, -0.6);
     this.coverGroup.add(this.coverCap, this.coverLip);
-    this.scene.add(this.coverGroup);
 
     this.iconGroup = new THREE.Group();
-    this.scene.add(this.iconGroup);
+
+    this.spinGroup = new THREE.Group();
+    this.spinGroup.add(this.directionalLight);
+    this.spinGroup.add(this.directionalLight.target);
+    this.spinGroup.add(this.rimLight);
+    this.spinGroup.add(this.rimLight.target);
+    this.spinGroup.add(this.fillLightA);
+    this.spinGroup.add(this.fillLightA.target);
+    this.spinGroup.add(this.fillLightB);
+    this.spinGroup.add(this.fillLightB.target);
+    this.spinGroup.add(this.container);
+    this.spinGroup.add(this.coverGroup);
+    this.spinGroup.add(this.iconGroup);
+    this.scene.add(this.spinGroup);
     this.textureLoader = new THREE.TextureLoader();
     this.loadIconsAndCreateSprites();
     this.createAmbientParticles();
@@ -209,7 +226,7 @@ export class HeroIconParticlesComponent implements OnDestroy {
       sizeAttenuation: true,
     });
     this.ambientParticles = new THREE.Points(geom, mat);
-    this.scene.add(this.ambientParticles);
+    this.spinGroup?.add(this.ambientParticles);
   }
 
   private getIconUrls(): string[] {
@@ -303,8 +320,8 @@ export class HeroIconParticlesComponent implements OnDestroy {
     if (phase >= PHASE.RATTLE_END) return { x: 0, z: 0 };
     const t = time * RATTLE_FREQ;
     return {
-      x: Math.sin(t) * RATTLE_AMP + Math.sin(t * 1.7) * (RATTLE_AMP * 0.6),
-      z: Math.cos(t * 1.3) * RATTLE_AMP + Math.cos(t * 0.9) * (RATTLE_AMP * 0.6),
+      x: Math.sin(t) * RATTLE_AMP + Math.sin(t * 2.7) * (RATTLE_AMP * 1.6),
+      z: Math.cos(t * 1.3) * RATTLE_AMP + Math.cos(t * 1.9) * (RATTLE_AMP * 0.6),
     };
   }
 
@@ -340,6 +357,8 @@ export class HeroIconParticlesComponent implements OnDestroy {
 
     const elapsed = this.clock.getElapsedTime();
     const t = (elapsed % CYCLE_DURATION) / CYCLE_DURATION;
+
+    if (this.spinGroup) this.spinGroup.rotation.y = elapsed * SPIN_SPEED;
 
     const rattle = this.getRattleOffset(t, elapsed);
     if (this.container) {
@@ -395,6 +414,8 @@ export class HeroIconParticlesComponent implements OnDestroy {
     if (this.animationFrameId) cancelAnimationFrame(this.animationFrameId);
     this.controls?.dispose();
     this.controls = undefined;
+
+    this.spinGroup = undefined;
 
     if (this.container) {
       this.container.geometry.dispose();

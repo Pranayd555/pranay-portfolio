@@ -1,0 +1,10 @@
+/* Bottom sheet respects safe area on notched devices */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+/* Optional: subtle scrollbar for picker list */
+.playground-picker-sheet {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}

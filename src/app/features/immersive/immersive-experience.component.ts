@@ -19,7 +19,7 @@ import { ProjectsSlideComponent } from './slides/projects-slide/projects-slide.c
 import { ExperienceSlideComponent } from './slides/experience-slide/experience-slide.component';
 import { ContactSlideComponent } from './slides/contact-slide/contact-slide.component';
 import { PlaygroundSlideComponent } from './slides/playground-slide/playground-slide';
-import { AboutParticleBgComponent, HeroIconParticlesComponent, SlideParticleBgComponent, WaveParticleBgComponent } from '../../shared';
+import { AboutParticleBgComponent, ConnectParticleBg, HeroIconParticlesComponent, SlideParticleBgComponent, WaveParticleBgComponent } from '../../shared';
 import { TextScrapperAnimation } from '../../shared/components/text-scrapper-animation/text-scrapper-animation';
 
 @Component({
@@ -34,6 +34,7 @@ import { TextScrapperAnimation } from '../../shared/components/text-scrapper-ani
     PlaygroundSlideComponent,
     HeroIconParticlesComponent,
     AboutParticleBgComponent,
+    ConnectParticleBg,
     SlideParticleBgComponent,
     WaveParticleBgComponent,
     TextScrapperAnimation,
@@ -63,7 +64,7 @@ import { TextScrapperAnimation } from '../../shared/components/text-scrapper-ani
           <app-experience-slide class="animate-slide-up" ><app-wave-particle-bg /></app-experience-slide>
         }
         @if (currentSlide() === 4) {
-          <app-contact-slide class="animate-slide-up" ><app-hero-icon-particles /></app-contact-slide>
+          <app-contact-slide class="animate-slide-up"><app-connect-particle-bg /></app-contact-slide>
         }
         @if (currentSlide() === 5) {
           <app-playground-slide class="animate-slide-up" ><app-hero-icon-particles /></app-playground-slide>

@@ -1,50 +1,138 @@
-<div class="flex min-h-screen flex-col bg-background-light dark:bg-background-dark">
+<div class="flex h-screen max-h-screen min-h-0 flex-col overflow-hidden bg-background-light dark:bg-background-dark">
   <app-detail-bar />
-  <main class="flex flex-1 flex-col min-h-0 pt-14 sm:pt-16">
-    <div class="relative flex-1 min-h-[50vh] flex flex-col">
+  <main class="flex flex-1 min-h-0 flex-col overflow-hidden pt-14 sm:pt-16">
+    <div class="relative flex-1 min-h-0 flex flex-col overflow-hidden">
     @switch (selectedId()) {
     @case ('hero-icon-particles') {
-      <div class="relative flex-1 min-h-0 bg-background-dark">
+      <div class="relative flex-1 min-h-0 overflow-hidden bg-background-dark">
         <app-hero-icon-particles></app-hero-icon-particles>
       </div>
     }
     @case ('spinning-sphere') {
-      <div class="relative flex-1 min-h-0">
+      <div class="relative flex-1 min-h-0 overflow-hidden">
         <app-background-animation-three [embedded]="true"></app-background-animation-three>
       </div>
     }
     @case ('slide-particle-bg') {
-      <div class="relative flex-1 min-h-0 bg-background-dark">
+      <div class="relative flex-1 min-h-0 overflow-hidden bg-background-dark">
         <app-slide-particle-bg></app-slide-particle-bg>
       </div>
     }
     @case ('about-particle-bg') {
-      <div class="relative flex-1 min-h-0 bg-background-dark">
+      <div class="relative flex-1 min-h-0 overflow-hidden bg-background-dark">
         <app-about-particle-bg></app-about-particle-bg>
       </div>
     }
     @case ('wave-particle-bg') {
-      <div class="relative flex-1 min-h-0 bg-background-dark">
+      <div class="relative flex-1 min-h-0 overflow-hidden bg-background-dark">
         <app-wave-particle-bg></app-wave-particle-bg>
       </div>
     }
-    @case ('text-scrapper-animation') {
-      <div class="relative flex-1 min-h-0">
-        <app-text-scrapper-animation />
-      </div>
-    }
+      @case ('text-scrapper-animation') {
+        <div class="relative flex-1 min-h-0 overflow-hidden">
+          <app-text-scrapper-animation />
+        </div>
+      }
+      @case ('connect-particle-bg') {
+        <div class="relative flex-1 min-h-0 overflow-hidden">
+          <app-connect-particle-bg />
+        </div>
+      }
   }
   </div>
 
+  <!-- Mobile: single trigger + bottom sheet (keeps screen unblocked) -->
+  <div class="md:hidden flex flex-none flex-col">
+    <nav
+      class="flex flex-none justify-center py-2 px-3 bg-background-dark/75 dark:bg-background-dark/85 backdrop-blur-md border-t border-white/5"
+      aria-label="Playground animation picker trigger"
+    >
+      <button
+        type="button"
+        class="flex items-center gap-2 h-10 rounded-full px-4 text-sm font-medium text-neutral-50
+               bg-cyan-500/90 hover:bg-cyan-500 active:bg-cyan-600
+               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background-dark
+               transition-all duration-200 cursor-pointer"
+        (click)="openPicker()"
+        [attr.aria-expanded]="pickerOpen()"
+        aria-haspopup="listbox"
+        aria-label="Choose animation"
+      >
+        <span>{{ selected().label }}</span>
+        <svg class="w-4 h-4 shrink-0 transition-transform" [class.rotate-180]="pickerOpen()" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+    </nav>
+
+    @if (pickerOpen()) {
+      <div
+        class="fixed inset-0 z-40 md:hidden"
+        role="presentation"
+        (click)="closePicker()"
+      >
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" aria-hidden="true"></div>
+        <div
+          class="playground-picker-sheet absolute bottom-0 left-0 right-0 z-50 max-h-[70vh] overflow-y-auto rounded-t-2xl
+                 bg-background-dark/95 dark:bg-background-dark border-t border-white/10 shadow-2xl
+                 safe-area-pb"
+          role="listbox"
+          aria-label="Animation options"
+          (click)="$event.stopPropagation()"
+        >
+          <div class="sticky top-0 flex items-center justify-between py-3 px-4 bg-background-dark/95 dark:bg-background-dark border-b border-white/10">
+            <span class="text-sm font-medium text-neutral-200">Choose animation</span>
+            <button
+              type="button"
+              class="p-2 rounded-full text-neutral-400 hover:text-neutral-50 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 transition-colors"
+              aria-label="Close"
+              (click)="closePicker()"
+            >
+              <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <ul class="py-2 px-2">
+            @for (anim of animations; track anim.id) {
+              <li>
+                <button
+                  type="button"
+                  role="option"
+                  class="playground-picker-option w-full flex items-center justify-between rounded-xl px-4 py-3 text-left text-sm font-medium text-neutral-50
+                         transition-colors cursor-pointer
+                         hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 focus-visible:ring-inset"
+                  [class.bg-orange-500/20]="selectedId() === anim.id"
+                  [class.ring-1]="selectedId() === anim.id"
+                  [class.ring-orange-400/50]="selectedId() === anim.id"
+                  (click)="select(anim.id)"
+                  [attr.aria-selected]="selectedId() === anim.id"
+                >
+                  {{ anim.label }}
+                  @if (selectedId() === anim.id) {
+                    <svg class="w-5 h-5 text-orange-400 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  }
+                </button>
+              </li>
+            }
+          </ul>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Desktop: horizontal pill bar (all options visible) -->
   <nav
-    class="playground-nav custom-scrollbar flex flex-none flex-nowrap justify-center gap-1.5 sm:gap-2 overflow-x-auto py-3 px-3 sm:px-4 mt-4
+    class="playground-nav custom-scrollbar hidden md:flex flex-none flex-nowrap justify-center gap-2 overflow-x-auto py-3 px-4 mt-4
            bg-background-dark/75 dark:bg-background-dark/85 backdrop-blur-md border-t border-white/5"
     aria-label="Playground animation picker"
   >
     @for (anim of animations; track anim.id) {
       <button
         type="button"
-        class="playground-nav-btn flex-shrink-0 h-9 sm:h-10 rounded-full px-3 sm:px-5 text-xs sm:text-sm font-medium
+        class="playground-nav-btn flex-shrink-0 h-10 rounded-full px-5 text-sm font-medium
                text-neutral-50 transition-all duration-200 cursor-pointer
                bg-cyan-500/90 hover:bg-cyan-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background-dark
                dark:bg-cyan-500/90 dark:hover:bg-cyan-500"
