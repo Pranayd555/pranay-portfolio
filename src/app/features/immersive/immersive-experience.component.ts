@@ -76,7 +76,7 @@ import { TextScrapperAnimation } from '../../shared/components/text-scrapper-ani
       <button
         class="absolute left-2 sm:left-8 top-1/2 -translate-y-1/2 z-20
                w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center
-               text-white/40 hover:text-white/90 transition-colors duration-300
+               text-white/40 hover:text-white/90 transition-colors duration-300 cursor-pointer
                disabled:opacity-20 disabled:cursor-not-allowed"
         [disabled]="currentSlide() === 0"
         (click)="navService.prev()"
@@ -91,7 +91,7 @@ import { TextScrapperAnimation } from '../../shared/components/text-scrapper-ani
       <button
         class="absolute right-2 sm:right-8 top-1/2 -translate-y-1/2 z-20
                w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center
-               text-white/40 hover:text-white/90 transition-colors duration-300
+               text-white/40 hover:text-white/90 transition-colors duration-300 cursor-pointer
                disabled:opacity-20 disabled:cursor-not-allowed"
         [disabled]="currentSlide() === navService.TOTAL_SLIDES - 1"
         (click)="navService.next()"
@@ -123,6 +123,28 @@ import { TextScrapperAnimation } from '../../shared/components/text-scrapper-ani
         </p>
       </div>
 
+      <!-- Floating resume download button -->
+      <button
+        type="button"
+        class="fixed top-[calc(1rem+env(safe-area-inset-top))] sm:top-6 right-4 sm:right-6 z-20
+               w-12 h-12 sm:w-14 sm:h-14 rounded-full
+               flex items-center justify-center
+               bg-white/10 backdrop-blur-md border border-white/20
+               text-white hover:bg-white/20 hover:border-white/40
+               shadow-lg hover:shadow-xl hover:scale-105
+               transition-all duration-300 ease-out
+               focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background-dark cursor-pointer"
+        (click)="onResumeDownload()"
+        aria-label="Download resume (Pranay_Das_resume)"
+        title="Download resume"
+      >
+        <svg class="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+      </button>
+
     </div>
   `,
 })
@@ -134,9 +156,29 @@ export class ImmersiveExperienceComponent implements OnInit, OnDestroy {
   private el = inject(ElementRef);
   private router = inject(Router);
 
+  readonly resumeUrl = '/assets/Pranay_Das_Resume.pdf';
+  readonly resumeDownloadFilename = 'Pranay_Das_resume.pdf';
+
   currentSlide = this.navService.currentSlide;
 
   currentSlideConfig = () => this.navService.slides[this.currentSlide()];
+
+  onResumeDownload(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    const url = this.resumeUrl;
+    window.open(url, '_blank', 'noopener,noreferrer');
+    fetch(url)
+      .then((res) => res.blob())
+      .then((blob) => {
+        const objectUrl = URL.createObjectURL(blob);
+        const a = this.document.createElement('a');
+        a.href = objectUrl;
+        a.download = this.resumeDownloadFilename;
+        a.click();
+        URL.revokeObjectURL(objectUrl);
+      })
+      .catch(() => {});
+  }
 
   // Touch tracking
   private touchStartY = 0;

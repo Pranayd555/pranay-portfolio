@@ -12,13 +12,11 @@ export class ThemeService {
 
     constructor() {
         if (isPlatformBrowser(this.platformId)) {
-            // Check local storage or system preference
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme) {
                 this.darkMode.set(savedTheme === 'dark');
             } else {
-                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                this.darkMode.set(prefersDark);
+                this.darkMode.set(true);
             }
         }
 

@@ -28,9 +28,9 @@ const OFF_SCREEN = 1e5;
 
 // One icon per slide color (hero→cyan, about→amber, projects→blue, experience→purple, contact→pink).
 const ICON_ENTRIES: ReadonlyArray<IconEntry> = [
-  { url: '/assets/skill-icons/tailwindcss-original.svg',     color: 0x4488ff },
   { url: '/assets/skill-icons/angular-original.svg', color: 0xf3a000 },
   { url: '/assets/skill-icons/ngrx-original.svg',          color: 0xff00ff },
+  { url: '/assets/skill-icons/tailwindcss-original.svg',     color: 0x4488ff },
   { url: '/assets/skill-icons/nodejs-original.svg',         color: 0x3c873a },
   { url: '/assets/skill-icons/git-original.svg',             color: 0xbc13fe },
 ];

@@ -119,14 +119,14 @@ export class ConnectParticleBg implements OnDestroy {
     this.scene = new THREE.Scene();
     const aspect = window.innerWidth / window.innerHeight;
     this.camera = new THREE.PerspectiveCamera(45, aspect, 0.1, 1000);
-    this.camera.position.set(0, 0, 10);
+    this.camera.position.set(20, 10, 0);
 
     this.renderer = new THREE.WebGLRenderer({
       canvas,
       antialias: true,
       alpha: true,
     });
-    this.renderer.setClearColor(0x11151c);
+    this.renderer.setClearColor(0x050a14);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -137,7 +137,7 @@ export class ConnectParticleBg implements OnDestroy {
     this.controls.minPolarAngle = Math.PI / 2 - angleLimit;
     this.controls.maxPolarAngle = Math.PI / 2 + angleLimit;
 
-    this.scene.fog = new THREE.FogExp2(0x11151c, 0.4);
+    this.scene.fog = new THREE.FogExp2(0x050a14, 0.4);
 
     const hdrLoader = new RGBELoader();
     hdrLoader.load(
@@ -194,8 +194,8 @@ export class ConnectParticleBg implements OnDestroy {
       window.innerHeight
     );
     const bloomPass = new UnrealBloomPass(resolution, 1.5, 0.4, 0.85);
-    bloomPass.threshold = 0.31;
-    bloomPass.strength = 1.75;
+    bloomPass.threshold = 0.21;
+    bloomPass.strength = 1.25;
     bloomPass.radius = 1;
 
     this.displacementTexture = new THREE.TextureLoader().load(
@@ -207,7 +207,7 @@ export class ConnectParticleBg implements OnDestroy {
 
     const displacementPass = new ShaderPass(DISPLACEMENT_SHADER);
     displacementPass.uniforms['displacement'].value = this.displacementTexture;
-    displacementPass.uniforms['scale'].value = 0.035;
+    displacementPass.uniforms['scale'].value = 0.015;
     displacementPass.uniforms['tileFactor'].value = 2;
     displacementPass.uniforms['bottomHeight'].value = 0.5;
 
@@ -231,8 +231,8 @@ export class ConnectParticleBg implements OnDestroy {
   private updateCamera(): void {
     this.theta += 0.005;
     const targetPosition = new THREE.Vector3(
-      Math.sin(this.theta) * 3,
-      Math.sin(this.theta),
+      Math.sin(this.theta) * 2,
+      Math.cos(this.theta),
       Math.cos(this.theta) * 3
     );
     const targetQuaternion = new THREE.Quaternion().setFromEuler(

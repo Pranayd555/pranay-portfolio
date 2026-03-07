@@ -9,7 +9,7 @@ import { ThemeService } from '../../core/services/theme.service';
   imports: [RouterOutlet],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="fixed inset-0 w-screen h-screen overflow-hidden" style="background:#050a14;">
+    <div class="fixed inset-0 w-screen h-screen overflow-hidden bg-background-dark">
       <router-outlet />
     </div>
   `,

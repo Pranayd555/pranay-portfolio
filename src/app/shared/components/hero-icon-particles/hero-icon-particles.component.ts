@@ -123,7 +123,7 @@ export class HeroIconParticlesComponent implements OnDestroy {
     this.controls.autoRotate = false;
     this.controls.enableDamping = false;
     this.controls.target.set(0, 0, 0);
-    this.camera.position.set(-3.5, -1.3, 2);
+    this.camera.position.set(-3.5, -1, 2);
     this.controls.update();
 
     this.renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });

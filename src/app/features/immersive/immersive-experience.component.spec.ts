@@ -94,4 +94,38 @@ describe('ImmersiveExperienceComponent', () => {
     fixture.destroy();
     expect(removeSpy).toHaveBeenCalledWith('wheel', expect.any(Function));
   });
+
+  it('should render floating resume download button with aria-label', () => {
+    const fixture = TestBed.createComponent(ImmersiveExperienceComponent);
+    fixture.detectChanges();
+    const btn = fixture.nativeElement.querySelector(
+      'button[aria-label="Download resume (Pranay_Das_resume)"]'
+    );
+    expect(btn).toBeTruthy();
+  });
+
+  it('should open resume in new tab and trigger download on button click', async () => {
+    const fixture = TestBed.createComponent(ImmersiveExperienceComponent);
+    fixture.detectChanges();
+    const winOpenSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+    const fetchSpy = vi.spyOn(window, 'fetch').mockResolvedValue({
+      blob: () => Promise.resolve(new Blob()),
+    } as Response);
+    const revokeSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
+
+    fixture.componentInstance.onResumeDownload();
+
+    expect(winOpenSpy).toHaveBeenCalledWith(
+      '/assets/Pranay_Das_Resume.pdf',
+      '_blank',
+      'noopener,noreferrer'
+    );
+    expect(fetchSpy).toHaveBeenCalledWith('/assets/Pranay_Das_Resume.pdf');
+    await new Promise((r) => setTimeout(r, 20));
+    expect(revokeSpy).toHaveBeenCalled();
+
+    revokeSpy.mockRestore();
+    fetchSpy.mockRestore();
+    winOpenSpy.mockRestore();
+  });
 });

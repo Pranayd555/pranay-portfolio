@@ -1,0 +1,7 @@
+:host {
+  background-color: var(--color-background-dark);
+}
+
+canvas {
+  background-color: var(--color-background-dark);
+}

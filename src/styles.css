@@ -122,9 +122,9 @@
     }
 }
 
-/* Global Variables */
+/* Global Variables – background uses @theme tokens for consistency across all pages */
 :root {
-    --bg-color: #f6f6f8;
+    --bg-color: var(--color-background-light);
     --text-color: #0f172a;
     --glass-bg: rgba(255, 255, 255, 0.45);
     --glass-border: rgba(255, 255, 255, 0.5);
@@ -132,8 +132,7 @@
 }
 
 :root.dark {
-    --bg-color: #050a14;
-    /* Darker, deeper blue/black */
+    --bg-color: var(--color-background-dark);
     --text-color: #e2e8f0;
     --glass-bg: rgba(10, 20, 40, 0.35);
     --glass-border: rgba(255, 255, 255, 0.08);
