@@ -23,6 +23,13 @@ export const CSP_CONFIG = {
   'script-src': "'self' 'unsafe-inline' 'unsafe-eval' *.googleapis.com *.gstatic.com",
 
   /**
+   * worker-src: Controls which scripts can run as workers (Web Workers, Service Workers)
+   * 'self': Workers from the same origin
+   * blob: Required for Vite dev server and other blob-backed workers
+   */
+  'worker-src': "'self' blob:",
+
+  /**
    * style-src: Controls which stylesheets can be loaded
    * 'self': Only stylesheets from the same origin
    * 'unsafe-inline': Allow inline styles (needed for Angular)

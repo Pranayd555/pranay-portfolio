@@ -1,0 +1,69 @@
+---
+description: Triggers performance_monitor for rendering and Lighthouse
+alwaysApply: true
+---
+
+# Performance Context Rule
+
+Triggers performance_monitor skill.
+
+---
+
+## When to Trigger
+
+- New route or feature component
+- Three.js / WebGL scene changes
+- Particle system or shader additions
+- Heavy component (animations, large lists)
+- API integration
+- Before release / deployment
+
+---
+
+## Angular Performance (Mandatory)
+
+- **Signals over Observables** — use `signal()`, `computed()`, `effect()` for local state
+- **OnPush everywhere** — `ChangeDetectionStrategy.OnPush` on every component
+- **Never** `cdr.detectChanges()` — if needed, architectural issue; escalate
+- **Lazy-load all routes** — `loadComponent` / `loadChildren` in `app.routes.ts`
+- **`async` / `defer`** on scripts where applicable
+- **Tree-shakable services** — `providedIn: 'root'`
+- **DestroyRef** for cleanup — `inject(DestroyRef).onDestroy(() => ...)` — no leaks
+- **No heavy libraries** for small features — evaluate bundle cost before adding
+
+---
+
+## Three.js / WebGL Performance (Mandatory)
+
+- **Cap pixel ratio**: `renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))`
+- **No object creation inside RAF loop** — pre-allocate all `THREE.*` instances
+- **`BufferGeometry` only** — never legacy `Geometry`
+- **`depthWrite: false`** on all transparent/additive materials
+- **`cancelAnimationFrame`** on component destroy — no orphaned loops
+- **Dispose ALL resources**: `renderer.dispose()`, `geometry.dispose()`, `material.dispose()`, `scene.clear()`
+- **No `scene.traverse()`** in RAF — precompute object references
+- **`THREE.Clock`** for elapsed time — frame-rate independent animations
+- **Resize handler**: update `camera.aspect` + `renderer.setSize()` + pixel ratio uniform
+
+---
+
+## Bundle Size Rules
+
+- Three.js is large (~600kb) — already in `dependencies`; do NOT add duplicate 3D libs
+- Import only used Three.js classes: `import { Scene, PerspectiveCamera } from 'three'` when possible
+- Evaluate bundle impact with `ng build --stats-json` before adding new dependencies
+- Avoid lodash, moment, or similar heavy utilities — use native ES2023+
+
+---
+
+## Monitoring
+
+- Lighthouse score ≥ 85 (performance category)
+- No memory leaks — verify with Chrome DevTools heap snapshots
+- Always unsubscribe / cancel — use `DestroyRef`, `takeUntilDestroyed()`
+- Three.js FPS: target 60fps on mid-range devices
+
+---
+
+Angular MCP performance guide must be referenced for Angular-specific patterns.
+Three.js optimization patterns from `threejs-context` rule must be applied for WebGL work.

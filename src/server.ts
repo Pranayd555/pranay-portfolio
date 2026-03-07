@@ -20,6 +20,7 @@ const cspMiddleware = (req: express.Request, res: express.Response, next: expres
   const cspPolicy = [
     // Script sources - strict CSP for security
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' *.googleapis.com *.gstatic.com",
+    "worker-src 'self' blob:",
     // Style sources
     "style-src 'self' 'unsafe-inline' fonts.googleapis.com",
     // Font sources

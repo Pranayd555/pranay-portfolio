@@ -27,19 +27,19 @@ import { RouterLink } from '@angular/router';
             <h4 class="dark:text-white text-slate-600 font-semibold mb-6">Navigation</h4>
             <ul class="space-y-3">
               <li>
-                <a routerLink="/" fragment="skills" class="text-gray-600 dark:text-gray-200 hover:text-neon-pink transition-colors text-sm flex items-center justify-center md:justify-start gap-2 group cursor-pointer">
+                <a routerLink="/about" class="text-gray-600 dark:text-gray-200 hover:text-neon-pink transition-colors text-sm flex items-center justify-center md:justify-start gap-2 group cursor-pointer">
                   <span class="w-1.5 h-1.5 rounded-full bg-gray-600 group-hover:bg-neon-pink transition-colors"></span>
-                  Skills
+                  About
                 </a>
               </li>
               <li>
-                <a routerLink="/" fragment="experience" class="text-gray-600 dark:text-gray-200 hover:text-neon-blue transition-colors text-sm flex items-center justify-center md:justify-start gap-2 group cursor-pointer">
+                <a routerLink="/experience" class="text-gray-600 dark:text-gray-200 hover:text-neon-blue transition-colors text-sm flex items-center justify-center md:justify-start gap-2 group cursor-pointer">
                   <span class="w-1.5 h-1.5 rounded-full bg-gray-600 group-hover:bg-neon-blue transition-colors"></span>
                   Experience
                 </a>
               </li>
               <li>
-                <a routerLink="/" fragment="projects" class="text-gray-600 dark:text-gray-200 hover:text-neon-purple transition-colors text-sm flex items-center justify-center md:justify-start gap-2 group cursor-pointer">
+                <a routerLink="/projects" class="text-gray-600 dark:text-gray-200 hover:text-neon-purple transition-colors text-sm flex items-center justify-center md:justify-start gap-2 group cursor-pointer">
                   <span class="w-1.5 h-1.5 rounded-full bg-gray-600 group-hover:bg-neon-purple transition-colors"></span>
                   Projects
                 </a>

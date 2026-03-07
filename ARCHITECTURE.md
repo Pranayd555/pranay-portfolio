@@ -13,7 +13,19 @@ src/app/
 │   └── index.ts              # Barrel export
 │
 ├── shared/                    # Reusable components, directives, pipes
-│   ├── components/            # Shared UI components
+│   ├── components/
+│   │   └── immersive-particle/          # Three.js particle canvas
+│   │       ├── immersive-particle.component.ts  # Orchestrator (~200 lines)
+│   │       ├── particle.constants.ts            # All numeric/geometry constants
+│   │       ├── particle.shaders.ts              # All GLSL shader strings
+│   │       └── slides/                          # One file per slide behavior
+│   │           ├── particle-slide.base.ts       # Abstract base + interfaces
+│   │           ├── nebula.slide.ts              # Slide 0 — volumetric sphere
+│   │           ├── aurora.slide.ts              # Slide 1 — sine wave field
+│   │           ├── starfield.slide.ts           # Slide 2 — warp starfield
+│   │           ├── wave-grid.slide.ts           # Slide 3 — GPU wave terrain
+│   │           ├── handshake.slide.ts           # Slide 4 — handshake FSM
+│   │           └── text-particle.slide.ts       # Slide 0 — PRANAY DAS text
 │   ├── directives/            # Shared directives (reveal, etc.)
 │   ├── pipes/                 # Shared pipes
 │   ├── utils/                 # Utility functions

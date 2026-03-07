@@ -2,6 +2,7 @@ import {
     ChangeDetectionStrategy,
     Component,
     ElementRef,
+    Input,
     OnDestroy,
     ViewChild,
     Inject,
@@ -14,6 +15,7 @@ import {
 import { CommonModule, isPlatformBrowser, DOCUMENT } from '@angular/common';
 import { ThemeService } from '../../../core/services/theme.service';
 import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 @Component({
     selector: 'app-background-animation-three',
@@ -22,6 +24,7 @@ import * as THREE from 'three';
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {
         '(window:resize)': 'onResize()',
+        '[class.embedded]': 'embedded',
     },
     template: `
     <canvas #canvas class="background-canvas" [style.top.px]="headerHeight"></canvas>
@@ -29,6 +32,8 @@ import * as THREE from 'three';
     styleUrls: ['./background-animation-three.component.css'],
 })
 export class BackgroundAnimationThreeComponent implements OnDestroy {
+    @Input() embedded = false;
+
     @ViewChild('canvas') canvasRef!: ElementRef<HTMLCanvasElement>;
 
     private destroyRef = inject(DestroyRef);
@@ -43,12 +48,14 @@ export class BackgroundAnimationThreeComponent implements OnDestroy {
     private renderer!: THREE.WebGLRenderer;
     private particles!: THREE.Points;
     private animationFrameId?: number;
-    private clock = new THREE.Clock();
+    private timer?: THREE.Timer;
 
     private numParticles = 140;
     private rings = 14;
     private sphereRadius = 300;
     private autoRotateSpeed = 0.0012;
+
+    private controls?: InstanceType<typeof OrbitControls>;
 
     private colorConfig = {
         dark: { dot: new THREE.Color(0x00f3ff) }, // Cyan Neon
@@ -89,6 +96,12 @@ export class BackgroundAnimationThreeComponent implements OnDestroy {
 
         const aspect = window.innerWidth / window.innerHeight;
         this.camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 2500);
+        this.controls = new OrbitControls(this.camera, canvas);
+        this.controls.enableZoom = false;
+        this.controls.autoRotate = true;
+        this.controls.enableDamping = false;
+        this.controls.target.set(0, 0, 0);
+        this.controls.update();
         this.camera.position.z = 650;
 
         this.renderer = new THREE.WebGLRenderer({
@@ -98,6 +111,9 @@ export class BackgroundAnimationThreeComponent implements OnDestroy {
         });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        this.timer = new THREE.Timer();
+        this.timer.connect(this.document);
 
         this.createParticles();
         this.updateRadius();
@@ -215,10 +231,12 @@ export class BackgroundAnimationThreeComponent implements OnDestroy {
     }
 
     private animate(): void {
-        if (!this.renderer || !this.scene || !this.camera) return;
+        if (!this.renderer || !this.scene || !this.camera || !this.timer) return;
         this.animationFrameId = requestAnimationFrame(() => this.animate());
+        this.controls?.update();
 
-        const elapsedTime = this.clock.getElapsedTime();
+        this.timer.update();
+        const elapsedTime = this.timer.getElapsed();
         if (this.particles && this.particles.material instanceof THREE.ShaderMaterial) {
             this.particles.material.uniforms['uTime'].value = elapsedTime;
         }
@@ -260,6 +278,12 @@ export class BackgroundAnimationThreeComponent implements OnDestroy {
 
     private cleanup(): void {
         if (this.animationFrameId) cancelAnimationFrame(this.animationFrameId);
+
+        this.timer?.dispose();
+        this.timer = undefined;
+        this.controls?.dispose();
+        this.controls = undefined;
+
         if (this.renderer) this.renderer.dispose();
         if (this.particles) {
             this.particles.geometry.dispose();

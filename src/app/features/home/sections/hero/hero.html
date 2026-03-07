@@ -1,67 +1,102 @@
 <section id="hero" class="px-4 py-12 md:py-20 min-h-screen flex items-center justify-center relative overflow-hidden">
-    <!-- Background Glow -->
-
-
-    <div class="max-w-5xl mx-auto text-center z-10 flex flex-col items-center gap-6 md:gap-8">
-
-        <!-- Profile Image -->
-        <div class="relative group draggable-wrapper" (dblclick)="isImageClicked()" [style.transform]="transform()"
-            (pointerdown)="startDrag($event)" (pointermove)="onDrag($event)" (pointerup)="endDrag()"
-            (pointerleave)="endDrag()">
-            <div
-                class="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-full blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt">
-            </div>
-            <div
-                class="relative w-32 h-32 md:w-48 md:h-48 rounded-full p-1 bg-white dark:bg-slate-900 ring-1 ring-slate-200 dark:ring-white/10 overflow-hidden text-slate-900 dark:text-white">
-                <img [src]="imageChanged() ? 'assets/pranay_das.jpg' : 'assets/pranay_logo.png'" 
-                    alt="Pranay Das"
-                    loading="lazy"
-                    class="w-full h-full rounded-full object-cover" [class.fade-in]="imageClicked()"
-                    [class.fade-out]="!imageClicked()" onerror="this.src='assets/pranay_logo.png'" />
-            </div>
+  <div class="max-w-4xl mx-auto w-full z-10 flex flex-col items-center gap-10 md:gap-14">
+    <!-- Profile & Name -->
+    <div class="flex flex-col items-center gap-6 md:gap-8 text-center">
+      <div class="relative group draggable-wrapper">
+        <div class="relative w-32 h-32 md:w-48 md:h-48 bg-transparent text-slate-900 dark:text-white">
+          <img
+            src="assets/1000006812-removebg-preview.png"
+            alt="Pranay Das"
+            loading="lazy"
+            class="w-full h-full object-cover" />
         </div>
-        <div class="space-y-4 md:space-y-6">
-            <div class="h-8">
-                <span
-                    class="inline-block px-3 py-1 md:px-4 md:py-1.5 rounded-full bg-white/80 dark:bg-slate-900/50 backdrop-blur-md border border-primary/30 text-cyan-700 dark:text-secondary text-xs md:text-sm font-bold uppercase tracking-[0.2em] shadow-[0_0_15px_rgba(19,91,236,0.3)]">
-                    {{ currentRole() }}<span class="animate-pulse">|</span>
-                </span>
-            </div>
+      </div>
 
-            <h1
-                class="text-4xl sm:text-6xl md:text-8xl font-bold leading-tight tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-slate-700 to-slate-500 dark:from-white dark:via-slate-200 dark:to-slate-400 animate-slide-up relative">
-                <span
-                    class="hover:text-shadow-[0_0_30px_rgba(19,91,236,0.5)] dark:hover:text-shadow-[0_0_30px_rgba(255,255,255,0.5)] transition-all duration-300">PRANAY</span>
-                <br class="sm:hidden" />
-                <span
-                    class="text-primary hover:text-shadow-[0_0_30px_rgba(19,91,236,0.5)] transition-all duration-300 ml-0 sm:ml-4">DAS</span>
-            </h1>
-
-            <p class="text-slate-600 dark:text-slate-400 text-base md:text-xl leading-relaxed max-w-2xl mx-auto font-light animate-slide-up px-4 md:px-0"
-                style="animation-delay: 0.2s;">
-                Crafting <wave-text text="immersive digital experiences"
-                    classes="text-cyan-700 dark:text-secondary font-medium"></wave-text>
-                with precision engineering and creative innovation.
-            </p>
+      <div class="space-y-4 md:space-y-6">
+        <div class="h-8">
+          <span
+            class="inline-block px-3 py-1 md:px-4 md:py-1.5 rounded-full bg-white/80 dark:bg-slate-900/50 backdrop-blur-md border border-primary/30 text-cyan-700 dark:text-secondary text-xs md:text-sm font-bold uppercase tracking-[0.2em] shadow-[0_0_15px_rgba(19,91,236,0.3)]">
+            {{ currentRole() }}<span class="animate-pulse">|</span>
+          </span>
         </div>
 
-        <div class="flex flex-col sm:flex-row gap-4 sm:gap-6 mt-4 md:mt-8 justify-center animate-slide-up w-full sm:w-auto px-4 sm:px-0"
-            style="animation-delay: 0.4s;">
-            <a [routerLink]="[]" fragment="experience"
-                class="group relative px-8 py-3 md:py-4 bg-primary text-white font-bold rounded-full overflow-hidden transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(19,91,236,0.5)] text-center">
-                <span class="relative z-10 flex items-center justify-center gap-2">
-                    Explore Journey <span
-                        class="material-symbols-outlined group-hover:translate-y-1 transition-transform">arrow_downward</span>
-                </span>
-                <div
-                    class="absolute inset-0 bg-gradient-to-r from-primary via-blue-600 to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                </div>
-            </a>
-
-            <a [routerLink]="[]" fragment="contact"
-                class="px-8 py-3 md:py-4 rounded-full border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold hover:bg-slate-100 dark:hover:bg-slate-800 hover:border-slate-400 dark:hover:border-slate-500 transition-all hover:text-slate-900 dark:hover:text-white hover:scale-105 text-center">
-                Connect
-            </a>
-        </div>
+        <wave-text
+          class="text-primary dark:text-secondary text-lg md:text-xl font-medium animate-slide-up"
+          [style.animation-delay]="'0.1s'"
+          [text]="tagline"></wave-text>
+      </div>
     </div>
+
+    <!-- Intro -->
+    <div class="space-y-6 text-slate-600 dark:text-slate-400 text-base md:text-lg leading-relaxed animate-slide-up"
+      style="animation-delay: 0.15s;">
+      <p>
+        {{ intro.greeting }} {{ intro.role }}
+      </p>
+      <p>{{ intro.focus }}</p>
+      <p>{{ intro.experience }}</p>
+      <p>{{ intro.philosophy }}</p>
+    </div>
+
+    <!-- Sections -->
+    @for (section of sections; track section.id) {
+      <article
+        class="space-y-4 animate-slide-up border-l-4 border-primary/50 pl-6 md:pl-8 py-2"
+        [style.animation-delay]="0.2 + $index * 0.05 + 's'">
+        <h2 class="text-xl md:text-2xl font-bold text-slate-900 dark:text-white">
+          {{ section.title }}
+        </h2>
+        @if (section.highlight) {
+          <blockquote
+            class="text-primary dark:text-secondary font-medium italic border-l-2 border-primary/30 pl-4 my-4">
+            {{ section.highlight }}
+          </blockquote>
+        }
+        @for (para of section.paragraphs; track para) {
+          <p class="text-slate-600 dark:text-slate-400 leading-relaxed">{{ para }}</p>
+        }
+      </article>
+    }
+
+    <!-- Beyond Coding Items -->
+    <div class="space-y-4 animate-slide-up" style="animation-delay: 0.35s;">
+      <ul class="list-disc list-inside space-y-2 text-slate-600 dark:text-slate-400 md:pl-4">
+        @for (item of beyondCodingItems; track item) {
+          <li class="leading-relaxed">{{ item }}</li>
+        }
+      </ul>
+      <p class="text-slate-600 dark:text-slate-400 leading-relaxed">{{ beyondCodingClosing }}</p>
+    </div>
+
+    <!-- Intentional Use of Time -->
+    <article class="space-y-4 animate-slide-up border-l-4 border-primary/50 pl-6 md:pl-8 py-2"
+      style="animation-delay: 0.4s;">
+      <h2 class="text-xl md:text-2xl font-bold text-slate-900 dark:text-white">
+        Intentional Use of Time
+      </h2>
+      <p class="text-slate-600 dark:text-slate-400 leading-relaxed">{{ intentionalTime.intro }}</p>
+      <p class="text-slate-600 dark:text-slate-400 leading-relaxed">{{ intentionalTime.steppedAway }}</p>
+      <p class="text-slate-700 dark:text-slate-300 font-medium mt-4">Most of my digital time is spent on:</p>
+      <ul class="list-disc list-inside space-y-2 text-slate-600 dark:text-slate-400 md:pl-4">
+        @for (platform of intentionalTime.platforms; track platform) {
+          <li class="leading-relaxed">{{ platform }}</li>
+        }
+      </ul>
+      <p class="text-slate-600 dark:text-slate-400 leading-relaxed mt-4">{{ intentionalTime.closing }}</p>
+    </article>
+
+    <!-- Closing -->
+    <div class="space-y-4 animate-slide-up text-center" style="animation-delay: 0.45s;">
+      <p class="text-xl md:text-2xl font-bold text-primary dark:text-secondary">
+        {{ closing.mindset }}
+      </p>
+      <p class="text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl mx-auto">
+        {{ closing.paragraph }}
+      </p>
+      <p class="text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl mx-auto">
+        {{ closing.final }}
+      </p>
+    </div>
+
+  </div>
 </section>

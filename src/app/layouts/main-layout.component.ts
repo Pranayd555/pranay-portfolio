@@ -1,31 +1,20 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { HeaderComponent } from './header/header.component';
-import { FooterComponent } from './footer/footer.component';
-import { BackgroundAnimationThreeComponent } from '../shared/components/background-animation-three/background-animation-three.component';
+import { DetailBarComponent } from './detail-bar/detail-bar.component';
 
-/**
- * Main Layout Component
- * 
- * Provides the app shell with header, footer, and router outlet.
- * This layout wraps all routed content.
- */
 @Component({
   selector: 'app-main-layout',
-  imports: [RouterOutlet, HeaderComponent, FooterComponent, BackgroundAnimationThreeComponent],
+  imports: [RouterOutlet, DetailBarComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="flex flex-col min-h-screen bg-background-light dark:bg-background-dark text-slate-900 dark:text-white transition-colors duration-300">
-      <app-background-animation-three />
-      <app-header />
-      
-      <main class="flex-grow pt-20">
+    <div class="relative flex flex-col min-h-screen bg-background-light dark:bg-background-dark text-slate-900 dark:text-white transition-colors duration-300">
+      <!-- <app-background-animation-three /> -->
+      <app-detail-bar />
+      <main class="flex-grow pt-16 pb-8">
         <router-outlet />
       </main>
-      
-      <app-footer />
     </div>
   `,
-  styles: ``
+  styles: ``,
 })
-export class MainLayoutComponent { }
+export class MainLayoutComponent {}
