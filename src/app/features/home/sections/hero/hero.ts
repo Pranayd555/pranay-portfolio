@@ -1,6 +1,5 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ChangeDetectionStrategy, Component, Inject, PLATFORM_ID, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import {
   heroTagline,
   heroIntro,
@@ -10,11 +9,10 @@ import {
   heroIntentionalTime,
   heroClosing,
 } from '../data/hero-data';
-import { WaveTextComponent } from "../../../../shared/components/text-animations/wave-text";
 
 @Component({
   selector: 'app-hero',
-  imports: [RouterLink, CommonModule, WaveTextComponent],
+  imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './hero.html',
   styleUrl: './hero.css',

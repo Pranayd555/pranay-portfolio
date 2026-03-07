@@ -6,13 +6,12 @@ import { IProjectsState } from './types/projectsState.model';
 import { toSignal } from '@angular/core/rxjs-interop';
 import * as ProjectsSelectors from './store/selectors';
 import * as ProjectsActions from './store/actions';
-import { WaveTextComponent } from "../../../../shared/components/text-animations/wave-text";
 import { Dialog } from '@angular/cdk/dialog';
 import { ProjDesModal } from './proj-des-modal/proj-des-modal';
 
 @Component({
   selector: 'app-projects',
-  imports: [CommonModule, WaveTextComponent],
+  imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './projects.html',
   styleUrl: './projects.css',

@@ -20,10 +20,9 @@
           </span>
         </div>
 
-        <wave-text
-          class="text-primary dark:text-secondary text-lg md:text-xl font-medium animate-slide-up"
+        <p class="text-primary dark:text-secondary text-lg md:text-xl font-medium animate-slide-up"
           [style.animation-delay]="'0.1s'"
-          [text]="tagline"></wave-text>
+          >{{ tagline }}</p>
       </div>
     </div>
 
@@ -38,52 +37,6 @@
       <p>{{ intro.philosophy }}</p>
     </div>
 
-    <!-- Sections -->
-    @for (section of sections; track section.id) {
-      <article
-        class="space-y-4 animate-slide-up border-l-4 border-primary/50 pl-6 md:pl-8 py-2"
-        [style.animation-delay]="0.2 + $index * 0.05 + 's'">
-        <h2 class="text-xl md:text-2xl font-bold text-slate-900 dark:text-white">
-          {{ section.title }}
-        </h2>
-        @if (section.highlight) {
-          <blockquote
-            class="text-primary dark:text-secondary font-medium italic border-l-2 border-primary/30 pl-4 my-4">
-            {{ section.highlight }}
-          </blockquote>
-        }
-        @for (para of section.paragraphs; track para) {
-          <p class="text-slate-600 dark:text-slate-400 leading-relaxed">{{ para }}</p>
-        }
-      </article>
-    }
-
-    <!-- Beyond Coding Items -->
-    <div class="space-y-4 animate-slide-up" style="animation-delay: 0.35s;">
-      <ul class="list-disc list-inside space-y-2 text-slate-600 dark:text-slate-400 md:pl-4">
-        @for (item of beyondCodingItems; track item) {
-          <li class="leading-relaxed">{{ item }}</li>
-        }
-      </ul>
-      <p class="text-slate-600 dark:text-slate-400 leading-relaxed">{{ beyondCodingClosing }}</p>
-    </div>
-
-    <!-- Intentional Use of Time -->
-    <article class="space-y-4 animate-slide-up border-l-4 border-primary/50 pl-6 md:pl-8 py-2"
-      style="animation-delay: 0.4s;">
-      <h2 class="text-xl md:text-2xl font-bold text-slate-900 dark:text-white">
-        Intentional Use of Time
-      </h2>
-      <p class="text-slate-600 dark:text-slate-400 leading-relaxed">{{ intentionalTime.intro }}</p>
-      <p class="text-slate-600 dark:text-slate-400 leading-relaxed">{{ intentionalTime.steppedAway }}</p>
-      <p class="text-slate-700 dark:text-slate-300 font-medium mt-4">Most of my digital time is spent on:</p>
-      <ul class="list-disc list-inside space-y-2 text-slate-600 dark:text-slate-400 md:pl-4">
-        @for (platform of intentionalTime.platforms; track platform) {
-          <li class="leading-relaxed">{{ platform }}</li>
-        }
-      </ul>
-      <p class="text-slate-600 dark:text-slate-400 leading-relaxed mt-4">{{ intentionalTime.closing }}</p>
-    </article>
 
     <!-- Closing -->
     <div class="space-y-4 animate-slide-up text-center" style="animation-delay: 0.45s;">
