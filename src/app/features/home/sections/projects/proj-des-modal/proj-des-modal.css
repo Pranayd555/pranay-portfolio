@@ -1,9 +1,7 @@
-/* Root modal wrapper */
 :host {
     display: contents;
 }
 
-/* The animated card */
 .modal-card {
     position: relative;
     width: min(95vw, 900px);
@@ -23,12 +21,13 @@
     border-radius: 20px;
 }
 
-:host-context(.dark) .modal-card {
+:host-context(.dark) .modal-card,
+:host-context(.dark) .modal-header,
+:host-context(.dark) .modal-footer {
     background: var(--glass-bg);
     border-color: var(--glass-border);
 }
 
-/* Header */
 .modal-header {
     display: flex;
     align-items: center;
@@ -41,12 +40,6 @@
     top: 0;
     z-index: 20;
 }
-
-:host-context(.dark) .modal-header {
-    background: var(--glass-bg);
-    border-color: var(--glass-border);
-}
-
 
 .modal-title-wrapper {
     display: flex;
@@ -70,7 +63,6 @@
     margin-top: 4px;
 }
 
-/* Close button */
 .modal-close {
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
@@ -92,7 +84,6 @@
     box-shadow: 0 0 15px var(--color-primary);
 }
 
-/* Content */
 .modal-content {
     padding: 24px;
     font-size: 1rem;
@@ -104,7 +95,6 @@
     background: radial-gradient(circle at top right, rgba(19, 91, 236, 0.03), transparent 40%);
 }
 
-/* Sections */
 .modal-section {
     margin: 0 32px 20px 32px;
     opacity: 0;
@@ -125,7 +115,6 @@
     color: var(--color-secondary);
 }
 
-/* Grid Layouts */
 .info-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -145,7 +134,6 @@
     border-color: var(--color-primary);
 }
 
-/* List handling */
 .modal-list {
     list-style: none;
     padding: 0;
@@ -167,7 +155,6 @@
     font-weight: bold;
 }
 
-/* Demo Image/GIF/Video */
 .demo-wrapper {
     width: 100%;
     aspect-ratio: 16 / 9;
@@ -194,7 +181,6 @@
     transform: scale(1.02);
 }
 
-/* Footer */
 .modal-footer {
     display: flex;
     justify-content: flex-end;
@@ -204,12 +190,6 @@
     border-top: 1px solid #e2e8f0;
 }
 
-:host-context(.dark) .modal-footer {
-    background: var(--glass-bg);
-    border-color: var(--glass-border);
-}
-
-/* Mobile optimization */
 @media (max-width: 768px) {
     .modal-card {
         width: 94vw;
@@ -226,7 +206,7 @@
     }
 
     .modal-title {
-        font-size: 1.15rem;
+        font-size: 1.25rem;
     }
 
     .modal-content {
@@ -240,21 +220,8 @@
     .info-grid {
         grid-template-columns: 1fr;
     }
-
-    .modal-header {
-        padding: 16px;
-    }
-
-    .modal-title {
-        font-size: 1.25rem;
-    }
-
-    .modal-content {
-        padding: 16px;
-    }
 }
 
-/* Error State Centering & Design */
 .error-container {
     flex: 1;
     display: flex;
