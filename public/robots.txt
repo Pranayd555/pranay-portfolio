@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://pranay.prismistique.in/sitemap.xml
+Sitemap: https://pranay.presmistique.in/sitemap.xml
