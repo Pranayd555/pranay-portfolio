@@ -16,7 +16,7 @@ import { Router, RouterLink } from '@angular/router';
       aria-label="Back to home"
     >
       <img
-        src="assets/pranay_logo.png"
+        src="/pranay_logo.png"
         alt="Pranay Das"
         loading="lazy"
         class="h-full w-full object-cover"
