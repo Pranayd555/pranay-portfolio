@@ -14,7 +14,7 @@ import { ThemeService } from '../../core/services/theme.service';
         <!-- Logo — always navigates back to immersive landing -->
         <div class="flex items-center gap-3">
           <div class="flex size-10 shrink-0 items-center overflow-hidden rounded-full border-2 border-primary cursor-pointer" (click)="routeToHome()">
-            <img src="assets/pranay_logo.png"
+            <img src="/pranay_logo.png"
                  alt="Pranay Das Logo"
                  loading="lazy"
                  class="w-full h-full object-cover">
