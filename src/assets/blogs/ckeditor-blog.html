@@ -1,0 +1,512 @@
+<article class="max-w-5xl mx-auto px-4 py-10 md:py-14">
+  <!-- Header -->
+  <header class="glass-card rounded-[2rem] p-6 md:p-10 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+    <p class="text-xs md:text-sm font-semibold tracking-wider uppercase text-slate-600 dark:text-slate-400">
+      Case study
+    </p>
+
+    <h1
+      class="mt-3 text-3xl md:text-5xl font-extrabold leading-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-slate-700 to-slate-500 dark:from-white dark:via-slate-200 dark:to-slate-400">
+      Replacing CKBox with “just S3”: my CKEditor 5 migration war story (Angular 13 → 14)
+    </h1>
+
+    <p class="mt-5 text-base md:text-lg leading-relaxed text-slate-700 dark:text-slate-300 max-w-3xl">
+      This project didn’t start as “let’s build a fancy editor.” It started as an Angular 13 → Angular 14 migration where one dependency quietly turned into a whole subplot:
+      CKEditor 4 → 5 meant rethinking file management, and I didn’t want the migration to turn into “editor upgrade + paid storage product rollout.”
+    </p>
+
+    <div class="mt-6 flex flex-wrap gap-2">
+      <span class="text-[10px] md:text-xs uppercase tracking-wider px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300/70 dark:border-white/5">
+        Angular migration
+      </span>
+      <span class="text-[10px] md:text-xs uppercase tracking-wider px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300/70 dark:border-white/5">
+        CKEditor 5
+      </span>
+      <span class="text-[10px] md:text-xs uppercase tracking-wider px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300/70 dark:border-white/5">
+        S3 / R2
+      </span>
+      <span class="text-[10px] md:text-xs uppercase tracking-wider px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300/70 dark:border-white/5">
+        Custom plugin
+      </span>
+      <span class="text-[10px] md:text-xs uppercase tracking-wider px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
+        File manager UX
+      </span>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <div class="mt-8">
+    <main class="space-y-6 w-full">
+      <!-- Context -->
+      <section id="context" class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+          Context: why this project exists at all
+        </h2>
+
+        <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+          We were moving Angular 13 → Angular 14, and that upgrade forced a bigger dependency change: CKEditor 4 → CKEditor 5.
+        </p>
+
+        <div class="mt-5 grid grid-cols-1 gap-4">
+          <div class="p-4 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+            <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span class="material-symbols-outlined text-base text-slate-600 dark:text-slate-400">warning</span>
+              Where it got messy
+            </h3>
+            <ul class="mt-3 space-y-2 text-slate-700 dark:text-slate-300 leading-relaxed">
+              <li class="flex gap-3">
+                <span class="mt-1 h-2 w-2 rounded-full bg-primary/70"></span>
+                <span>In CKEditor 4, we had an Amazon S3 flow that was basically “free + configurable,” and it matched the rest of our stack (we were already AWS-heavy).</span>
+              </li>
+              <li class="flex gap-3">
+                <span class="mt-1 h-2 w-2 rounded-full bg-primary/70"></span>
+                <span>In CKEditor 5, the “official” file management story is typically CKBox or CKFinder.</span>
+              </li>
+              <li class="flex gap-3">
+                <span class="mt-1 h-2 w-2 rounded-full bg-primary/70"></span>
+                <span>Both are good products, but for our situation they were a bad fit: paid, and also a new storage workflow in an app that already has S3 everywhere.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="mt-5 p-4 rounded-2xl bg-primary/5 border border-primary/10">
+          <p class="text-slate-900 dark:text-white font-semibold">
+            Problem statement
+          </p>
+          <p class="mt-2 text-slate-700 dark:text-slate-300 leading-relaxed">
+            “How do we migrate to CKEditor 5 and keep the S3-based asset workflow we already rely on—without introducing CKBox/CKFinder cost and without regressing editor features?”
+          </p>
+        </div>
+
+        <p class="mt-5 text-slate-700 dark:text-slate-300 leading-relaxed">
+          This repo is my answer: a custom CKEditor 5 bundle with a custom S3/R2 file manager plugin, designed to preserve the
+          “browse/upload/reuse assets” workflow we had before.
+        </p>
+      </section>
+
+      <!-- What I built -->
+      <section id="what-i-built" class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+          What the project solves (in plain terms)
+        </h2>
+
+        <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+          I ended up building a custom CKEditor 5 bundle that includes a custom S3 file manager plugin:
+        </p>
+
+        <div class="mt-5 grid grid-cols-1 gap-4">
+          <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span class="material-symbols-outlined text-lg text-slate-600 dark:text-slate-400">extension</span>
+              A CKEditor 5 plugin
+            </h3>
+            <ul class="mt-3 space-y-2 text-slate-700 dark:text-slate-300 leading-relaxed">
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-secondary/70"></span><span>Sets up an S3-compatible client (AWS S3 or Cloudflare R2)</span></li>
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-secondary/70"></span><span>Registers a browse command (<code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">s3Browse</code>)</span></li>
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-secondary/70"></span><span>Hooks into the upload pipeline via <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">FileRepository.createUploadAdapter</code></span></li>
+            </ul>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span class="material-symbols-outlined text-lg text-slate-600 dark:text-slate-400">folder_open</span>
+              A “File Manager” modal
+            </h3>
+            <ul class="mt-3 space-y-2 text-slate-700 dark:text-slate-300 leading-relaxed">
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-secondary/70"></span><span>Lists folders + files in the bucket</span></li>
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-secondary/70"></span><span>Lazy-loads image previews using signed URLs</span></li>
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-secondary/70"></span><span>Supports CRUD operations (create folder, upload, delete)</span></li>
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-secondary/70"></span><span>Inserts assets into the editor (images immediately; audio supported via a model element)</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <p class="mt-5 text-slate-700 dark:text-slate-300 leading-relaxed">
+          In the editor toolbar, it shows up as a <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">s3Browse</code> action:
+        </p>
+
+        <pre class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>toolbar: {
+  items: [
+    'undo',
+    'redo',
+    // ...
+    'indent',
+    '|',
+    's3Browse',
+  ],
+  shouldNotGroupWhenFull: true
+},</code></pre>
+
+        <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+          It’s not a generic “tutorial plugin.” It’s a practical “this is what I needed to ship the migration” solution.
+        </p>
+      </section>
+
+      <!-- Decisions -->
+      <section id="decisions" class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+          Architecture & key decisions (and the trade-offs I actually weighed)
+        </h2>
+
+        <div class="mt-5 space-y-4">
+          <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+              Decision 1: “Don’t pay for CKBox/CKFinder; build around S3”
+            </h3>
+            <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+              I didn’t avoid CKBox/CKFinder because they’re bad. I avoided them because they didn’t match the reality of the project:
+            </p>
+            <ul class="mt-3 space-y-2 text-slate-700 dark:text-slate-300 leading-relaxed">
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-primary/70"></span><span><strong>Cost</strong>: hard to justify when S3 is already paid for and already integrated.</span></li>
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-primary/70"></span><span><strong>Workflow mismatch</strong>: the app already understands buckets/keys/folders/policies.</span></li>
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-primary/70"></span><span><strong>Migration scope</strong>: I wanted this to be “editor migration,” not “editor + new vendor rollout.”</span></li>
+            </ul>
+            <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+              <strong>Trade-off</strong>: I took on real engineering responsibility (UX + security + storage concerns) that CKBox/CKFinder normally absorbs for you.
+            </p>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+              Decision 2: “It had to be JavaScript, because the editor source is JavaScript”
+            </h3>
+            <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+              At the time, most of the CKEditor “custom plugin” docs/examples I could follow were JavaScript-first. So this wasn’t “JS vs TS ideology.” It was:
+            </p>
+            <ul class="mt-3 space-y-2 text-slate-700 dark:text-slate-300 leading-relaxed">
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-primary/70"></span><span>Write the plugin/editor in JS, the way the docs were showing it, so I wasn’t translating concepts and debugging build issues at the same time.</span></li>
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-primary/70"></span><span>Integrate the built output into the Angular/TypeScript app as an artifact, instead of trying to make CKEditor internals TypeScript-native inside Angular’s build.</span></li>
+            </ul>
+            <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+              <strong>Trade-off</strong>: I gave up type safety inside the plugin code, and I had to be more disciplined about runtime checks and error handling.
+            </p>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+              Decision 3: “Bundle the editor so other apps can consume it”
+            </h3>
+            <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+              The moment the plugin worked locally, the next problem was: how do I ship it into an existing application cleanly?
+              Webpack output solved that by producing a consumable editor bundle.
+            </p>
+
+            <pre class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm">
+<code>output: {
+  library: 'ClassicEditor',
+  libraryTarget: 'umd',
+  libraryExport: 'default',
+  umdNamedDefine: true,
+  path: path.resolve(__dirname, 'build'),
+  filename: 'ckeditor.js',
+},</code></pre>
+
+            <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+              <strong>Trade-off</strong>: now I’m maintaining a build pipeline specifically for the editor bundle. But it kept the Angular app build from turning into a CKEditor build science project.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Architecture -->
+      <section id="architecture" class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+          The architecture: how the system is structured
+        </h2>
+
+        <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+          Components:
+        </p>
+
+        <div class="mt-4 grid grid-cols-1 gap-3">
+          <div class="p-4 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+            <ul class="space-y-2 text-slate-700 dark:text-slate-300">
+              <li><code class="font-mono text-xs md:text-sm px-2 py-1 rounded bg-slate-200 dark:bg-slate-800">src/ckeditor.js</code> defines the custom editor build + toolbar config.</li>
+              <li><code class="font-mono text-xs md:text-sm px-2 py-1 rounded bg-slate-200 dark:bg-slate-800">src/fileManagerPlugin.js</code> wires everything together.</li>
+              <li><code class="font-mono text-xs md:text-sm px-2 py-1 rounded bg-slate-200 dark:bg-slate-800">src/S3BrowseCommand.js</code> renders the modal UI and performs storage operations.</li>
+              <li><code class="font-mono text-xs md:text-sm px-2 py-1 rounded bg-slate-200 dark:bg-slate-800">src/S3UploadAdapter.js</code> implements the upload adapter for the insert-image pipeline.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Happy flow -->
+      <section id="happy-flow" class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+          The happy flow (what a user experiences)
+        </h2>
+
+        <ol class="mt-5 space-y-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+          <li class="flex gap-3">
+            <span class="flex-none w-7 h-7 rounded-full bg-primary/15 text-primary border border-primary/20 flex items-center justify-center text-sm font-bold">1</span>
+            <span>User opens the editor.</span>
+          </li>
+          <li class="flex gap-3">
+            <span class="flex-none w-7 h-7 rounded-full bg-primary/15 text-primary border border-primary/20 flex items-center justify-center text-sm font-bold">2</span>
+            <span>User clicks Browse (<code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">s3Browse</code>) in the toolbar.</span>
+          </li>
+          <li class="flex gap-3">
+            <span class="flex-none w-7 h-7 rounded-full bg-primary/15 text-primary border border-primary/20 flex items-center justify-center text-sm font-bold">3</span>
+            <span>A “File Manager” modal opens: folders on the left, files/thumbnails on the right.</span>
+          </li>
+          <li class="flex gap-3">
+            <span class="flex-none w-7 h-7 rounded-full bg-primary/15 text-primary border border-primary/20 flex items-center justify-center text-sm font-bold">4</span>
+            <span>User uploads images into a folder (with type/size guardrails).</span>
+          </li>
+          <li class="flex gap-3">
+            <span class="flex-none w-7 h-7 rounded-full bg-primary/15 text-primary border border-primary/20 flex items-center justify-center text-sm font-bold">5</span>
+            <span>Thumbnails show up quickly (previews load lazily).</span>
+          </li>
+          <li class="flex gap-3">
+            <span class="flex-none w-7 h-7 rounded-full bg-primary/15 text-primary border border-primary/20 flex items-center justify-center text-sm font-bold">6</span>
+            <span>User clicks an image → it inserts into CKEditor.</span>
+          </li>
+        </ol>
+      </section>
+
+      <!-- Implementation highlights -->
+      <section id="highlights" class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+          Implementation highlights (real code, real reasoning)
+        </h2>
+
+        <div class="mt-6 space-y-6">
+          <!-- Highlight 1 -->
+          <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+              1) Wiring the plugin into CKEditor (commands + upload adapter)
+            </h3>
+            <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+              This is the “entry point” where the plugin becomes real: create a client, register an upload adapter, add the browse command.
+            </p>
+
+            <pre class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm">
+<code>init() {
+  // connect cloudflare R2
+  this.s3Client = new S3Client({
+    region: "auto",
+    endpoint: process.env.R2_API || 'https://&lt;ACCOUNT_ID&gt;.r2.cloudflarestorage.com',
+    signatureVersion: 'v4',
+    credentials: {
+      accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
+      secretAccessKey: process.env.R2_SECRECT_ACCESS_KEY || ''
+    },
+  });
+
+  // Register upload adapter for insertImage functionality
+  this.editor.plugins.get('FileRepository').createUploadAdapter = (loader) =&gt; {
+    return new S3UploadAdapter(loader, this.s3Client, bucketName);
+  };
+
+  // Add commands
+  this.editor.commands.add('s3Browse', new S3BrowserCommand(this.editor, this.s3Client));
+}</code></pre>
+
+            <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+              Why this matters: this is the line between “some storage code” and “a real CKEditor feature.”
+              Commands + upload adapters are the extension points CKEditor expects you to integrate with, so once I aligned with those,
+              everything else became easier to reason about.
+            </p>
+          </div>
+
+          <!-- Highlight 2 -->
+          <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+              2) File manager performance: don’t download objects for previews
+            </h3>
+            <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+              My early model was “List objects → fetch objects → show previews.” It works… until it doesn’t. It’s slow, heavy,
+              and makes the UI feel broken. The better approach:
+            </p>
+            <ul class="mt-3 space-y-2 text-slate-700 dark:text-slate-300 leading-relaxed">
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-secondary/70"></span><span>List keys with <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">ListObjectsV2</code></span></li>
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-secondary/70"></span><span>Generate signed URLs for previews</span></li>
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-secondary/70"></span><span>Lazy-load previews after UI render</span></li>
+            </ul>
+
+            <pre class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm">
+<code>const command = new ListObjectsV2Command({
+  Bucket: bucketName,
+  Prefix: folderName + "/",
+  Delimiter: "/",
+});
+
+const { Contents } = await this.s3Client.send(command);
+
+// Process files WITHOUT downloading them (major optimization)
+const updatedContents = Contents
+  .map((item) =&gt; {
+    const parts = item.Key.split("/");
+    const fileName = parts[parts.length - 1];
+    if (!fileName.length) return null;
+    return {
+      ...item,
+      fileName,
+      // Mark if needs preview, but don't download yet
+      needsPreview: this.isImageFile(fileName)
+    };
+  })
+  .filter(item =&gt; item !== null);
+
+async getImagePreviewUrl(fileKey) {
+  const command = new GetObjectCommand({
+    Bucket: bucketName,
+    Key: fileKey,
+  });
+  // Use signed URL instead of downloading - much more efficient
+  return await getSignedUrl(this.s3Client, command, { expiresIn: 3600 });
+}</code></pre>
+
+            <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+              Trade-off: signed URLs add complexity (expiry, caching, permissions). But for a file manager UI, they’re worth it:
+              the browser handles loading/decoding efficiently and your JS thread doesn’t become a download pipeline.
+            </p>
+          </div>
+
+          <!-- Highlight 3 -->
+          <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+              3) UX constraints that match real teams: limits + guardrails
+            </h3>
+            <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+              This plugin isn’t trying to be “S3 Explorer.” It’s trying to preserve a workflow safely during a migration, so I enforced practical constraints:
+            </p>
+            <ul class="mt-3 space-y-2 text-slate-700 dark:text-slate-300 leading-relaxed">
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-primary/70"></span><span>Restrict upload file types</span></li>
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-primary/70"></span><span>Enforce size targets and offer compression</span></li>
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-primary/70"></span><span>Cap how many files can be uploaded per folder (predictable UX + performance during rollout)</span></li>
+            </ul>
+            <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+              That’s not theoretical purity—that’s “this keeps the experience stable while migrating.”
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Challenges -->
+      <section id="challenges" class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+          Challenges (the stuff that actually slowed me down)
+        </h2>
+
+        <div class="mt-5 space-y-4">
+          <div class="p-5 rounded-2xl bg-red-500/5 border border-red-500/10">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+              “CKEditor 5 plugin development has constraints you only learn by bleeding”
+            </h3>
+            <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+              CKEditor doesn’t behave like a normal frontend framework. It has its own concepts (commands, conversion, model/view pipelines),
+              and when you do something slightly wrong you can get errors that aren’t obviously connected to the bug.
+            </p>
+            <ul class="mt-3 space-y-2 text-slate-700 dark:text-slate-300 leading-relaxed">
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-red-500/70"></span><span>Staying close to docs/examples (JS-based back then)</span></li>
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-red-500/70"></span><span>Building a minimal skeleton first (button → command → modal)</span></li>
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-red-500/70"></span><span>Only then layering storage calls, caching, and UX polish</span></li>
+            </ul>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-amber-500/5 border border-amber-500/10">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+              “CORS isn’t a footnote, it’s a project requirement”
+            </h3>
+            <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+              The moment you upload/delete from the browser, CORS becomes non-negotiable. I had to treat it as part of “making the plugin work,” not “deployment detail.”
+            </p>
+
+            <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+              Here’s an example CORS policy (R2 or S3) that unblocks local development:
+            </p>
+
+            <pre class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>[
+  {
+    "AllowedOrigins": [
+      "http://localhost:8080"
+    ],
+    "AllowedMethods": [
+      "GET",
+      "PUT",
+      "POST",
+      "DELETE",
+      "HEAD"
+    ],
+    "AllowedHeaders": [
+      "*"
+    ]
+  }
+]</code></pre>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+              “Integrating into another application is its own challenge”
+            </h3>
+            <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+              Even after the plugin worked, I still had to answer: “How does Angular consume this without chaos?”
+              That’s where bundling became the practical bridge.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- How someone can actually use it -->
+      <section id="how-to-use" class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+          How someone can actually use it
+        </h2>
+
+        <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+          At a high level, it’s:
+        </p>
+
+        <ul class="mt-5 space-y-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+          <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-secondary/70"></span><span>Build the custom editor bundle with webpack.</span></li>
+          <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-secondary/70"></span><span>Host the sample (or import the built artifact into another app).</span></li>
+          <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-secondary/70"></span><span>Configure bucket + CORS.</span></li>
+          <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-secondary/70"></span><span>Use the toolbar button to browse/upload/insert.</span></li>
+        </ul>
+      </section>
+
+      <!-- What I'd do differently -->
+      <section id="what-id-do-differently" class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+          What I’d do differently (keeping it honest, but positive)
+        </h2>
+
+        <ul class="mt-5 space-y-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+          <li class="flex gap-3">
+            <span class="mt-1 h-2 w-2 rounded-full bg-primary/70"></span>
+            <span><strong>Security/auth</strong>: move away from long-lived credentials in the browser and use server-minted temporary access or presigned URLs.</span>
+          </li>
+          <li class="flex gap-3">
+            <span class="mt-1 h-2 w-2 rounded-full bg-primary/70"></span>
+            <span><strong>UI architecture</strong>: reduce reliance on global handlers for modal actions and tighten the event model.</span>
+          </li>
+          <li class="flex gap-3">
+            <span class="mt-1 h-2 w-2 rounded-full bg-primary/70"></span>
+            <span><strong>Consistency</strong>: unify the “insert image” flow so everything ends up as stored objects + URLs (instead of sometimes base64).</span>
+          </li>
+        </ul>
+
+        <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+          None of those invalidate the project. They’re just the next steps if I were turning this from “migration solution” into a hardened library.
+        </p>
+      </section>
+
+      <!-- Learnings -->
+      <section id="learnings" class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+          Key learnings (the practical kind)
+        </h2>
+
+        <ul class="mt-5 space-y-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+          <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-secondary/70"></span><span>Migrations expose hidden costs: Angular upgrades can force editor upgrades, which can force storage workflow decisions.</span></li>
+          <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-secondary/70"></span><span>Paying for the official solution isn’t always the right call if it clashes with existing infra and cost constraints.</span></li>
+          <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-secondary/70"></span><span>Performance is product in file managers—signed URLs + lazy previews changed everything.</span></li>
+          <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-secondary/70"></span><span>Bundling matters: a working plugin isn’t “done” until it’s consumable in the real application.</span></li>
+        </ul>
+      </section>
+
+    </main>
+  </div>
+</article>

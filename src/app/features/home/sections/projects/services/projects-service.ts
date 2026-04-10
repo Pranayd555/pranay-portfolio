@@ -11,7 +11,7 @@ import { projectDetailsData } from '../../data/project-details';
 export class ProjectsService {
 
   getProjects(): Observable<IProject[]> {
-    return of(projectsData).pipe(delay(2000));
+    return of(projectsData).pipe(delay(1000));
   }
 
   getProjectById(id: string): Observable<IProjectDetails> {
@@ -19,7 +19,7 @@ export class ProjectsService {
     if (!project) {
       return throwError(() => new Error('Project not found'));
     }
-    return of(project).pipe(delay(2000));
+    return of(project).pipe(delay(1000));
   }
 
 }

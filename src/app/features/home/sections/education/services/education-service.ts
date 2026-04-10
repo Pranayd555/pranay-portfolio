@@ -9,7 +9,7 @@ import { educationData } from '../../data/education-data';
 export class EducationService {
 
   getEducation(): Observable<IEducationSection> {
-    return of(educationData).pipe(delay(2000));
+    return of(educationData).pipe(delay(1000));
   }
 
 }
