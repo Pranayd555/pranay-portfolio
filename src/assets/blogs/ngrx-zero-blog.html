@@ -1,0 +1,502 @@
+<article class="max-w-5xl mx-auto px-4 py-10 md:py-14">
+  <!-- Header -->
+  <header
+    class="glass-card rounded-[2rem] p-6 md:p-10 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+    <p class="text-xs md:text-sm font-semibold tracking-wider uppercase text-slate-600 dark:text-slate-400">
+      Learning project
+    </p>
+
+    <h1
+      class="mt-3 text-3xl md:text-5xl font-extrabold leading-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-slate-700 to-slate-500 dark:from-white dark:via-slate-200 dark:to-slate-400">
+      NgRx in a Small Angular App: The Project That Finally Made It Click (for Me)
+    </h1>
+
+    <p class="mt-5 text-base md:text-lg leading-relaxed text-slate-700 dark:text-slate-300 max-w-3xl">
+      NgRx is one of those things I understood on paper for a while… but it didn’t really click until I built a small Angular app where the goal was simple: use NgRx properly, end-to-end, and see the whole flow working in a real UI.
+    </p>
+
+    <p class="mt-4 text-base md:text-lg leading-relaxed text-slate-700 dark:text-slate-300 max-w-3xl">
+      So I built a “fruits” feature (load/add/update/delete) in Angular 16 and wired it with:
+    </p>
+
+    <ul class="mt-4 space-y-2 text-slate-700 dark:text-slate-300 leading-relaxed">
+      <li class="flex gap-3">
+        <span class="mt-2 h-2 w-2 rounded-full bg-primary/70"></span>
+        <span><code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">@ngrx/store</code> for state</span>
+      </li>
+      <li class="flex gap-3">
+        <span class="mt-2 h-2 w-2 rounded-full bg-primary/70"></span>
+        <span><code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">@ngrx/effects</code> for HTTP side effects</span>
+      </li>
+      <li class="flex gap-3">
+        <span class="mt-2 h-2 w-2 rounded-full bg-primary/70"></span>
+        <span><code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">@ngrx/store-devtools</code> so I could actually see actions + state transitions while learning</span>
+      </li>
+    </ul>
+
+    <p class="mt-4 text-base md:text-lg leading-relaxed text-slate-700 dark:text-slate-300 max-w-3xl">
+      This post walks through how I implemented it in the project, with the actual code.
+    </p>
+
+    <div class="mt-6 flex flex-wrap gap-2">
+      <span
+        class="text-[10px] md:text-xs uppercase tracking-wider px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300/70 dark:border-white/5">
+        Angular 16
+      </span>
+      <span
+        class="text-[10px] md:text-xs uppercase tracking-wider px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300/70 dark:border-white/5">
+        NgRx
+      </span>
+      <span
+        class="text-[10px] md:text-xs uppercase tracking-wider px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300/70 dark:border-white/5">
+        Effects
+      </span>
+      <span class="text-[10px] md:text-xs uppercase tracking-wider px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
+        Learning flow
+      </span>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <div class="mt-8">
+    <main class="space-y-6 w-full">
+      <section id="what-the-app-does"
+        class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+          What the app does (and why it was perfect for learning NgRx)
+        </h2>
+
+        <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+          The UI is straightforward:
+        </p>
+
+        <ul class="mt-4 space-y-2 text-slate-700 dark:text-slate-300 leading-relaxed">
+          <li class="flex gap-3"><span class="mt-2 h-2 w-2 rounded-full bg-secondary/70"></span><span>Load and render a list of fruits from an API</span></li>
+          <li class="flex gap-3"><span class="mt-2 h-2 w-2 rounded-full bg-secondary/70"></span><span>Add a fruit</span></li>
+          <li class="flex gap-3"><span class="mt-2 h-2 w-2 rounded-full bg-secondary/70"></span><span>Update a fruit</span></li>
+          <li class="flex gap-3"><span class="mt-2 h-2 w-2 rounded-full bg-secondary/70"></span><span>Delete a fruit</span></li>
+        </ul>
+
+        <p class="mt-5 text-slate-700 dark:text-slate-300 leading-relaxed">
+          It’s not trying to be clever. It’s the kind of feature that gets messy fast if everything lives inside components—and that’s exactly why it’s a good NgRx learning vehicle.
+        </p>
+
+        <p class="mt-5 text-slate-700 dark:text-slate-300 leading-relaxed">
+          The NgRx flow I wanted was:
+        </p>
+
+        <p class="mt-3 p-4 rounded-2xl bg-primary/5 border border-primary/10 text-slate-900 dark:text-white leading-relaxed">
+          Component dispatches action → Effect calls API → Effect dispatches success/failure → Reducer updates store → Component renders from store
+        </p>
+      </section>
+
+      <section id="step-1"
+        class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+          Step 1: Wire NgRx into Angular (store + effects + devtools)
+        </h2>
+
+        <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+          In frontend/package.json, NgRx is included like this:
+        </p>
+
+        <pre
+          class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>"@ngrx/effects": "^16.3.0",
+"@ngrx/store": "^16.3.0",
+"@ngrx/store-devtools": "^16.3.0",</code></pre>
+
+        <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+          Then the store is registered in AppModule. I keep it simple: one slice called fruits, one reducer, one effects class.
+        </p>
+
+        <pre
+          class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>StoreModule.forRoot({ fruits: fruitReducer}),
+StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: !isDevMode() }),
+EffectsModule.forRoot([FruitEffects]),</code></pre>
+
+        <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+          That’s the first milestone: after this, NgRx exists in the app and can start handling dispatched actions.
+        </p>
+      </section>
+
+      <section id="step-2"
+        class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+          Step 2: Actions (turning UI events into explicit “intent”)
+        </h2>
+
+        <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+          Actions were the first part of NgRx that changed how I structured code.
+        </p>
+
+        <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+          Instead of components directly calling services, the component “declares intent”:
+        </p>
+
+        <ul class="mt-4 space-y-2 text-slate-700 dark:text-slate-300 leading-relaxed">
+          <li class="flex gap-3"><span class="mt-2 h-2 w-2 rounded-full bg-secondary/70"></span><span>“get fruits”</span></li>
+          <li class="flex gap-3"><span class="mt-2 h-2 w-2 rounded-full bg-secondary/70"></span><span>“add fruit”</span></li>
+          <li class="flex gap-3"><span class="mt-2 h-2 w-2 rounded-full bg-secondary/70"></span><span>“update fruit”</span></li>
+          <li class="flex gap-3"><span class="mt-2 h-2 w-2 rounded-full bg-secondary/70"></span><span>“delete fruit”</span></li>
+        </ul>
+
+        <p class="mt-5 text-slate-700 dark:text-slate-300 leading-relaxed">
+          Those live in src/app/store/actions/fruits.action.ts.
+        </p>
+
+        <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+          Here’s the load actions:
+        </p>
+
+        <pre
+          class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>export const getFruits = createAction('[Fruit] get fruit');
+export const getFruitsSuccess = createAction(
+  '[Fruit] get fruit success',
+    (fruits: ReadonlyArray&lt;Fruit&gt;) =&gt; fruits
+);
+export const getFruitsFailure = createAction(
+    '[Fruit] get fruit failure',
+  props&lt;any&gt;()
+  );</code></pre>
+
+        <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+          And delete, which takes a payload:
+        </p>
+
+        <pre
+          class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>export const deleteFruits = createAction(
+  '[Fruit] delete fruit',
+    props&lt;{name: string}&gt;()
+);
+export const deleteFruitsSuccess = createAction(
+  '[Fruit] detele fruit sucess',
+  (fruits: ReadonlyArray&lt;Fruit&gt;) =&gt; fruits
+);
+export const deleteFruitsFailure = createAction('[Fruit] delete fruit failure');</code></pre>
+
+        <h3 class="mt-6 text-lg md:text-xl font-bold text-slate-900 dark:text-white">
+          What changed for me
+        </h3>
+
+        <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+          Once I started treating actions as “messages” instead of “functions,” NgRx made more sense. It becomes much easier to reason about the app when every meaningful event is explicit and traceable.
+        </p>
+      </section>
+
+      <section id="step-3"
+        class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+          Step 3: Reducer (pure state updates, nothing else)
+        </h2>
+
+        <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+          Reducers were the part I had to discipline myself on: no HTTP, no timeouts, no side effects. Just compute the next state.
+        </p>
+
+        <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+          My fruits reducer lives in src/app/store/reducers/fruit.reducer.ts. It starts as an empty list and updates state based on success actions:
+        </p>
+
+        <pre
+          class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>const initialState: ReadonlyArray&lt;Fruit&gt; = [];
+export const fruitReducer = createReducer(
+    initialState,
+    on(FruitsActions.getFruitsSuccess, (state, fruits) =&gt; fruits),
+    on(FruitsActions.addFruitsSuccess, (state, fruits) =&gt; {
+        return {...state, ...fruits}
+    }),
+    on(FruitsActions.updateFruitsSuccess, (state, fruits) =&gt; {
+        return {...state, ...fruits}
+    }),
+    on(FruitsActions.deleteFruitsSuccess, (state, fruits) =&gt; {
+        return fruits
+    })
+);</code></pre>
+
+        <h3 class="mt-6 text-lg md:text-xl font-bold text-slate-900 dark:text-white">
+          A real “learning moment” buried in this reducer
+        </h3>
+
+        <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+          You can see the reducer returns arrays in some places and spreads arrays into objects in others ({...state, ...fruits}). That’s one of those things you only notice once you start consuming store state in components and the shape feels off.
+        </p>
+
+        <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+          It’s not catastrophic, but it taught me quickly: the reducer is the source of truth for state shape, and if it’s inconsistent, the UI ends up compensating.
+        </p>
+      </section>
+
+      <section id="step-4"
+        class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+          Step 4: Effects (where HTTP belongs)
+        </h2>
+
+        <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+          Effects are where the app stopped feeling tangled.
+        </p>
+
+        <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+          All API calls go through SharedService:
+        </p>
+
+        <pre
+          class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>  getFruits(): Observable&lt;Fruit[]&gt; {
+    return this.http.get&lt;Fruit[]&gt;(FRUITS_URL);
+  }
+  updateFruit(fruit:Fruit): Observable&lt;Fruit[]&gt; {
+    return this.http.put&lt;Fruit[]&gt;(FRUITS_UPDATE_URL, fruit);
+  }
+  addFruit(fruit: Fruit): Observable&lt;Fruit[]&gt; {
+    return this.http.post&lt;Fruit[]&gt;(FRUITS_ADD_URL, fruit);
+  }
+  deleteFruit(name: string): Observable&lt;Fruit[]&gt; {
+    return this.http.post&lt;Fruit[]&gt;(FRUITS_DELETE_URL, {"name" : name})
+  }</code></pre>
+
+        <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+          Then FruitEffects listens to actions and maps them into API calls + next actions.
+        </p>
+
+        <h3 class="mt-6 text-lg md:text-xl font-bold text-slate-900 dark:text-white">
+          Load fruits effect
+        </h3>
+
+        <pre
+          class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>    loadFuits$ = createEffect(() =&gt; {
+        return this.actions$.pipe(
+            ofType(getFruits),
+            mergeMap(() =&gt; this.sharedService.getFruits().pipe(
+                map(
+                    (fruits: Fruit[]) =&gt; getFruitsSuccess(fruits)
+                ),
+                catchError(err =&gt; of(getFruitsFailure(err)))
+            ))
+        )
+    })</code></pre>
+
+        <h3 class="mt-6 text-lg md:text-xl font-bold text-slate-900 dark:text-white">
+          Add fruit effect
+        </h3>
+
+        <pre
+          class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>    addFuits$ = createEffect(() =&gt; {
+        return this.actions$.pipe(
+            ofType(addFruits),
+            exhaustMap((newFruit: Fruit) =&gt; this.sharedService.addFruit(newFruit).pipe(
+                map(
+                    (fruits: Fruit[]) =&gt; addFruitsSuccess(fruits)
+                ),
+                catchError(err =&gt; of(addFruitsFailure()))
+            ))
+        )
+    })</code></pre>
+
+        <h3 class="mt-6 text-lg md:text-xl font-bold text-slate-900 dark:text-white">
+          Delete fruit effect
+        </h3>
+
+        <pre
+          class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>    deleteFuits$ = createEffect(() =&gt; {
+        return this.actions$.pipe(
+            ofType(deleteFruits),
+            mergeMap((fruitName: any) =&gt; this.sharedService.deleteFruit(fruitName['name']).pipe(
+                map(
+                    (fruits: Fruit[]) =&gt; deleteFruitsSuccess(fruits)
+                ),
+                catchError(() =&gt; of(deleteFruitsFailure()))
+            ))
+        )
+    })</code></pre>
+
+        <h3 class="mt-6 text-lg md:text-xl font-bold text-slate-900 dark:text-white">
+          Why this structure felt “worth it”
+        </h3>
+
+        <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+          Once effects exist, components stop needing to know anything about HTTP. The UI becomes mostly:
+        </p>
+
+        <p class="mt-3 p-4 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5 text-slate-700 dark:text-slate-300 leading-relaxed">
+          dispatch action<br />
+          render observable state
+        </p>
+
+        <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+          That separation is the first time NgRx starts paying you back.
+        </p>
+      </section>
+
+      <section id="step-5"
+        class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+          Step 5: Using the store in components (dispatch + select)
+        </h2>
+
+        <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+          Two components show the whole thing clearly:
+        </p>
+
+        <ul class="mt-4 space-y-2 text-slate-700 dark:text-slate-300 leading-relaxed">
+          <li class="flex gap-3"><span class="mt-2 h-2 w-2 rounded-full bg-secondary/70"></span><span>FruitsComponent loads and deletes</span></li>
+          <li class="flex gap-3"><span class="mt-2 h-2 w-2 rounded-full bg-secondary/70"></span><span>AddFruitComponent adds and updates</span></li>
+        </ul>
+
+        <h3 class="mt-6 text-lg md:text-xl font-bold text-slate-900 dark:text-white">
+          Selecting fruits from the store
+        </h3>
+
+        <pre
+          class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>  private store = inject(Store&lt;FruitState&gt;);
+  addNew = false;
+  storeFruits$ = this.store.select('fruits');</code></pre>
+
+        <h3 class="mt-6 text-lg md:text-xl font-bold text-slate-900 dark:text-white">
+          Dispatching getFruits() on init
+        </h3>
+
+        <pre
+          class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>  ngOnInit() {
+    this.getAllFruits();
+  }
+  getAllFruits() {
+    this.store.dispatch(getFruits());
+      this.storeFruits$.subscribe( data =&gt; {        
+      this.fruits = [];</code></pre>
+
+        <h3 class="mt-6 text-lg md:text-xl font-bold text-slate-900 dark:text-white">
+          Dispatching delete
+        </h3>
+
+        <pre
+          class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>  deleteFruit(name: string, index: number) {
+    this.isDelete = index;
+    let name$ = of(name);
+    name$.pipe(switchMap(()=&gt; {
+     return interval(2000).pipe(take(1))
+    } )).subscribe(
+      data=&gt; {
+        this.store.dispatch(deleteFruits({name: name}));
+      }
+    )
+  } </code></pre>
+
+        <h3 class="mt-6 text-lg md:text-xl font-bold text-slate-900 dark:text-white">
+          Dispatching add/update
+        </h3>
+
+        <pre
+          class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>  updateFruitAPI(fruit: Fruit) {
+    let fruit$ = of(fruit);
+    fruit$.pipe(
+      exhaustMap( ()=&gt; {
+        return interval(1000).pipe(take(1))
+      })
+    ).subscribe( 
+      ()=&gt; {
+        this.store.dispatch(updateFruits(fruit));
+      }
+    )
+  }
+  addFruitApi(fruit:Fruit) {
+    let fruit$ = of(fruit);
+    fruit$.pipe(
+      exhaustMap( ()=&gt; {
+        return interval(1000).pipe(take(1))
+      })
+    ).subscribe( 
+      ()=&gt; {
+        this.store.dispatch(addFruits(fruit));
+      }
+    )
+  }</code></pre>
+      </section>
+
+      <section id="pattern"
+        class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+          The pattern I walked away with (and keep reusing)
+        </h2>
+
+        <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+          If I strip everything down to the mental checklist I now follow, it’s this:
+        </p>
+
+        <div class="mt-5 grid grid-cols-1 gap-4">
+          <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">Module wiring</h3>
+            <ul class="mt-3 space-y-2 text-slate-700 dark:text-slate-300 leading-relaxed">
+              <li class="flex gap-3"><span class="mt-2 h-2 w-2 rounded-full bg-primary/70"></span><span>register store slice and effects</span></li>
+              <li class="flex gap-3"><span class="mt-2 h-2 w-2 rounded-full bg-primary/70"></span><span>enable devtools while building</span></li>
+            </ul>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">Actions</h3>
+            <ul class="mt-3 space-y-2 text-slate-700 dark:text-slate-300 leading-relaxed">
+              <li class="flex gap-3"><span class="mt-2 h-2 w-2 rounded-full bg-secondary/70"></span><span>request + success + failure for each async operation</span></li>
+            </ul>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">Effects</h3>
+            <ul class="mt-3 space-y-2 text-slate-700 dark:text-slate-300 leading-relaxed">
+              <li class="flex gap-3"><span class="mt-2 h-2 w-2 rounded-full bg-secondary/70"></span><span>listen for request action</span></li>
+              <li class="flex gap-3"><span class="mt-2 h-2 w-2 rounded-full bg-secondary/70"></span><span>call service</span></li>
+              <li class="flex gap-3"><span class="mt-2 h-2 w-2 rounded-full bg-secondary/70"></span><span>dispatch success/failure</span></li>
+            </ul>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">Reducer</h3>
+            <ul class="mt-3 space-y-2 text-slate-700 dark:text-slate-300 leading-relaxed">
+              <li class="flex gap-3"><span class="mt-2 h-2 w-2 rounded-full bg-primary/70"></span><span>update state immutably based on success/failure</span></li>
+            </ul>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">Components</h3>
+            <ul class="mt-3 space-y-2 text-slate-700 dark:text-slate-300 leading-relaxed">
+              <li class="flex gap-3"><span class="mt-2 h-2 w-2 rounded-full bg-primary/70"></span><span>dispatch intent</span></li>
+              <li class="flex gap-3"><span class="mt-2 h-2 w-2 rounded-full bg-primary/70"></span><span>select state</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <p class="mt-5 text-slate-700 dark:text-slate-300 leading-relaxed">
+          That’s the whole NgRx lifecycle in a shape I can reason about.
+        </p>
+      </section>
+
+      <section id="improvements"
+        class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+          Small improvements I’d make next (without changing the spirit of the project)
+        </h2>
+
+        <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+          Even keeping this as a learning-focused project, there are a few lightweight upgrades that would tighten it up:
+        </p>
+
+        <ul class="mt-5 space-y-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+          <li class="flex gap-3">
+            <span class="mt-2 h-2 w-2 rounded-full bg-primary/70"></span>
+            <span>Keep state shape consistent in the reducer (array stays an array)</span>
+          </li>
+          <li class="flex gap-3">
+            <span class="mt-2 h-2 w-2 rounded-full bg-primary/70"></span>
+            <span>Use one consistent action payload style (usually props&lt;{ ... }&gt;())</span>
+          </li>
+          <li class="flex gap-3">
+            <span class="mt-2 h-2 w-2 rounded-full bg-primary/70"></span>
+            <span>Track loading and error in state so UI behavior is driven by state rather than timer-based delays</span>
+          </li>
+        </ul>
+
+        <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+          Those changes don’t “enterprise-ify” anything—they just make the NgRx flow cleaner and easier to extend.
+        </p>
+      </section>
+    </main>
+  </div>
+</article>

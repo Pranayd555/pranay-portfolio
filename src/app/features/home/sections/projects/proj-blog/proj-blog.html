@@ -1,5 +1,5 @@
 @if(content()) {
-    <div (click)="onContentClick($event)" [innerHTML]="content()"></div>
+    <div [innerHTML]="content()"></div>
 } @else {
 <span class="no-content">
     Loading Blog...
