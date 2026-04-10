@@ -63,6 +63,13 @@ export const routes: Routes = [
           provideEffects(ProjectsEffects, ProjectDetailsEffects, SkillsEffects),
         ],
       },
+      {
+        path: ':project',
+        loadComponent: () =>
+          import('./features/home/sections/projects/proj-blog/proj-blog').then(
+            m => m.ProjBlog
+          ),
+      }
     ],
   },
   {

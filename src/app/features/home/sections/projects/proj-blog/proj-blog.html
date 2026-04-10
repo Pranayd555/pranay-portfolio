@@ -1,0 +1,21 @@
+
+
+<div class="max-w-5xl mx-auto px-4">
+    <h1 class="text-4xl md:text-5xl font-bold mb-12 text-slate-900 dark:text-white">{{path}}</h1>
+<div class="glass-card rounded-[2rem] p-6 md:p-10 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5 flex items-center justify-center">
+    <div class="demo-wrapper">
+        <img [src]="path == 'ckeditor-plugin'? '/assets/projects-demo/ckeditor_demo.gif' : '/assets/projects-demo/fruit-basket_demo.gif'" 
+             [alt]="'ckeditor'" 
+             loading="lazy"
+             class="demo-img">
+    </div>
+</div>
+</div>
+
+@if(content()) {
+    <div [innerHTML]="content()"></div>
+} @else {
+<span class="no-content">
+    Loading Blog...
+</span>
+}

@@ -9,6 +9,6 @@ import { experienceData } from '../../data/experience-data';
 export class ExperienceService {
 
   getExperience(): Observable<IExperience[]> {
-    return of(experienceData).pipe(delay(2000));
+    return of(experienceData).pipe(delay(1000));
   }
 }

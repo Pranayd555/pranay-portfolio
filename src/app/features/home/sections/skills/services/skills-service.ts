@@ -9,7 +9,7 @@ import { skillsData } from '../../data/skills-data';
 export class SkillsService {
 
   getSkills(): Observable<ISkillCategory[]> {
-    return of(skillsData as ISkillCategory[]).pipe(delay(2000));
+    return of(skillsData as ISkillCategory[]).pipe(delay(1000));
   }
 
 }

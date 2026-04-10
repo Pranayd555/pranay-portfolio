@@ -8,6 +8,7 @@ import * as ProjectsSelectors from './store/selectors';
 import * as ProjectsActions from './store/actions';
 import { Dialog } from '@angular/cdk/dialog';
 import { ProjDesModal } from './proj-des-modal/proj-des-modal';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-projects',
@@ -19,6 +20,7 @@ import { ProjDesModal } from './proj-des-modal/proj-des-modal';
 export class Projects implements OnInit {
 
   private store = inject(Store<{ projects: IProjectsState }>);
+  private router = inject(Router);
 
   isLoading = toSignal(this.store.select(ProjectsSelectors.isProjectsIsLoadingSelector), {
     initialValue: true
@@ -48,6 +50,7 @@ export class Projects implements OnInit {
 
   openModal(event: Event, project: IProject): void {
     event.stopPropagation();
+    if(project.id == 'presmistique') {
     const target = event.currentTarget as HTMLElement;
     const rect = target.getBoundingClientRect();
     this.dialog.open(ProjDesModal, {
@@ -57,5 +60,8 @@ export class Projects implements OnInit {
       disableClose: true,
       hasBackdrop: true,
     });
+  } else {
+    this.router.navigate(['/projects', project.id])
+  }
   }
 }
