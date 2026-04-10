@@ -19,14 +19,15 @@ export class ProjBlog {
   destroyRef = inject(DestroyRef);
   document = inject(DOCUMENT);
   content = signal<string|null>('');
+  path = '';
 
 
   ngOnInit() {
     this.route.params
     .pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe((params) => {
-      const project = String(params['project'] ?? '');
-      const file = blogMap[project] || '';
+      this.path = String(params['project'] ?? '');
+      const file = blogMap[this.path] || '';
 
       if (!file) {
         this.content.set(null);
