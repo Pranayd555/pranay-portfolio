@@ -1,0 +1,684 @@
+<article class="max-w-5xl mx-auto px-4 py-10 md:py-14">
+
+  <!-- Header -->
+  <header class="glass-card rounded-[2rem] p-6 md:p-10 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+    <p class="text-xs md:text-sm font-semibold tracking-wider uppercase text-slate-600 dark:text-slate-400">
+      Case Study
+    </p>
+
+    <h1 class="mt-3 text-3xl md:text-5xl font-extrabold leading-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-slate-700 to-slate-500 dark:from-white dark:via-slate-200 dark:to-slate-400">
+      Building a Full-Stack Resume Builder: Architecture, Trade-offs, and Real-World Challenges
+    </h1>
+
+    <p class="mt-5 text-base md:text-lg leading-relaxed text-slate-700 dark:text-slate-300 max-w-3xl">
+      I built a production-ready resume builder with token-based AI features, Razorpay payments, and a sophisticated refund system.
+      This post covers the real decisions, mistakes, and lessons learned along the way.
+    </p>
+
+    <!-- Meta row -->
+    <div class="mt-6 flex flex-wrap items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
+      <span class="flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-base">schedule</span>
+        ~6 months of development
+      </span>
+      <span class="flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-base">layers</span>
+        React 19 · Node.js 22 · MongoDB · Razorpay
+      </span>
+    </div>
+
+    <div class="mt-5 flex flex-wrap gap-2">
+      <span class="text-[10px] md:text-xs uppercase tracking-wider px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300/70 dark:border-white/5">React 19</span>
+      <span class="text-[10px] md:text-xs uppercase tracking-wider px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300/70 dark:border-white/5">Node.js 22</span>
+      <span class="text-[10px] md:text-xs uppercase tracking-wider px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300/70 dark:border-white/5">MongoDB</span>
+      <span class="text-[10px] md:text-xs uppercase tracking-wider px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300/70 dark:border-white/5">Razorpay</span>
+      <span class="text-[10px] md:text-xs uppercase tracking-wider px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300/70 dark:border-white/5">Gemini AI</span>
+      <span class="text-[10px] md:text-xs uppercase tracking-wider px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">Full-Stack SaaS</span>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <div class="mt-8">
+    <main class="space-y-6 w-full">
+
+      <!-- Introduction -->
+      <section class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+          Introduction: Why I Built This
+        </h2>
+
+        <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+          The idea originated from a practical observation: a rich text editor can already generate structured HTML, which means it should be possible to design resumes visually and export them reliably as PDF or Word documents.
+          But once I started implementing this, I hit a fundamental issue — rendering consistency across formats.
+        </p>
+
+        <div class="mt-5 p-4 rounded-2xl bg-amber-500/5 border border-amber-500/10">
+          <p class="text-slate-900 dark:text-white font-semibold flex items-center gap-2">
+            <span class="material-symbols-outlined text-base text-amber-500">warning</span>
+            Core insight
+          </p>
+          <p class="mt-2 text-slate-700 dark:text-slate-300 leading-relaxed">
+            HTML rendering in an editor context is not equivalent to document rendering for export. This exposed a deeper challenge involving layout fidelity, data modelling, and rendering pipelines.
+          </p>
+        </div>
+
+        <p class="mt-5 text-slate-700 dark:text-slate-300 leading-relaxed">
+          I also wanted to deepen my understanding of full-stack development. The stack I chose deliberately:
+        </p>
+
+        <div class="mt-4 grid grid-cols-1 gap-3">
+          <div class="p-4 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+            <ul class="space-y-2 text-slate-700 dark:text-slate-300">
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-primary/70 flex-none"></span><span><strong class="text-slate-900 dark:text-white">React.js</strong> — building a highly dynamic and state-driven UI</span></li>
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-primary/70 flex-none"></span><span><strong class="text-slate-900 dark:text-white">Node.js + Express</strong> — scalable and modular backend</span></li>
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-primary/70 flex-none"></span><span><strong class="text-slate-900 dark:text-white">MongoDB Atlas</strong> — flexible handling of user-generated resume data</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <p class="mt-5 text-slate-700 dark:text-slate-300 leading-relaxed">
+          Beyond just a resume editor, the goal evolved into designing a system that maintains consistency between editing and exported output, handles variable user-generated data, integrates AI features, and supports production concerns like payments, concurrency, and deployment.
+        </p>
+
+        <!-- The Numbers -->
+        <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div class="p-4 rounded-2xl bg-primary/5 border border-primary/10 text-center">
+            <p class="text-2xl font-extrabold text-primary">~6 mo</p>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider">Timeline</p>
+          </div>
+          <div class="p-4 rounded-2xl bg-primary/5 border border-primary/10 text-center">
+            <p class="text-2xl font-extrabold text-primary">15+</p>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider">Templates</p>
+          </div>
+          <div class="p-4 rounded-2xl bg-primary/5 border border-primary/10 text-center">
+            <p class="text-2xl font-extrabold text-primary">OAuth</p>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider">Google + LinkedIn</p>
+          </div>
+          <div class="p-4 rounded-2xl bg-primary/5 border border-primary/10 text-center">
+            <p class="text-2xl font-extrabold text-primary">CI/CD</p>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider">GitHub Actions</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- What Problem -->
+      <section class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+          What Problem Does This Actually Solve?
+        </h2>
+
+        <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+          Let me be real: there are dozens of resume builders out there. But the ones I found either lock basic features or add paywalls at every step.
+        </p>
+
+        <div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="p-5 rounded-2xl bg-red-500/5 border border-red-500/10">
+            <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span class="material-symbols-outlined text-base text-red-400">block</span>
+              Traditional approach
+            </h3>
+            <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed text-sm">
+              Free with aggressive paywalls. Let you create a resume, then hit you with "Premium unlock?" at every step.
+            </p>
+          </div>
+          <div class="p-5 rounded-2xl bg-primary/5 border border-primary/10">
+            <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span class="material-symbols-outlined text-base text-primary">check_circle</span>
+              My approach
+            </h3>
+            <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed text-sm">
+              Lean on AI for the hard part (parsing + suggestions), charge for tokens (AI actions), not basic features. Users can create unlimited resumes for free.
+            </p>
+          </div>
+        </div>
+
+        <p class="mt-5 text-slate-700 dark:text-slate-300 leading-relaxed">
+          This changes the monetisation entirely. Instead of nickel-and-diming users, you're selling actual value.
+        </p>
+      </section>
+
+      <!-- Architecture -->
+      <section class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+          Architecture & Key Decisions
+        </h2>
+
+        <h3 class="mt-6 text-lg font-bold text-slate-900 dark:text-white">Tech Stack (and Why)</h3>
+
+        <pre class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>Frontend:  React 19 + Tailwind CSS
+Backend:   Node.js 22 + Express.js
+Database:  MongoDB (Mongoose ODM)
+Payments:  Razorpay
+AI:        Google Gemini API
+Storage:   Cloudinary
+Deploy:    Docker, Render, Vercel</code></pre>
+
+        <div class="mt-5 space-y-3">
+          <div class="p-4 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+            <ul class="space-y-3 text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-secondary/70 flex-none"></span><span><strong class="text-slate-900 dark:text-white">React 19</strong>: Latest hooks, server components support. Chose it over Next.js for full control over routing — SSR wasn't needed here.</span></li>
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-secondary/70 flex-none"></span><span><strong class="text-slate-900 dark:text-white">Node.js 22</strong>: Pinned to <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">22.17.0</code> in <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">package.json</code> to avoid "works on my machine" issues.</span></li>
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-secondary/70 flex-none"></span><span><strong class="text-slate-900 dark:text-white">MongoDB</strong>: Flexible schema for resume data — resumes have wildly different structures depending on user input.</span></li>
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-secondary/70 flex-none"></span><span><strong class="text-slate-900 dark:text-white">Razorpay over Stripe</strong>: Better local payment support in India (UPI, netbanking) and lower fees.</span></li>
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-secondary/70 flex-none"></span><span><strong class="text-slate-900 dark:text-white">Gemini over GPT</strong>: Cheaper, fast enough, and handles document parsing well.</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <h3 class="mt-8 text-lg font-bold text-slate-900 dark:text-white">Database Design: The Tricky Part</h3>
+
+        <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+          The Resume schema is the core of everything. The key challenge was balancing flexibility with validation.
+        </p>
+
+        <pre class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>// Real schema (abbreviated)
+const resumeSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  title: String,
+  personalInfo: {
+    fullName: String,
+    email: String,
+    phone: String,
+    address: String,
+    linkedin: String,
+    github: String,
+    profilePicture: String
+  },
+  workExperience: [{
+    jobTitle: String,
+    company: String,
+    location: String,
+    startDate: Date,
+    endDate: Date,
+    description: String
+  }],
+  education: [{
+    degree: String,
+    institution: String,
+    gpa: Number
+  }],
+  skills: [{
+    category: String,
+    items: [String]
+  }],
+});</code></pre>
+
+        <div class="mt-5 p-4 rounded-2xl bg-primary/5 border border-primary/10">
+          <p class="text-slate-900 dark:text-white font-semibold">Key decision: loose validation on resume fields</p>
+          <p class="mt-2 text-slate-700 dark:text-slate-300 leading-relaxed text-sm">
+            Users have weird data. Someone might not have a phone number, or have 20 jobs, or skip education entirely. Strict schema validation would've been a nightmare.
+            <strong class="text-slate-900 dark:text-white">Trade-off</strong>: the frontend has to do most validation. I spent extra time on client-side validation to prevent garbage data reaching the database.
+          </p>
+        </div>
+      </section>
+
+      <!-- Implementation Highlights -->
+      <section class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+          Implementation Highlights
+        </h2>
+
+        <div class="mt-6 space-y-6">
+
+          <!-- Payment flow -->
+          <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+              1. Payment Flow & Signature Verification
+            </h3>
+            <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+              Razorpay requires signature verification to prevent tampering. Someone could theoretically intercept the API call and change the amount from ₹100 to ₹1 if we didn't verify. Here's the complete purchase flow:
+            </p>
+
+            <pre class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>// Complete purchase with signature verification
+router.post('/complete-token-purchase', protect, async (req, res) => {
+  const { order_id, payment_id, signature, tokens, amount } = req.body;
+
+  // CRITICAL: Verify signature (prevents tampering)
+  const body = order_id + '|' + payment_id;
+  const expectedSignature = crypto
+    .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+    .update(body.toString())
+    .digest('hex');
+
+  if (expectedSignature !== signature) {
+    logger.error(`Signature mismatch for payment ${payment_id}`);
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid payment signature'
+    });
+  }
+
+  // Double-check with Razorpay API
+  const payment = await razorpay.payments.fetch(payment_id);
+  if (payment.status !== 'captured') {
+    return res.status(400).json({
+      success: false, message: 'Payment not captured'
+    });
+  }
+
+  // Check if already processed (prevent duplicates)
+  const existingTransaction = user.getTransactionById(payment_id);
+  if (existingTransaction) {
+    return res.status(400).json({
+      success: false, message: 'Payment already processed'
+    });
+  }
+
+  // Add tokens to user
+  user.tokens += tokens;
+  await user.save();
+});</code></pre>
+
+            <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed text-sm">
+              I also added duplicate payment protection. Early testing showed it's possible for a user to submit the same payment twice by accident (network lag, double click, etc.).
+            </p>
+          </div>
+
+          <!-- Refund system -->
+          <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+              2. The Refund System (The Complex Part)
+            </h3>
+            <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+              Refunds need to account for token usage, bonus tokens, and fairness. I implemented 6 different refund scenarios:
+            </p>
+
+            <div class="mt-4 grid grid-cols-1 gap-2 text-sm">
+              <div class="flex gap-3 p-3 rounded-xl bg-slate-200/50 dark:bg-white/5">
+                <span class="flex-none w-6 h-6 rounded-full bg-primary/15 text-primary border border-primary/20 flex items-center justify-center text-xs font-bold">1</span>
+                <span class="text-slate-700 dark:text-slate-300">No bonus, all tokens unused → <strong class="text-slate-900 dark:text-white">100% refund</strong></span>
+              </div>
+              <div class="flex gap-3 p-3 rounded-xl bg-slate-200/50 dark:bg-white/5">
+                <span class="flex-none w-6 h-6 rounded-full bg-primary/15 text-primary border border-primary/20 flex items-center justify-center text-xs font-bold">2</span>
+                <span class="text-slate-700 dark:text-slate-300">No bonus, some tokens used → <strong class="text-slate-900 dark:text-white">Partial refund</strong></span>
+              </div>
+              <div class="flex gap-3 p-3 rounded-xl bg-slate-200/50 dark:bg-white/5">
+                <span class="flex-none w-6 h-6 rounded-full bg-primary/15 text-primary border border-primary/20 flex items-center justify-center text-xs font-bold">3</span>
+                <span class="text-slate-700 dark:text-slate-300">With bonus, all tokens intact → <strong class="text-slate-900 dark:text-white">100% refund</strong></span>
+              </div>
+              <div class="flex gap-3 p-3 rounded-xl bg-slate-200/50 dark:bg-white/5">
+                <span class="flex-none w-6 h-6 rounded-full bg-primary/15 text-primary border border-primary/20 flex items-center justify-center text-xs font-bold">4</span>
+                <span class="text-slate-700 dark:text-slate-300">Bonus partially used, purchased intact → <strong class="text-slate-900 dark:text-white">Partial refund</strong></span>
+              </div>
+              <div class="flex gap-3 p-3 rounded-xl bg-slate-200/50 dark:bg-white/5">
+                <span class="flex-none w-6 h-6 rounded-full bg-primary/15 text-primary border border-primary/20 flex items-center justify-center text-xs font-bold">5</span>
+                <span class="text-slate-700 dark:text-slate-300">Calculated refund below minimum threshold → <strong class="text-slate-900 dark:text-white">Not eligible</strong></span>
+              </div>
+              <div class="flex gap-3 p-3 rounded-xl bg-slate-200/50 dark:bg-white/5">
+                <span class="flex-none w-6 h-6 rounded-full bg-primary/15 text-primary border border-primary/20 flex items-center justify-center text-xs font-bold">6</span>
+                <span class="text-slate-700 dark:text-slate-300">Complex mixed scenario → <strong class="text-slate-900 dark:text-white">Partial refund for effective remaining tokens</strong></span>
+              </div>
+            </div>
+
+            <pre class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>class RefundCalculator {
+  static calculateRefund(transaction, currentUserState, paidAmount) {
+    const { tokens: currentTokens, bonusTokens: currentBonusTokens } = currentUserState;
+    const { boughtTokens, bonusTokensAdded } = transaction.metadata;
+
+    // Scenario 1: No bonus, all tokens unused
+    if (!bonusTokensAdded && currentTokens >= boughtTokens) {
+      return { scenario: 1, refundAmount: paidAmount, refundPercentage: 100, status: 'eligible' };
+    }
+
+    // Scenario 2: No bonus, some tokens used
+    if (!bonusTokensAdded && currentTokens < boughtTokens) {
+      const refundAmount = Math.round((paidAmount / boughtTokens) * currentTokens);
+      return { scenario: 2, refundAmount, status: 'eligible' };
+    }
+
+    // ... (scenarios 3-6 handle bonus token combinations)
+  }
+}</code></pre>
+          </div>
+
+          <!-- AI Parsing -->
+          <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+              3. AI Resume Parsing with Gemini
+            </h3>
+            <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+              People upload PDFs. I need to extract structured data. The prompt is very explicit about format — Gemini sometimes wraps responses in markdown code blocks or adds commentary. Being aggressive with formatting instructions reduced parsing errors from ~30% to ~5%.
+            </p>
+
+            <pre class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>async function parseResumeText(extractedText) {
+  const prompt = `
+You are a resume parsing assistant. Extract and structure content into JSON.
+
+CRITICAL: Return ONLY valid JSON:
+- Use double quotes (") for all property names
+- No markdown, no explanations
+- Start with { and end with }
+
+Extract into this schema:
+{
+  "personalInfo": { "fullName": "", "email": "", "phone": "" },
+  "summary": "",
+  "workExperience": [{ "jobTitle": "", "company": "", "startDate": "YYYY-MM-DD" }],
+  "education": [{ "degree": "", "institution": "" }],
+  "skills": [{ "category": "", "items": [] }]
+}
+  `;
+  const response = await genAI.models.generateContent(prompt);
+  return JSON.parse(response.text());
+}</code></pre>
+          </div>
+
+          <!-- Rate limiting -->
+          <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+              4. Rate Limiting & AI Token Consumption
+            </h3>
+            <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+              AI API calls are expensive. Token deduction happens <em>before</em> the API call. And to prevent race conditions (user opens multiple tabs, sends parallel requests), I used MongoDB transactions:
+            </p>
+
+            <pre class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>// Use session for atomicity
+const session = await mongoose.startSession();
+session.startTransaction();
+
+try {
+  const user = await User.findById(req.user.id).session(session);
+  if (user.bonusTokens + user.tokens <= 0) {
+    await session.abortTransaction();
+    return res.status(403).json({ error: 'No tokens' });
+  }
+
+  // Deduct token atomically
+  await User.updateOne(
+    { _id: req.user.id },
+    { $inc: { bonusTokens: -1 } },
+    { session }
+  );
+
+  await session.commitTransaction();
+} finally {
+  session.endSession();
+}</code></pre>
+
+            <div class="mt-4 p-3 rounded-xl bg-amber-500/5 border border-amber-500/10 text-sm text-slate-700 dark:text-slate-300">
+              If the AI call fails after deduction, the token is refunded in the <code class="font-mono text-xs px-1 py-0.5 rounded bg-slate-200 dark:bg-slate-800">catch</code> block. This prevents users losing tokens due to upstream API errors.
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Challenges -->
+      <section class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+          Challenges & How I Solved Them
+        </h2>
+
+        <div class="mt-5 space-y-4">
+
+          <div class="p-5 rounded-2xl bg-red-500/5 border border-red-500/10">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span class="material-symbols-outlined text-base text-red-400">bug_report</span>
+              Challenge 1: Deployment Hell (Render Zip File Issues)
+            </h3>
+            <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed text-sm">
+              I spent 8 hours debugging why deployment was failing. Render requires a zip file upload — my build script's <code class="font-mono text-xs px-1 py-0.5 rounded bg-slate-200 dark:bg-slate-800">.npmrc</code> conflicted with Render's own copy.
+            </p>
+            <ul class="mt-3 space-y-2 text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-red-500/70 flex-none"></span><span>Just delete <code class="font-mono text-xs px-1 py-0.5 rounded bg-slate-200 dark:bg-slate-800">.npmrc</code> before zipping ❌ (Render still had its copy)</span></li>
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-red-500/70 flex-none"></span><span>Use <code class="font-mono text-xs px-1 py-0.5 rounded bg-slate-200 dark:bg-slate-800">-o</code> flag in unzip ❌ (some unzip versions don't support it)</span></li>
+              <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-red-500/70 flex-none"></span><span>Recreate <code class="font-mono text-xs px-1 py-0.5 rounded bg-slate-200 dark:bg-slate-800">.npmrc</code> after unzip ❌ (timing / race condition)</span></li>
+            </ul>
+            <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed text-sm">
+              <strong class="text-slate-900 dark:text-white">What actually worked:</strong> A custom Node.js build script using <code class="font-mono text-xs px-1 py-0.5 rounded bg-slate-200 dark:bg-slate-800">archiver</code> that explicitly deletes <code class="font-mono text-xs px-1 py-0.5 rounded bg-slate-200 dark:bg-slate-800">.npmrc</code> before creating the archive, then adds only the explicit directories and files needed. No ambiguity.
+            </p>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-amber-500/5 border border-amber-500/10">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span class="material-symbols-outlined text-base text-amber-500">security</span>
+              Challenge 2: JWT Token Refresh & Session Management
+            </h3>
+            <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed text-sm">
+              Managing sessions across multiple devices is hard. I needed refresh tokens without hitting the database on every request.
+            </p>
+            <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed text-sm">
+              <strong class="text-slate-900 dark:text-white">Solution:</strong> Refresh tokens with sliding expiration. The middleware checks if a token expires within 24 hours and, if so, issues a new one via the <code class="font-mono text-xs px-1 py-0.5 rounded bg-slate-200 dark:bg-slate-800">X-New-Token</code> response header. The frontend checks for this header and updates local storage — zero extra database round-trips.
+            </p>
+
+            <pre class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>// If less than 1 day left, issue new token silently
+const timeUntilExpiry = (decoded.exp * 1000) - Date.now();
+if (timeUntilExpiry < 24 * 60 * 60 * 1000) {
+  const newToken = jwt.sign(
+    { id: req.user._id },
+    process.env.JWT_SECRET,
+    { expiresIn: '7d' }
+  );
+  res.set('X-New-Token', newToken);
+}</code></pre>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Performance -->
+      <section class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+          Performance & Optimisations
+        </h2>
+
+        <div class="mt-5 space-y-4">
+          <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span class="material-symbols-outlined text-base text-slate-500 dark:text-slate-400">speed</span>
+              Template Caching
+            </h3>
+            <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed text-sm">
+              Handlebars rendering on large resumes was slow (2–3 seconds). Caching compiled templates dropped it to ~200ms.
+            </p>
+            <pre class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>const templateCache = {};
+
+function getCompiledTemplate(templateName) {
+  if (templateCache[templateName]) {
+    return templateCache[templateName]; // cache hit
+  }
+  const source = fs.readFileSync(`./templates/${templateName}.hbs`, 'utf-8');
+  templateCache[templateName] = Handlebars.compile(source);
+  return templateCache[templateName];
+}</code></pre>
+            <div class="mt-3 flex items-center gap-4 text-sm">
+              <span class="text-red-400 font-semibold">Before: 2–3 s</span>
+              <span class="material-symbols-outlined text-slate-400">arrow_forward</span>
+              <span class="text-green-400 font-semibold">After: ~200 ms</span>
+            </div>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <span class="material-symbols-outlined text-base text-slate-500 dark:text-slate-400">database</span>
+              Database Indexing
+            </h3>
+            <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed text-sm">
+              Querying resumes by user was slow early on. Two targeted indexes fixed it.
+            </p>
+            <pre class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>resumeSchema.index({ user: 1, createdAt: -1 });
+resumeSchema.index({ user: 1, updatedAt: -1 });</code></pre>
+            <div class="mt-3 flex items-center gap-4 text-sm">
+              <span class="text-red-400 font-semibold">Before: 500 ms</span>
+              <span class="material-symbols-outlined text-slate-400">arrow_forward</span>
+              <span class="text-green-400 font-semibold">After: ~50 ms</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- What I'd Do Differently -->
+      <section class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+          What I'd Do Differently
+        </h2>
+
+        <ul class="mt-5 space-y-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+          <li class="flex gap-3">
+            <span class="mt-1 h-2 w-2 rounded-full bg-primary/70 flex-none"></span>
+            <span><strong class="text-slate-900 dark:text-white">Start with Auth Earlier.</strong> I built the resume builder first, then added auth. Mistake. Auth affects database schema, API design, and frontend routing — set it up on day 1.</span>
+          </li>
+          <li class="flex gap-3">
+            <span class="mt-1 h-2 w-2 rounded-full bg-primary/70 flex-none"></span>
+            <span><strong class="text-slate-900 dark:text-white">Design the Payment System Before Implementation.</strong> I designed the refund logic retroactively, which meant refactoring the User model twice. Sketch all business logic before writing any backend code.</span>
+          </li>
+          <li class="flex gap-3">
+            <span class="mt-1 h-2 w-2 rounded-full bg-primary/70 flex-none"></span>
+            <span><strong class="text-slate-900 dark:text-white">Better Error Handling from Day 1.</strong> Specific status codes, error codes the frontend can act on, proper logging, and user-friendly messages — not <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">"Something went wrong"</code>.</span>
+          </li>
+          <li class="flex gap-3">
+            <span class="mt-1 h-2 w-2 rounded-full bg-primary/70 flex-none"></span>
+            <span><strong class="text-slate-900 dark:text-white">Write Tests Earlier.</strong> I didn't write tests until month 4. By then there were 50+ routes and 200+ functions. Tests would've saved hours of manual testing.</span>
+          </li>
+          <li class="flex gap-3">
+            <span class="mt-1 h-2 w-2 rounded-full bg-primary/70 flex-none"></span>
+            <span><strong class="text-slate-900 dark:text-white">Document Deployment Step-by-Step.</strong> If I'd documented each step as I went, I'd have saved that 8-hour debugging session.</span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Key Learnings -->
+      <section class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+          Key Learnings
+        </h2>
+
+        <div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div class="p-4 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+            <p class="text-sm font-bold text-slate-900 dark:text-white">Signature Verification Matters</p>
+            <p class="mt-1 text-sm text-slate-700 dark:text-slate-300">I almost shipped without Razorpay signature verification. That's a massive security hole. Always verify signatures.</p>
+          </div>
+          <div class="p-4 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+            <p class="text-sm font-bold text-slate-900 dark:text-white">Transactions Are Worth The Overhead</p>
+            <p class="mt-1 text-sm text-slate-700 dark:text-slate-300">MongoDB transactions seemed overkill. But once token deduction became critical, they were essential for correctness.</p>
+          </div>
+          <div class="p-4 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+            <p class="text-sm font-bold text-slate-900 dark:text-white">Flexible Schema > Strict Schema</p>
+            <p class="mt-1 text-sm text-slate-700 dark:text-slate-300">Resumes are inherently messy. Loose schema + frontend validation = happier development.</p>
+          </div>
+          <div class="p-4 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+            <p class="text-sm font-bold text-slate-900 dark:text-white">Logging Is Better Than Guessing</p>
+            <p class="mt-1 text-sm text-slate-700 dark:text-slate-300">Adding Winston logging was a game-changer. Now I can see exactly what failed in production and why.</p>
+          </div>
+          <div class="p-4 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+            <p class="text-sm font-bold text-slate-900 dark:text-white">Token Monetisation Is Cleaner</p>
+            <p class="mt-1 text-sm text-slate-700 dark:text-slate-300">Selling tokens for AI actions is less intrusive than feature paywalls and feels more fair to users.</p>
+          </div>
+          <div class="p-4 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+            <p class="text-sm font-bold text-slate-900 dark:text-white">Race Conditions Are More Common Than Expected</p>
+            <p class="mt-1 text-sm text-slate-700 dark:text-slate-300">Sessions, transactions, and atomic operations aren't nice-to-have — they're essential in any multi-tab app.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tech Stack Summary -->
+      <section class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+          Tech Stack Summary
+        </h2>
+
+        <div class="mt-5 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5">
+          <table class="w-full text-sm text-left">
+            <thead class="bg-slate-100/70 dark:bg-white/5 text-slate-600 dark:text-slate-400 text-xs uppercase tracking-wider">
+              <tr>
+                <th class="px-5 py-3">Layer</th>
+                <th class="px-5 py-3">Technology</th>
+                <th class="px-5 py-3">Why</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200/60 dark:divide-white/5 text-slate-700 dark:text-slate-300">
+              <tr class="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
+                <td class="px-5 py-3 font-semibold text-slate-900 dark:text-white">Frontend</td>
+                <td class="px-5 py-3"><code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">React 19 + Tailwind</code></td>
+                <td class="px-5 py-3">Modern, fast, component-based</td>
+              </tr>
+              <tr class="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
+                <td class="px-5 py-3 font-semibold text-slate-900 dark:text-white">Backend</td>
+                <td class="px-5 py-3"><code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">Node.js 22 + Express</code></td>
+                <td class="px-5 py-3">JS full-stack, good package ecosystem</td>
+              </tr>
+              <tr class="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
+                <td class="px-5 py-3 font-semibold text-slate-900 dark:text-white">Database</td>
+                <td class="px-5 py-3"><code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">MongoDB</code></td>
+                <td class="px-5 py-3">Flexible schema for resume variety</td>
+              </tr>
+              <tr class="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
+                <td class="px-5 py-3 font-semibold text-slate-900 dark:text-white">Payments</td>
+                <td class="px-5 py-3"><code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">Razorpay</code></td>
+                <td class="px-5 py-3">Better local payment support (India)</td>
+              </tr>
+              <tr class="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
+                <td class="px-5 py-3 font-semibold text-slate-900 dark:text-white">AI</td>
+                <td class="px-5 py-3"><code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">Google Gemini</code></td>
+                <td class="px-5 py-3">Cheap, reliable, handles documents</td>
+              </tr>
+              <tr class="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
+                <td class="px-5 py-3 font-semibold text-slate-900 dark:text-white">Storage</td>
+                <td class="px-5 py-3"><code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">Cloudinary</code></td>
+                <td class="px-5 py-3">CDN, image optimisation, simple API</td>
+              </tr>
+              <tr class="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
+                <td class="px-5 py-3 font-semibold text-slate-900 dark:text-white">Deploy</td>
+                <td class="px-5 py-3"><code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">Docker / Render + Vercel</code></td>
+                <td class="px-5 py-3">Containerised, seamless CI/CD</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Conclusion -->
+      <section class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+          Conclusion
+        </h2>
+
+        <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+          Building Resume Builder taught me that production-ready code is 70% implementation and 30% deployment, security, and edge cases.
+          The refund system, payment verification, and token deduction logic took longer than the core resume builder — but they're what separates a side project from a product users trust.
+        </p>
+
+        <div class="mt-5 p-4 rounded-2xl bg-primary/5 border border-primary/10">
+          <p class="text-slate-900 dark:text-white font-semibold">If you're building a SaaS, spend more time on:</p>
+          <ul class="mt-3 space-y-2 text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
+            <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-primary/70 flex-none"></span><span><strong class="text-slate-900 dark:text-white">Security</strong> — verify everything</span></li>
+            <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-primary/70 flex-none"></span><span><strong class="text-slate-900 dark:text-white">Transactions</strong> — prevent race conditions</span></li>
+            <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-primary/70 flex-none"></span><span><strong class="text-slate-900 dark:text-white">Error handling</strong> — log everything</span></li>
+            <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-primary/70 flex-none"></span><span><strong class="text-slate-900 dark:text-white">Deployment</strong> — test multiple times</span></li>
+          </ul>
+          <p class="mt-4 text-slate-700 dark:text-slate-300 text-sm italic">The sexy code is the least important part.</p>
+        </div>
+
+        <!-- Footer links -->
+        <div class="mt-6 pt-6 border-t border-slate-200/60 dark:border-white/5 flex flex-wrap gap-3">
+          <a href="https://github.com/pranayd555/resume-builder" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          aria-label="GitHub" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-medium border border-slate-300/70 dark:border-white/5 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors">
+            <span class="material-symbols-outlined text-base">code</span>
+            GitHub Repo
+          </a>
+          <a href="https://presmistique.in" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          aria-label="presmistique" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-medium border border-slate-300/70 dark:border-white/5 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors">
+            <span class="material-symbols-outlined text-base">open_in_new</span>
+            Live Product
+          </a>
+        </div>
+
+        <p class="mt-5 text-xs text-slate-500 dark:text-slate-500 italic leading-relaxed">
+          This essay is based on my actual experience building and deploying Resume Builder. No made-up metrics or fake challenges. Real code, real failures, real lessons.
+        </p>
+      </section>
+
+    </main>
+  </div>
+</article>
+
+</body>
+</html>

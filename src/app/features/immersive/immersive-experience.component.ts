@@ -38,7 +38,7 @@ import { TextScrapperAnimation } from '../../shared/components/text-scrapper-ani
     SlideParticleBgComponent,
     WaveParticleBgComponent,
     TextScrapperAnimation,
-  ],
+],
   template: `
     <div class="fixed inset-0 w-dvw h-dvh overflow-hidden bg-background-dark text-white">
 

@@ -485,6 +485,10 @@ export const fruitReducer = createReducer(
           </li>
           <li class="flex gap-3">
             <span class="mt-2 h-2 w-2 rounded-full bg-primary/70"></span>
+            <span>Use selectors to create an abstructin layer between component and state.</span>
+          </li>
+          <li class="flex gap-3">
+            <span class="mt-2 h-2 w-2 rounded-full bg-primary/70"></span>
             <span>Use one consistent action payload style (usually props&lt;{ ... }&gt;())</span>
           </li>
           <li class="flex gap-3">
@@ -495,6 +499,20 @@ export const fruitReducer = createReducer(
 
         <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
           Those changes don’t “enterprise-ify” anything—they just make the NgRx flow cleaner and easier to extend.
+        </p>
+
+        <div class="mt-6 pt-6 border-t border-slate-200/60 dark:border-white/5 flex flex-wrap gap-3">
+          <a href="https://github.com/pranayd555/zero" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          aria-label="GitHub" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-medium border border-slate-300/70 dark:border-white/5 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors">
+            <span class="material-symbols-outlined text-base">code</span>
+            GitHub Repo
+          </a>
+        </div>
+
+        <p class="mt-5 text-xs text-slate-500 dark:text-slate-500 italic leading-relaxed">
+          This essay is based on my actual experience learning NgRx State Management. No made-up metrics or fake challenges. Real code, real failures, real lessons.
         </p>
       </section>
     </main>

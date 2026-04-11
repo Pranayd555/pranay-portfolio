@@ -232,36 +232,89 @@
       </section>
 
       <!-- Happy flow -->
-      <section id="happy-flow" class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+      <section id="happy-path" class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
         <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
-          The happy flow (what a user experiences)
+          Happy path: how the plugin works (high level)
         </h2>
-
+      
         <ol class="mt-5 space-y-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+      
           <li class="flex gap-3">
             <span class="flex-none w-7 h-7 rounded-full bg-primary/15 text-primary border border-primary/20 flex items-center justify-center text-sm font-bold">1</span>
-            <span>User opens the editor.</span>
+            <span>Editor boots with the custom bundle</span>
           </li>
+      
           <li class="flex gap-3">
             <span class="flex-none w-7 h-7 rounded-full bg-primary/15 text-primary border border-primary/20 flex items-center justify-center text-sm font-bold">2</span>
-            <span>User clicks Browse (<code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">s3Browse</code>) in the toolbar.</span>
+            <span>You load the custom CKEditor build (<code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">build/ckeditor.js</code>) which already includes AmazonS3Plugin.</span>
           </li>
+      
           <li class="flex gap-3">
             <span class="flex-none w-7 h-7 rounded-full bg-primary/15 text-primary border border-primary/20 flex items-center justify-center text-sm font-bold">3</span>
-            <span>A “File Manager” modal opens: folders on the left, files/thumbnails on the right.</span>
+            <span>Plugin initializes and wires storage + commands</span>
           </li>
+      
           <li class="flex gap-3">
             <span class="flex-none w-7 h-7 rounded-full bg-primary/15 text-primary border border-primary/20 flex items-center justify-center text-sm font-bold">4</span>
-            <span>User uploads images into a folder (with type/size guardrails).</span>
+            <span>
+              On <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">init()</code>, the plugin creates an S3-compatible client (AWS S3 or Cloudflare R2 endpoint). It registers:
+              <ul class="mt-2 list-disc list-inside space-y-1">
+                <li>a custom upload adapter via <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">FileRepository.createUploadAdapter</code> (for the editor’s image insert pipeline)</li>
+                <li>a command <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">s3Browse</code> (the file manager entrypoint)</li>
+              </ul>
+            </span>
           </li>
+      
           <li class="flex gap-3">
             <span class="flex-none w-7 h-7 rounded-full bg-primary/15 text-primary border border-primary/20 flex items-center justify-center text-sm font-bold">5</span>
-            <span>Thumbnails show up quickly (previews load lazily).</span>
+            <span>User clicks “Browse” in the toolbar</span>
           </li>
+      
           <li class="flex gap-3">
             <span class="flex-none w-7 h-7 rounded-full bg-primary/15 text-primary border border-primary/20 flex items-center justify-center text-sm font-bold">6</span>
-            <span>User clicks an image → it inserts into CKEditor.</span>
+            <span>CKEditor executes the <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">s3Browse</code> command. The command opens a modal “File Manager” UI.</span>
           </li>
+      
+          <li class="flex gap-3">
+            <span class="flex-none w-7 h-7 rounded-full bg-primary/15 text-primary border border-primary/20 flex items-center justify-center text-sm font-bold">7</span>
+            <span>
+              Modal loads folders and the first folder’s contents. It lists folders using <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">ListObjectsV2</code> with <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">Delimiter: '/'</code>. It lists the selected folder’s contents using <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">Prefix: '&lt;folder&gt;/'</code>. Results are cached briefly to avoid hammering the API while the user clicks around.
+            </span>
+          </li>
+      
+          <li class="flex gap-3">
+            <span class="flex-none w-7 h-7 rounded-full bg-primary/15 text-primary border border-primary/20 flex items-center justify-center text-sm font-bold">8</span>
+            <span>UI renders quickly, previews load lazily. The file grid renders immediately with placeholders.</span>
+          </li>
+      
+          <li class="flex gap-3">
+            <span class="flex-none w-7 h-7 rounded-full bg-primary/15 text-primary border border-primary/20 flex items-center justify-center text-sm font-bold">9</span>
+            <span>
+              For images, the command generates signed URLs (<code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">getSignedUrl</code> + <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">GetObjectCommand</code>) and swaps them into <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">&lt;img&gt;</code> tags after render.
+            </span>
+          </li>
+      
+          <li class="flex gap-3">
+            <span class="flex-none w-7 h-7 rounded-full bg-primary/15 text-primary border border-primary/20 flex items-center justify-center text-sm font-bold">10</span>
+            <span>
+              User uploads images into the selected folder. The modal’s “Upload” button opens a file picker (restricted to png/jpg/jpeg). Files are validated (size/type). If too large, the user can opt to compress. Upload happens via <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">PutObjectCommand</code> to Bucket + Key: <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">'&lt;folder&gt;/&lt;filename&gt;'</code>. Cache is invalidated and the UI refreshes so the new files show up immediately.
+            </span>
+          </li>
+      
+          <li class="flex gap-3">
+            <span class="flex-none w-7 h-7 rounded-full bg-primary/15 text-primary border border-primary/20 flex items-center justify-center text-sm font-bold">11</span>
+            <span>
+              User inserts an asset into the editor. Clicking an image generates a signed URL and calls <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">editor.execute('insertImage', { source: signedUrl })</code>. Clicking an audio file creates an audio model element with src set to the signed URL (and the plugin defines how it downcasts to an <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">&lt;audio&gt;</code> tag in the output).
+            </span>
+          </li>
+      
+          <li class="flex gap-3">
+            <span class="flex-none w-7 h-7 rounded-full bg-primary/15 text-primary border border-primary/20 flex items-center justify-center text-sm font-bold">12</span>
+            <span>
+              User deletes a file or a folder. Delete file: <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">DeleteObjectCommand</code>, then refresh. Delete folder: list keys under the prefix and bulk delete with <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">DeleteObjectsCommand</code>, then refresh.
+            </span>
+          </li>
+      
         </ol>
       </section>
 
@@ -470,7 +523,7 @@ async getImagePreviewUrl(fileKey) {
       <!-- What I'd do differently -->
       <section id="what-id-do-differently" class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
         <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
-          What I’d do differently (keeping it honest, but positive)
+          What I’d do differently
         </h2>
 
         <ul class="mt-5 space-y-3 text-slate-700 dark:text-slate-300 leading-relaxed">
@@ -505,6 +558,20 @@ async getImagePreviewUrl(fileKey) {
           <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-secondary/70"></span><span>Performance is product in file managers—signed URLs + lazy previews changed everything.</span></li>
           <li class="flex gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-secondary/70"></span><span>Bundling matters: a working plugin isn’t “done” until it’s consumable in the real application.</span></li>
         </ul>
+
+        <div class="mt-6 pt-6 border-t border-slate-200/60 dark:border-white/5 flex flex-wrap gap-3">
+          <a href="https://github.com/pranayd555/ckeditor5" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          aria-label="GitHub" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-medium border border-slate-300/70 dark:border-white/5 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors">
+            <span class="material-symbols-outlined text-base">code</span>
+            GitHub Repo
+          </a>
+        </div>
+
+        <p class="mt-5 text-xs text-slate-500 dark:text-slate-500 italic leading-relaxed">
+          This essay is based on my actual experience building a custom ckeditor5 plugin. No made-up metrics or fake challenges. Real code, real failures, real lessons.
+        </p>
       </section>
 
     </main>
