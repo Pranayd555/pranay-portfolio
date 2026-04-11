@@ -50,7 +50,6 @@ export class Projects implements OnInit {
 
   openModal(event: Event, project: IProject): void {
     event.stopPropagation();
-    if(project.id == 'presmistique') {
     const target = event.currentTarget as HTMLElement;
     const rect = target.getBoundingClientRect();
     this.dialog.open(ProjDesModal, {
@@ -60,8 +59,10 @@ export class Projects implements OnInit {
       disableClose: true,
       hasBackdrop: true,
     });
-  } else {
-    this.router.navigate(['/projects', project.id])
   }
+
+  routeToBlog(event: Event, project: IProject): void {
+    event.stopPropagation();
+    this.router.navigate(['/projects', project.id])
   }
 }
