@@ -7,9 +7,7 @@ import { Contact } from '../home/sections/contact/contact';
   imports: [Contact],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="min-h-screen pt-10 pb-24">
       <app-contact />
-    </div>
   `,
 })
 export class ContactPageComponent {}

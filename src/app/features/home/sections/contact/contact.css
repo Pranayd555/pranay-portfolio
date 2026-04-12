@@ -1,0 +1,33 @@
+/* Only what Tailwind can't express — responsive bento grid adjustments */
+
+@media (max-width: 640px) {
+    #contact .grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  
+    /* X tile: collapse tall span on mobile, go horizontal */
+    #contact .row-span-2 {
+      grid-column: span 2;
+      grid-row: span 1;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: auto;
+    }
+  
+    /* Hide X tagline on mobile — not enough space */
+    #contact .row-span-2 p {
+      display: none;
+    }
+  }
+  
+  @media (max-width: 400px) {
+    #contact .grid {
+      grid-template-columns: 1fr;
+    }
+  
+    #contact .col-span-2,
+    #contact .row-span-2 {
+      grid-column: span 1;
+    }
+  }
