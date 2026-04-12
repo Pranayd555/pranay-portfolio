@@ -1,126 +1,143 @@
-<div id="nav-overlay" [ngClass]="navOpen() ? 'nav-overlay' : ''" (click)="closeNav()"></div>
+<!-- Overlay: always in DOM, visibility toggled via class -->
+<div
+  class="nav-overlay"
+  [class.visible]="navOpen()"
+  (click)="closeNav()">
+</div>
 
-<!-- Trigger -->
-<button id="nav-trigger" (click)="toggleNav()" aria-label="Toggle navigation" aria-expanded="false">
-    <span class="material-symbols-outlined t-icon">explore</span>
-    <span id="t-label" class="hidden md:inline">navigate</span>
-    <span class="material-symbols-outlined t-chevron !hidden md:!inline">
-        keyboard_arrow_up
-      </span>
+<!-- Trigger pill -->
+<button
+  class="nav-trigger"
+  [class.open]="navOpen()"
+  (click)="toggleNav()"
+  aria-label="Toggle navigation"
+  [attr.aria-expanded]="navOpen()">
+  <span class="material-symbols-outlined t-icon">explore</span>
+  <span class="t-label hidden md:inline">{{ navOpen() ? 'close' : 'navigate' }}</span>
+  <span class="material-symbols-outlined t-chevron hidden md:inline">keyboard_arrow_up</span>
 </button>
 
-<!-- Panel -->
-@if(navOpen()){
-<div id="nav-panel" role="dialog" aria-label="Site navigation">
+<!-- Panel: always in DOM, shown/hidden via class for CSS transitions to work -->
+<div
+  class="nav-panel"
+  [class.show]="navOpen()"
+  role="dialog"
+  aria-label="Site navigation">
 
-    <div class="panel-head">
-        <div class="panel-head-label">
-            <span class="material-symbols-outlined ms">account_tree</span>
-            Navigation
+  <!-- Header -->
+  <div class="panel-head">
+    <div class="panel-head-label">
+      <span class="material-symbols-outlined ms">account_tree</span>
+      Navigation
+    </div>
+    <button class="close-btn" (click)="closeNav()" aria-label="Close">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+  </div>
+
+  <!-- Nav list -->
+  <nav class="nav-list">
+
+    <!-- About -->
+    <div class="nav-item">
+      <a class="nav-link" [routerLink]="['/about']" routerLinkActive="active" (click)="closeNav()">
+        <span class="material-symbols-outlined ni">person</span>
+        <div class="nav-label">
+          <span class="nav-title">About</span>
+          <span class="nav-sub">Enter the story</span>
         </div>
-        <button class="close-btn" (click)="closeNav()" aria-label="Close">
-            <span class="material-symbols-outlined" style="font-size:15px">close</span>
-        </button>
+      </a>
     </div>
 
-    <nav class="nav-list">
+    <!-- Projects -->
+    <div class="nav-item">
+      <button
+        class="nav-btn"
+        [class.active]="isProjectsRouteActive()"
+        (click)="toggleProjects()">
+        <span class="material-symbols-outlined ni">construction</span>
+        <div class="nav-label">
+          <span class="nav-title">Projects</span>
+          <span class="nav-sub">Hands on crafts</span>
+        </div>
+        <span
+          class="material-symbols-outlined proj-chevron"
+          [class.open]="projOpen()">
+          expand_more
+        </span>
+      </button>
 
-        <!-- About -->
-        <div class="nav-item">
-            <a class="nav-link" [routerLink]="['/about']" routerLinkActive="active">
-                <span class="material-symbols-outlined ni">person</span>
-                <div class="nav-label">
-                    <span class="nav-title">About</span>
-                    <span class="nav-sub">Enter the story</span>
-                </div>
+      <!-- Submenu: always in DOM, toggled via .open class for grid transition -->
+      <div class="submenu-wrap" [class.open]="projOpen()">
+        <div class="submenu-inner">
+          <div class="submenu-list">
+
+            <a class="sub-link" [routerLink]="['/projects/presmistique']" routerLinkActive="active" (click)="closeNav()">
+              <span class="material-symbols-outlined ni">description</span>
+              <div class="sub-label">
+                <span class="sub-title">Presmistique</span>
+                <span class="sub-sub">AI Resume Builder</span>
+              </div>
             </a>
-        </div>
 
-        <!-- Projects -->
-        <div class="nav-item">
-            <button class="nav-btn" [routerLink]="['/projects']" routerLinkActive="active" id="proj-btn">
-                <span class="material-symbols-outlined ni">construction</span>
-                <div class="nav-label">
-                    <span class="nav-title">Projects</span>
-                    <span class="nav-sub">Hands on crafts</span>
-                </div>
-                <span class="material-symbols-outlined proj-chevron"
-                    (click)="$event.stopPropagation(); toggleProjects()" [aria-expanded]="projOpen()"
-                    [class.open]="projOpen()" id="proj-chevron">expand_more</span>
-            </button>
-            @if(projOpen()) {
-            <div class="submenu-wrap" id="proj-submenu" [class.open]="projOpen()">
-                <div class="submenu-inner">
-                    <div class="submenu-list">
-
-                        <a [routerLink]="['/projects/presmistique']" routerLinkActive="active" class="sub-link">
-                            <span class="material-symbols-outlined ni">description</span>
-                            <div class="sub-label">
-                                <span class="sub-title">Presmistique</span>
-                                <span class="sub-sub">AI Resume Builder</span>
-                            </div>
-                        </a>
-
-                        <a [routerLink]="['/projects/ckeditor-plugin']" routerLinkActive="active" class="sub-link">
-                            <span class="material-symbols-outlined ni">edit_note</span>
-                            <div class="sub-label">
-                                <span class="sub-title">CKEditor 5</span>
-                                <span class="sub-sub">Custom plugin</span>
-                            </div>
-                        </a>
-
-                        <a [routerLink]="['/projects/fruit-basket']" routerLinkActive="active" class="sub-link">
-                            <span class="material-symbols-outlined ni">inventory_2</span>
-                            <div class="sub-label">
-                                <span class="sub-title">Fruit Basket</span>
-                                <span class="sub-sub">NgRx implementation</span>
-                            </div>
-                        </a>
-
-                    </div>
-                </div>
-            </div>
-            }
-        </div>
-
-        <!-- Experience -->
-        <div class="nav-item">
-            <a href="#" [routerLink]="['/experience']" routerLinkActive="active" class="nav-link">
-                <span class="material-symbols-outlined ni">timeline</span>
-                <div class="nav-label">
-                    <span class="nav-title">Experience</span>
-                    <span class="nav-sub">The timeline</span>
-                </div>
+            <a class="sub-link" [routerLink]="['/projects/ckeditor-plugin']" routerLinkActive="active" (click)="closeNav()">
+              <span class="material-symbols-outlined ni">edit_note</span>
+              <div class="sub-label">
+                <span class="sub-title">CKEditor 5</span>
+                <span class="sub-sub">Custom plugin</span>
+              </div>
             </a>
-        </div>
 
-        <!-- Contact -->
-        <div class="nav-item">
-            <a href="#" [routerLink]="['/contact']" routerLinkActive="active" class="nav-link">
-                <span class="material-symbols-outlined ni">mail</span>
-                <div class="nav-label">
-                    <span class="nav-title">Contact</span>
-                    <span class="nav-sub">Let's talk</span>
-                </div>
+            <a class="sub-link" [routerLink]="['/projects/fruit-basket']" routerLinkActive="active" (click)="closeNav()">
+              <span class="material-symbols-outlined ni">inventory_2</span>
+              <div class="sub-label">
+                <span class="sub-title">Fruit Basket</span>
+                <span class="sub-sub">NgRx implementation</span>
+              </div>
             </a>
+
+          </div>
         </div>
+      </div>
+    </div>
 
-        <!-- Playground -->
-        <div class="nav-item">
-            <div class="nav-divider"></div>
-            <a href="#" [routerLink]="['/playground']" routerLinkActive="active" class="playground-link">
-                <span class="material-symbols-outlined ni">science</span>
-                <div class="nav-label">
-                    <span class="nav-title" style="color:inherit">Playground</span>
-                    <span class="nav-sub">Tinker mode</span>
-                </div>
-                <span class="lab-badge">lab</span>
-            </a>
+    <!-- Experience -->
+    <div class="nav-item">
+      <a class="nav-link" [routerLink]="['/experience']" routerLinkActive="active" (click)="closeNav()">
+        <span class="material-symbols-outlined ni">timeline</span>
+        <div class="nav-label">
+          <span class="nav-title">Experience</span>
+          <span class="nav-sub">The timeline</span>
         </div>
+      </a>
+    </div>
 
-    </nav>
+    <!-- Contact -->
+    <div class="nav-item">
+      <a class="nav-link" [routerLink]="['/contact']" routerLinkActive="active" (click)="closeNav()">
+        <span class="material-symbols-outlined ni">mail</span>
+        <div class="nav-label">
+          <span class="nav-title">Contact</span>
+          <span class="nav-sub">Let's talk</span>
+        </div>
+      </a>
+    </div>
 
-    <div class="panel-foot hidden md:block">Press <kbd>Esc</kbd> to close</div>
+    <!-- Playground -->
+    <div class="nav-item">
+      <div class="nav-divider"></div>
+      <a class="playground-link" [routerLink]="['/playground']" routerLinkActive="active" (click)="closeNav()">
+        <span class="material-symbols-outlined ni">science</span>
+        <div class="nav-label">
+          <span class="nav-title">Playground</span>
+          <span class="nav-sub">Tinker mode</span>
+        </div>
+        <span class="lab-badge">lab</span>
+      </a>
+    </div>
+
+  </nav>
+
+  <div class="panel-foot hidden md:block">Press <kbd>Esc</kbd> to close</div>
 
 </div>
-}

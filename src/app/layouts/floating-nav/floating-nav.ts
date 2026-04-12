@@ -13,50 +13,41 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 })
 export class FloatingNavComponent {
 
-    navOpen = signal(false);
-    projOpen = signal(false);
-    private router = inject(Router);
+  private router = inject(Router);
+ 
+  navOpen  = signal(false);
+  projOpen = signal(false);
 
-    constructor(){
-      this.router.events.pipe(
-        takeUntilDestroyed()
-      ).subscribe(
-        (e)=> {
-          if(e instanceof NavigationStart) {
-            this.closeNav();
-          }
-        }
-      )
-    }
-
-    @HostListener('document:keydown.escape', ['$event'])
-    handleEsc(event: Event) {
-      this.closeNav();
-    }
-
-  
-
+  constructor() {
+    this.router.events.pipe(
+      takeUntilDestroyed()
+    ).subscribe( e => {
+      if(e instanceof NavigationStart) {
+        this.closeNav();
+      }
+    })
+  }
  
-    openNav() {
-      this.navOpen.set(true);
-    }
+  toggleNav(): void {
+    this.navOpen.update(v => !v);
+  }
  
-    closeNav() {
-      this.navOpen.set(false);
-      this.projOpen.set(false);
-    }
+  closeNav(): void {
+    this.navOpen.set(false);
+    this.projOpen.set(false);
+  }
  
-    toggleNav() { 
-      this.navOpen.update( v => !v);
-     }
+  toggleProjects(): void {
+    this.projOpen.update(v => !v);
+  }
  
-    toggleProjects() {
-      this.projOpen.update( v => !v);
-    }
+  /** Marks the Projects button active when any child route is active */
+  isProjectsRouteActive(): boolean {
+    return this.router.url.startsWith('/projects');
+  }
  
-    
- 
-    setActive() {
-      
-    }
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.navOpen()) this.closeNav();
+  }
  }
