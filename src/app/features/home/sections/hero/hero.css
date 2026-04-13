@@ -220,3 +220,49 @@ img {
     pointer-events: none;
     backface-visibility: hidden;
 }
+
+
+/* marquee base */
+.marquee {
+    overflow: hidden;
+    position: relative;
+  }
+  
+  /* smooth infinite scroll */
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: scroll 25s linear infinite;
+    will-change: transform;
+  }
+  
+  /* animation */
+  @keyframes scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  
+  /* fade edges (premium feel) */
+  .marquee::before,
+  .marquee::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 2;
+    pointer-events: none;
+  }
+  
+  .marquee::before {
+    left: 0;
+    background: linear-gradient(to right, white, transparent);
+  }
+  
+  .marquee::after {
+    right: 0;
+    background: linear-gradient(to left, white, transparent);
+  }

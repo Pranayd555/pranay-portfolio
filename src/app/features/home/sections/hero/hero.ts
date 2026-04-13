@@ -31,6 +31,12 @@ export class Hero {
   loopNum = 0;
   private isDeleting = false;
   private timer: any;
+  protected logos: string[] = ['assets/logos/B&B.png',
+                               'assets/logos/Citi.svg.png',
+                               'assets/logos/CQfluency.png',
+                               'assets/logos/MONDEE.png',
+                               'assets/logos/old_mutual_south_africa_logo.jpg',
+                               'assets/logos/Prime-Chatting.png']
   // --- Image toggle & drag (commented out for reuse elsewhere) ---
   // imageClicked = signal<boolean | null>(false);
   // imageChanged = signal<boolean>(true);
