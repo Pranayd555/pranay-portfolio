@@ -4,10 +4,7 @@
     <div class="flex flex-col items-center gap-6 md:gap-8 text-center">
       <div class="relative group draggable-wrapper">
         <div class="relative w-32 h-32 md:w-48 md:h-48 bg-transparent text-slate-900 dark:text-white">
-          <img
-            src="assets/1000006812-removebg-preview.png"
-            alt="Pranay Das"
-            loading="lazy"
+          <img src="assets/1000006812-removebg-preview.png" alt="Pranay Das" loading="lazy"
             class="w-full h-full object-cover" />
         </div>
       </div>
@@ -21,8 +18,7 @@
         </div>
 
         <p class="text-primary dark:text-secondary text-lg md:text-xl font-medium animate-slide-up"
-          [style.animation-delay]="'0.1s'"
-          >{{ tagline }}</p>
+          [style.animation-delay]="'0.1s'">{{ tagline }}</p>
       </div>
     </div>
 
@@ -50,6 +46,45 @@
         {{ closing.final }}
       </p>
     </div>
+
+
+    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-gray-500/50 to-transparent"></div>
+
+    <!-- <div class="max-w-6xl mx-auto px-6 relative z-10"> -->
+  
+      <!-- Heading -->
+      <p class="text-center text-sm text-gray-500 mb-10 tracking-wide uppercase">
+        Contributed to the teams at
+      </p>
+      <div class="marquee w-full md:w-4/5 lg:w-3/4 mx-auto">
+      <div class="marquee-track flex">
+
+        <div 
+          *ngFor="let logo of logos"
+          class="w-24 h-16 md:w-32 md:h-16 flex items-center justify-center mx-8"
+        >
+          <img 
+            [src]="logo"
+            alt="client logo"
+            class="max-h-full max-w-full object-contain transition duration-300 hover:opacity-100 hover:grayscale-0 hover:scale-105"
+          />
+        </div>
+
+        <!-- duplicate -->
+        <div 
+          *ngFor="let logo of logos"
+          class="w-24 h-16 md:w-32 md:h-16 flex items-center justify-center mx-8"
+        >
+          <img 
+            [src]="logo"
+            alt="client logo"
+            class="max-h-full max-w-full object-contain transition duration-300 hover:opacity-100 hover:grayscale-0 hover:scale-105"
+          />
+        </div>
+
+      </div>
+    </div>
+    <!-- </div> -->
 
   </div>
 </section>
