@@ -1,0 +1,8 @@
+{
+  "/api/chat": {
+    "target": "http://localhost:3000",
+    "ws": true,
+    "secure": false,
+    "logLevel": "debug"
+  }
+}

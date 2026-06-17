@@ -1,11 +1,12 @@
 <!-- Overlay: always in DOM, visibility toggled via class -->
 <div
   class="nav-overlay"
-  [class.visible]="navOpen()"
+  [class.visible]="navOpen() || chatOpen()"
   (click)="closeNav()">
 </div>
 
 <!-- Trigger pill -->
+ <div class="flex justify-between w-full">
 <button
   class="nav-trigger"
   [class.open]="navOpen()"
@@ -16,6 +17,28 @@
   <span class="t-label hidden md:inline">{{ navOpen() ? 'close' : 'navigate' }}</span>
   <span class="material-symbols-outlined t-chevron hidden md:inline">keyboard_arrow_up</span>
 </button>
+
+<!-- chat bot button -->
+ <button
+    type="button"
+    aria-label="Open chat bot"
+    class="chat-float chat-ripple fixed bottom-8 right-8 z-50 grid h-20 w-20 place-items-center rounded-full bg-teal-500 text-white shadow-2xl shadow-teal-950/60 transition duration-300 ease-out hover:scale-110 hover:bg-teal-400 focus:outline-none focus:ring-4 focus:ring-teal-300/50 active:scale-95 cursor-pointer"
+    (click)="toggleChat()"
+  >
+    <span class="absolute -right-1 -top-1 flex h-6 min-w-6 items-center justify-center rounded-full bg-rose-500 px-1.5 text-xs font-bold shadow-lg ring-4 ring-neutral-950">
+      1
+    </span>
+
+    <span class="relative flex h-11 w-12 items-center justify-center rounded-2xl bg-white text-teal-600 shadow-inner">
+      <span class="absolute -bottom-1.5 right-3 h-4 w-4 rotate-45 rounded-sm bg-white"></span>
+      <span class="relative z-10 flex items-center gap-1">
+        <span class="typing-dot h-2 w-2 rounded-full bg-teal-500"></span>
+        <span class="typing-dot h-2 w-2 rounded-full bg-teal-500"></span>
+        <span class="typing-dot h-2 w-2 rounded-full bg-teal-500"></span>
+      </span>
+    </span>
+  </button>
+</div>
 
 <!-- Panel: always in DOM, shown/hidden via class for CSS transitions to work -->
 <div
@@ -141,3 +164,5 @@
   <div class="panel-foot hidden md:block">Press <kbd>Esc</kbd> to close</div>
 
 </div>
+
+<app-chat #chatModal [show]="chatOpen()" (close)="closeChat($event)" />

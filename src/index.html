@@ -23,10 +23,10 @@
     style-src 'self' 'unsafe-inline' fonts.googleapis.com;
     font-src 'self' fonts.gstatic.com data:;
     img-src 'self' data: https: blob:;
-    connect-src 'self' https: wss:;
     base-uri 'self';
     form-action 'self';
-    frame-ancestors 'none';">
+    frame-ancestors 'none';
+    connect-src 'self' https: wss: ws://localhost:3000;">
 
   <!-- Open Graph / Facebook / LinkedIn / WhatsApp -->
   <meta property="og:type" content="website">
