@@ -11,6 +11,7 @@ import { GeminiAi, GeminiResponse, Message } from '../../../services/gemini-ai';
 export class Chat {
 @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
 
+  private tabWorker!: Worker;
   // Reactive state management using Signals
   public messages = signal<Message[]>([]);
   public userInput = signal<string>('');
@@ -47,6 +48,7 @@ export class Chat {
       }
       if(response.type === "AGENT_STEP") {
         if(response.step === "closed") {
+          this.geminiAI.disconnect();
           this.isReconnecting.set(true);
         }
       }
@@ -80,6 +82,8 @@ export class Chat {
         return updatedList;
         });
       }
+      
+    this.streamIncomingChunk();
     });
   }
 
@@ -89,6 +93,36 @@ export class Chat {
 
   ngOnInit() {
     this.geminiAI.connect();
+    // Verify that the browser environment supports Web Workers
+    if (typeof Worker !== 'undefined') {
+      // Initialize the worker dedicated solely to this tab runtime instance
+      this.tabWorker = new Worker(new URL('../../workers/chat.worker', import.meta.url), {
+        type: 'module'
+      });
+
+      // Handle the worker's asynchronous pipeline responses
+      this.tabWorker.onmessage = ({ data }) => {
+        switch (data.action) {
+          case 'CACHE_SUCCESS':
+            // The data is already completely saved outside Angular. 
+            // We just bring the final product into view.
+            console.dir('CACHE_SUCCESS', data.payload[0].raw);
+            break;
+            
+          case 'FETCH_SUCCESS':
+            if (data.payload.length > 0) {
+              if (data.payload[0].raw) this.messages.set(data.payload[0].raw);
+            }
+            break;
+            
+          case 'CACHE_ERROR':
+            console.error(data.error);
+            break;
+        }
+      };
+      const workerMessageId = this.geminiAI.getItem<string>('workerMessageId');
+      if(workerMessageId) this.loadHistoricalMessage(workerMessageId);
+    }
   }
 
   public sendMessage(): void {
@@ -104,8 +138,8 @@ export class Chat {
       timestamp: new Date()
     };
     this.messages.update(prev => [...prev, userMsg]);
+    this.streamIncomingChunk();
     this.userInput.set('');
-
     this.isTyping.set(true);
 
     try{ 
@@ -116,7 +150,6 @@ export class Chat {
   }
 
   public closeModal(): void {
-    this.geminiAI.disconnect();
     this.close.emit(true);
   }
 
@@ -127,6 +160,42 @@ export class Chat {
       }
     } catch (err) {
       console.warn('Scroll anchor skipped:', err);
+    }
+  }
+
+  /**
+   * Called when closing chat tab to store chat history
+   */
+  streamIncomingChunk() {
+    if (this.tabWorker) {
+      const uniqueId = 'msg_' + crypto.randomUUID();
+      this.tabWorker.postMessage({
+        action: 'PROCESS_AND_CACHE',
+        payload: {
+          id: 'msg_' + uniqueId, // Unique Identifier
+          data: this.messages()
+        }
+      });
+      this.geminiAI.setItem('workerMessageId', uniqueId);
+    }
+  }
+
+  /**
+   * Request data back out of the background cache layer
+   */
+  loadHistoricalMessage(messageId: string) {
+    if (this.tabWorker) {
+      this.tabWorker.postMessage({
+        action: 'FETCH_CACHE',
+        payload: { id: messageId }
+      });
+    }
+  }
+
+  ngOnDestroy(): void {
+    // When this tab kills the component, clean up the dedicated background thread
+    if (this.tabWorker) {
+      this.tabWorker.terminate();
     }
   }
 }

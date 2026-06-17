@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { catchError, EMPTY, Observable, retry, Subject, timer } from 'rxjs';
+import { isPlatformBrowser } from '@angular/common';
 
 export interface Message {
   id: string;
@@ -21,74 +22,80 @@ export interface GeminiResponse {
   providedIn: 'root',
 })
 export class GeminiAi {
-  private welcomeMessage = `Matrix protocol analyzed. Query parameter processed. [Result]: I have verified the structural stack updates for your request.`
-  private socket$!: WebSocketSubject<any>
-  private messagesSubject : Subject<GeminiResponse> = new Subject<GeminiResponse>;
+  private welcomeMessage = `Matrix protocol analyzed. Query parameter processed. [Result]: I have verified the structural stack updates for your request.`;
+  private socket$!: WebSocketSubject<any>;
+  private messagesSubject: Subject<GeminiResponse> = new Subject<GeminiResponse>();
 
   public message$: Observable<GeminiResponse> = this.messagesSubject?.asObservable();
   private pendingMessage: any = null;
+  private isBrowser: boolean = false;
+
+  constructor(@Inject(PLATFORM_ID) private platformID : Object) {
+    this.isBrowser = isPlatformBrowser(this.platformID)
+  }
 
   public connect(): void {
-    if(!this.socket$ || this.socket$.closed) {
+    if (!this.socket$ || this.socket$.closed) {
       this.socket$ = webSocket({
         url: `ws://localhost:4200/api/chat`,
         openObserver: {
-        next: () => {
-          console.log('WS OPEN');
-          
-          if (this.pendingMessage !== null) {
-            this.socket$.next(this.pendingMessage);
-            this.pendingMessage = null;
-          }
-        }
-      },
+          next: () => {
+            console.log('WS OPEN');
 
-      closeObserver: {
-        next: (evt) => console.log('WS CLOSED', evt)
-      },
-
-      deserializer: (msg) => JSON.parse(msg.data),
-      serializer: (msg) => JSON.stringify(msg)
-      })
-
-      this.socket$.pipe(
-        // 1. Intercept errors and retry up to 3 times before giving up
-        retry({
-          count: 3,
-          // Optional: Add a delay between each retry attempt (e.g., 3 seconds)
-          delay: (error, retryCount) => {
-            console.warn(`Connection lost. Retry attempt #${retryCount} of 3...`);
-            return timer(3000); 
-          }
-        }),
-        // 2. If all 3 retry attempts fail, execution falls through to catchError
-        catchError((error) => {
-          console.error('WebSocket failed after 3 retry attempts:', error);
-          this.handleFinalFailure();
-          return EMPTY; // Safely close the stream pipeline
-        })
-      ).subscribe({
-        next: (response: GeminiResponse) => {
-          // if(response.type === '')TEXT_CHUNK AGENT_STEP TURN_COMPLETE
-          this.messagesSubject.next(response)
+            if (this.pendingMessage !== null) {
+              this.socket$.next(this.pendingMessage);
+              this.pendingMessage = null;
+            }
+          },
         },
-        error: (err) => console.error('Stream error:', err),
-        complete: () => console.log('Connection closed cleanly by server.')
+
+        closeObserver: {
+          next: (evt) => console.log('WS CLOSED', evt),
+        },
+
+        deserializer: (msg) => JSON.parse(msg.data),
+        serializer: (msg) => JSON.stringify(msg),
       });
 
+      this.socket$
+        .pipe(
+          // 1. Intercept errors and retry up to 3 times before giving up
+          retry({
+            count: 3,
+            // Optional: Add a delay between each retry attempt (e.g., 3 seconds)
+            delay: (error, retryCount) => {
+              console.warn(`Connection lost. Retry attempt #${retryCount} of 3...`);
+              return timer(3000);
+            },
+          }),
+          // 2. If all 3 retry attempts fail, execution falls through to catchError
+          catchError((error) => {
+            console.error('WebSocket failed after 3 retry attempts:', error);
+            this.handleFinalFailure();
+            return EMPTY; // Safely close the stream pipeline
+          }),
+        )
+        .subscribe({
+          next: (response: GeminiResponse) => {
+            this.messagesSubject.next(response);
+          },
+          error: (err) => {
+            this.handleFinalFailure();
+            console.error('Stream error:', err)},
+          complete: () => console.log('Connection closed cleanly by server.'),
+        });
     }
-
   }
 
   /**
    * Send a JSON payload to the /api/chat route
    */
   public sendMessage(payload: any): void {
-  if (!this.socket$ || this.socket$.closed) {
-    this.handleFinalFailure();
+    if (!this.socket$ || this.socket$.closed) {
+      this.handleFinalFailure();
+    }
+    this.socket$.next(payload);
   }
-  this.socket$.next(payload);
-}
 
   /**
    * Close the connection (useful when logging out or changing routes)
@@ -96,6 +103,7 @@ export class GeminiAi {
   public disconnect(): void {
     if (this.socket$) {
       this.socket$.complete();
+      this.socket$.unsubscribe();
     }
   }
 
@@ -106,7 +114,30 @@ export class GeminiAi {
     // Notify the UI or user that the connection is entirely dead
     this.messagesSubject.next({
       type: 'ERROR',
-      message: 'Unable to establish connection to the chat server. Please refresh or try again later.',
+      message:
+        'Unable to establish connection to the chat server. Please refresh or try again later.',
     });
   }
- }
+
+  setItem(key: string, value: unknown) {
+    if(this.isBrowser) {
+      const serializedValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+      sessionStorage.setItem(key, serializedValue)
+    }
+  }
+
+  getItem<T>(key: string): T | null {
+    if (!this.isBrowser) return null;
+
+    const data = sessionStorage.getItem(key);
+    if (!data) return null;
+
+    try {
+      // Attempt to parse as JSON (objects, arrays, booleans, numbers)
+      return JSON.parse(data) as T;
+    } catch {
+      // Fallback to raw string if parsing fails
+      return data as unknown as T;
+    }
+  }
+}

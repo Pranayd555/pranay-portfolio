@@ -39,7 +39,8 @@
               "styles": {
                 "inlineCritical": false
               }
-            }
+            },
+            "webWorkerTsConfig": "tsconfig.worker.json"
           },
           "configurations": {
             "production": {
@@ -81,7 +82,10 @@
           }
         },
         "test": {
-          "builder": "@angular/build:unit-test"
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "webWorkerTsConfig": "tsconfig.worker.json"
+          }
         }
       }
     }
