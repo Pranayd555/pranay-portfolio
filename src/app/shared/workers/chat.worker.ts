@@ -75,7 +75,7 @@ function getAllFromCache(db: IDBDatabase): Promise<any[]> {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(STORE_NAME, 'readonly');
     const store = transaction.objectStore(STORE_NAME);
-    const request = store.getAll(); // 👈 Fetches everything out of this object store
+    const request = store.getAll();
 
     request.onsuccess = () => {
       const records = request.result || [];

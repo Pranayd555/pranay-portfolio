@@ -93,25 +93,21 @@ export class Chat {
 
   ngOnInit() {
     this.geminiAI.connect();
-    // Verify that the browser environment supports Web Workers
     if (typeof Worker !== 'undefined') {
-      // Initialize the worker dedicated solely to this tab runtime instance
       this.tabWorker = new Worker(new URL('../../workers/chat.worker', import.meta.url), {
         type: 'module'
       });
 
-      // Handle the worker's asynchronous pipeline responses
       this.tabWorker.onmessage = ({ data }) => {
         switch (data.action) {
           case 'CACHE_SUCCESS':
-            // The data is already completely saved outside Angular. 
-            // We just bring the final product into view.
-            console.dir('CACHE_SUCCESS', data.payload[0].raw);
+            console.dir('CACHE_SUCCESS', data.payload[0].raw ? 
+              data.payload[0].raw : '');
             break;
             
           case 'FETCH_SUCCESS':
             if (data.payload.length > 0) {
-              if (data.payload[0].raw) this.messages.set(data.payload[0].raw);
+              if (data.payload[0].raw && data.payload[0].raw.length > 0) this.messages.set(data.payload[0].raw);
             }
             break;
             
@@ -129,7 +125,6 @@ export class Chat {
     const query = this.userInput().trim();
     if (!query) return;
 
-    // 1. Append User Message
     const userMsg: Message = {
       id: window.crypto.randomUUID(),
       sender: 'user',

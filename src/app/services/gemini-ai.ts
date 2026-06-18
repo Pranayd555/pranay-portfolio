@@ -2,6 +2,7 @@ import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { catchError, EMPTY, Observable, retry, Subject, timer } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
+import { environment } from '../../environments/environment';
 
 export interface Message {
   id: string;
@@ -22,7 +23,6 @@ export interface GeminiResponse {
   providedIn: 'root',
 })
 export class GeminiAi {
-  private welcomeMessage = `Matrix protocol analyzed. Query parameter processed. [Result]: I have verified the structural stack updates for your request.`;
   private socket$!: WebSocketSubject<any>;
   private messagesSubject: Subject<GeminiResponse> = new Subject<GeminiResponse>();
 
@@ -37,7 +37,7 @@ export class GeminiAi {
   public connect(): void {
     if (!this.socket$ || this.socket$.closed) {
       this.socket$ = webSocket({
-        url: `ws://localhost:4200/api/chat`,
+        url: environment.WS_ENDPOINT + 'chat',
         openObserver: {
           next: () => {
             console.log('WS OPEN');
@@ -62,17 +62,15 @@ export class GeminiAi {
           // 1. Intercept errors and retry up to 3 times before giving up
           retry({
             count: 3,
-            // Optional: Add a delay between each retry attempt (e.g., 3 seconds)
             delay: (error, retryCount) => {
               console.warn(`Connection lost. Retry attempt #${retryCount} of 3...`);
               return timer(3000);
             },
           }),
-          // 2. If all 3 retry attempts fail, execution falls through to catchError
           catchError((error) => {
             console.error('WebSocket failed after 3 retry attempts:', error);
             this.handleFinalFailure();
-            return EMPTY; // Safely close the stream pipeline
+            return EMPTY;
           }),
         )
         .subscribe({
