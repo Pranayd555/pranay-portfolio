@@ -1,0 +1,515 @@
+<article class="max-w-5xl mx-auto px-4 py-10 md:py-14">
+
+  <header class="glass-card rounded-[2rem] p-6 md:p-10 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+    <p class="text-xs md:text-sm font-semibold tracking-wider uppercase text-slate-600 dark:text-slate-400">
+      Full-Stack Case Study
+    </p>
+
+    <h1 class="mt-3 text-3xl md:text-5xl font-extrabold leading-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-slate-700 to-slate-500 dark:from-white dark:via-slate-200 dark:to-slate-400">
+      EVA AI — Building a Grounded, Real-Time Personal Chatbot Inside My Portfolio
+    </h1>
+
+    <p class="mt-5 text-base md:text-lg leading-relaxed text-slate-700 dark:text-slate-300 max-w-3xl">
+      I did not want a chat widget that improvises my résumé. I wanted <strong class="text-slate-900 dark:text-white">Eva</strong> — a portfolio-native assistant that answers only from my knowledge base, streams responses token-by-token, and sits inside an Angular&nbsp;21 app engineered for zero-lag rendering. This post combines the full backend intelligence story and the frontend architecture that makes it feel instant.
+    </p>
+
+    <div class="mt-6 flex flex-wrap items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
+      <span class="flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-base">link</span>
+        <a href="https://pranay.presmistique.in" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">pranay.presmistique.in</a>
+      </span>
+      <span class="flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-base">code</span>
+        <a href="https://github.com/Pranayd555/pranay-portfolio" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">github.com/Pranayd555/pranay-portfolio</a>
+      </span>
+    </div>
+
+    <div class="mt-5 flex flex-wrap gap-2">
+      <span class="text-[10px] md:text-xs uppercase tracking-wider px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">EVA AI</span>
+      <span class="text-[10px] md:text-xs uppercase tracking-wider px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300/70 dark:border-white/5">Angular 21</span>
+      <span class="text-[10px] md:text-xs uppercase tracking-wider px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300/70 dark:border-white/5">Gemini Live</span>
+      <span class="text-[10px] md:text-xs uppercase tracking-wider px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300/70 dark:border-white/5">WebSockets</span>
+      <span class="text-[10px] md:text-xs uppercase tracking-wider px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300/70 dark:border-white/5">NgRx</span>
+      <span class="text-[10px] md:text-xs uppercase tracking-wider px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300/70 dark:border-white/5">Web Workers</span>
+      <span class="text-[10px] md:text-xs uppercase tracking-wider px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300/70 dark:border-white/5">Three.js</span>
+      <span class="text-[10px] md:text-xs uppercase tracking-wider px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300/70 dark:border-white/5">Docker</span>
+    </div>
+  </header>
+
+  <div class="mt-8 space-y-6">
+
+    <!-- Introduction -->
+    <section class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">Introduction — The Full-Stack Challenge</h2>
+
+      <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+        A high-performance AI chat interface demands two things at once: a <strong class="text-slate-900 dark:text-white">rock-solid backend</strong> that never invents facts, and an <strong class="text-slate-900 dark:text-white">ultra-fast frontend</strong> that renders dozens of streamed chunks per second without stuttering WebGL animations in the background.
+      </p>
+
+      <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+        Visitors to my portfolio are busy. A recruiter wants Angular migration details. A founder wants the Presmistique architecture story. A developer wants the CKEditor deep dive. They all land on the same page but need different slices of the same data. Eva lets them <em>ask</em> instead of scroll — and my engineering constraint was absolute: <strong class="text-slate-900 dark:text-white">the agent must not hallucinate</strong>. One fabricated project detail is worse than no chat at all.
+      </p>
+
+      <div class="mt-5 p-4 rounded-2xl bg-primary/5 border border-primary/10">
+        <p class="text-slate-900 dark:text-white font-semibold">How the two halves collaborate</p>
+        <p class="mt-2 text-slate-700 dark:text-slate-300 leading-relaxed text-sm">
+          The <strong>Node.js backend</strong> owns Gemini Live sessions, function calling, and markdown knowledge retrieval. The <strong>Angular portfolio</strong> owns real-time UI, NgRx portfolio state, Web Worker caching, and Three.js visuals. They communicate through a strict WebSocket JSON protocol — nothing else.
+        </p>
+      </div>
+
+      <pre class="mt-5 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm leading-relaxed"><code>┌──────────────────────────────────────────────────────────────────┐
+│  BACKEND (Node.js · Docker · Nginx)                              │
+│    Gemini Live ── searchKnowledge ── chunked Markdown KB         │
+│    Express + ws ── TEXT_CHUNK / AGENT_STEP / WELCOME events      │
+├──────────────────────────────────────────────────────────────────┤
+│  FRONTEND (Angular 21 · Cloudflare Pages)                        │
+│    FloatingNav → app-chat (Signals) → GeminiAi (RxJS webSocket)  │
+│    chat.worker → IndexedDB (TabCacheDB)                          │
+│    NgRx feature stores · Three.js immersive layers               │
+└──────────────────────────────────────────────────────────────────┘</code></pre>
+    </section>
+
+    <!-- BACKEND PHASE 1 -->
+    <section class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+      <p class="text-xs font-bold tracking-widest uppercase text-primary mb-2">Backend · Phase 1</p>
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">Deterministic AI with Function Calling</h2>
+
+      <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+        My first iteration was a classic POST endpoint — you can still see the skeleton commented out in <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">chat.routes.ts</code>. It worked, but the real breakthrough was giving the model a single tool — <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">searchKnowledge</code> — and an aggressive system prompt that forbids world knowledge, inference, and fabrication.
+      </p>
+
+      <pre class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>// src/services/gemini.service.ts
+const SYSTEM_PROMPT = `
+You are Eva.
+
+You may ONLY answer using information returned by the searchKnowledge tool.
+
+If a question requires information not present in tool results:
+
+"I couldn't find information about that in Pranay's portfolio knowledge base."
+
+Do not answer from your own knowledge.
+Do not use world knowledge.
+Do not infer. Do not guess. Do not fabricate.
+
+Tool results are the sole source of truth.
+`;
+
+const searchKnowledgeTool: FunctionDeclaration = {
+  name: "searchKnowledge",
+  description: "Retrieve information from Pranay's knowledge base",
+  parametersJsonSchema: {
+    type: 'object',
+    properties: {
+      source: {
+        type: 'string',
+        enum: ['ckeditor5', 'ngrx', 'skills', 'experience', 'presmistique', 'projects_overview'],
+      },
+    },
+    required: ['source'],
+  },
+};</code></pre>
+
+      <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+        The model must <em>plan</em> which file to read, <em>observe</em> the returned content, then compose an answer. I surface this loop as <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">AGENT_STEP</code> events — <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">planning</code> when the tool fires, <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">observation</code> when results are fed back.
+      </p>
+
+      <pre class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>onmessage: async (message: any) =&gt; {
+  if (message.toolCall?.functionCalls) {
+    for (const call of message.toolCall.functionCalls) {
+      onStep('planning', { message: `AI is planning to run tool: ${call.name}` });
+      const result = await executeTool(call.name, call.args);
+      onStep('observation', {
+        message: 'Tool output received and fed back to model.',
+        resultPreview: JSON.stringify(result).substring(0, 150) + '...'
+      });
+      await session.sendToolResponse({
+        functionResponses: [{ id: call.id, name: call.name, response: result }],
+      });
+    }
+  }
+  if (message.serverContent?.modelTurn?.parts) {
+    for (const part of message.serverContent.modelTurn.parts) {
+      if (part.text) onTextChunk(part.text);
+    }
+  }
+};</code></pre>
+
+      <h3 class="mt-6 text-lg font-bold text-slate-900 dark:text-white">Token optimization through document chunking</h3>
+      <p class="mt-2 text-slate-700 dark:text-slate-300 leading-relaxed">
+        Dumping the entire knowledge base into one prompt ballooned latency. I split documentation into domain-specific markdown files and let the model select only what it needs:
+      </p>
+
+      <pre class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>// src/services/knowledge.service.ts
+private fileMap: Record&lt;KnowledgeSource, string&gt; = {
+  ckeditor5: 'project_ckeditor_deepdive.md',
+  ngrx: 'project_ngrx_deepdive.md',
+  presmistique: 'project_presmistique_deepdive.md',
+  projects_overview: 'projects_overview.md',
+  skills: 'skills.md',
+  experience: 'experience.md'
+};
+
+async getContent(source: KnowledgeSource): Promise&lt;string&gt; {
+  if (this.cache.has(source)) return this.cache.get(source)!;
+  const filePath = path.join(__dirname, '..', '..', 'src', 'knowledge', this.fileMap[source]);
+  const content = await fs.readFile(filePath, 'utf8');
+  this.cache.set(source, content);
+  return content;
+}</code></pre>
+    </section>
+
+    <!-- BACKEND PHASE 2 -->
+    <section class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+      <p class="text-xs font-bold tracking-widest uppercase text-primary mb-2">Backend · Phase 2</p>
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">Gemini Live &amp; WebSocket Streaming</h2>
+
+      <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+        Once grounding was solid, the UX gap was obvious — users stared at a spinner until the full answer arrived. I upgraded to <strong class="text-slate-900 dark:text-white">Gemini Live</strong> with persistent bidirectional sessions, using <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">gemini-3.1-flash-live-preview</code> and <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">outputAudioTranscription</code> so transcribed text streams to the chat UI.
+      </p>
+
+      <pre class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>// src/server.ts — WebSocket upgrade with origin verification
+server.on('upgrade', (request, socket, head) =&gt; {
+  const { pathname } = new URL(request.url || '', `http://${request.headers.host}`);
+  const origin = request.headers.origin || '';
+
+  if (!env.allowedOrigins.includes(origin)) {
+    socket.write('HTTP/1.1 403 Forbidden\r\n\r\n');
+    socket.destroy();
+    return;
+  }
+
+  if (pathname === '/api/chat') {
+    chatWss.handleUpgrade(request, socket, head, (ws) =&gt; {
+      chatWss.emit('connection', ws, request);
+    });
+  } else {
+    socket.destroy();
+  }
+});</code></pre>
+
+      <pre class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>// src/controllers/chat.controller.ts — session bridge
+chatWss.on('connection', async (ws: WebSocket) =&gt; {
+  const connectionId = randomUUID();
+  const geminiSession = await runPortfolioAgent(
+    connectionId,
+    (textChunk) =&gt; ws.send(JSON.stringify({ type: 'TEXT_CHUNK', text: textChunk })),
+    (step, detail) =&gt; ws.send(JSON.stringify({ type: 'AGENT_STEP', step, detail })),
+    () =&gt; ws.send(JSON.stringify({ type: 'TURN_COMPLETE' }))
+  );
+  liveSessions.set(connectionId, geminiSession);
+
+  ws.on('message', (message: string) =&gt; {
+    const data = JSON.parse(message.toString());
+    if (data?.type === 'USER_MESSAGE' &amp;&amp; typeof data.text === 'string') {
+      liveSessions.get(connectionId).sendClientContent({
+        turns: [{ role: 'user', parts: [{ text: data.text }] }],
+        turnComplete: true,
+      });
+    }
+  });
+});</code></pre>
+
+      <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">The WebSocket contract the Angular client consumes:</p>
+
+      <div class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5">
+        <table class="w-full text-sm text-left">
+          <thead class="bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white">
+            <tr>
+              <th class="px-4 py-3 font-semibold">Event</th>
+              <th class="px-4 py-3 font-semibold">Direction</th>
+              <th class="px-4 py-3 font-semibold">Purpose</th>
+            </tr>
+          </thead>
+          <tbody class="text-slate-700 dark:text-slate-300 divide-y divide-slate-200 dark:divide-white/5">
+            <tr><td class="px-4 py-2"><code class="text-xs">USER_MESSAGE</code></td><td class="px-4 py-2">Client → Server</td><td class="px-4 py-2">Visitor question</td></tr>
+            <tr><td class="px-4 py-2"><code class="text-xs">WELCOME</code></td><td class="px-4 py-2">Server → Client</td><td class="px-4 py-2">Branded intro on connect</td></tr>
+            <tr><td class="px-4 py-2"><code class="text-xs">TEXT_CHUNK</code></td><td class="px-4 py-2">Server → Client</td><td class="px-4 py-2">Incremental streamed text</td></tr>
+            <tr><td class="px-4 py-2"><code class="text-xs">AGENT_STEP</code></td><td class="px-4 py-2">Server → Client</td><td class="px-4 py-2">Tool planning / observation</td></tr>
+            <tr><td class="px-4 py-2"><code class="text-xs">TURN_COMPLETE</code></td><td class="px-4 py-2">Server → Client</td><td class="px-4 py-2">Re-enable user input</td></tr>
+            <tr><td class="px-4 py-2"><code class="text-xs">ERROR</code></td><td class="px-4 py-2">Server → Client</td><td class="px-4 py-2">Connection or parse failure</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- BACKEND PHASE 3 -->
+    <section class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+      <p class="text-xs font-bold tracking-widest uppercase text-primary mb-2">Backend · Phase 3</p>
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">Docker, Nginx &amp; Production Deployment</h2>
+
+      <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+        I packaged the backend into a multi-stage Docker image on an InterServer VPS, fronted by Nginx for SSL and WebSocket upgrade proxying. Markdown knowledge files are copied explicitly — <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">tsc</code> does not compile <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">.md</code> files.
+      </p>
+
+      <pre class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code># Dockerfile — multi-stage build
+FROM node:22-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM node:22-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --omit=dev
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/src/knowledge ./src/knowledge
+EXPOSE 3000
+CMD ["npm", "start"]</code></pre>
+
+      <pre class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code># nginx — WebSocket upgrade (extended timeouts for Live sessions)
+location /api/chat {
+    proxy_pass http://127.0.0.1:3000;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_read_timeout 3600s;
+    proxy_send_timeout 3600s;
+}</code></pre>
+
+      <pre class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>Visitor Browser
+      │
+      ▼
+Cloudflare (CDN + Pages → Angular frontend)
+      │
+      └──▶ InterServer VPS → Nginx → Docker :3000 → Gemini Live + Markdown KB</code></pre>
+    </section>
+
+    <!-- FRONTEND PHASE 1 -->
+    <section class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+      <p class="text-xs font-bold tracking-widest uppercase text-secondary mb-2">Frontend · Phase 1</p>
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">Angular 21, Zoneless Change Detection &amp; Signals</h2>
+
+      <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+        The portfolio runs <strong class="text-slate-900 dark:text-white">Angular 21</strong> with <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">provideZonelessChangeDetection()</code> globally. For a chat UI receiving dozens of WebSocket events per second, I need the DOM to update only when signals change — not on every Zone.js-patched async callback.
+      </p>
+
+      <pre class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>// src/app/app.config.ts
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideZonelessChangeDetection(),
+    provideStore(),
+    provideEffects(),
+    provideClientHydration(withEventReplay()),
+    // ...
+  ]
+};</code></pre>
+
+      <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+        <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">ChangeDetectionStrategy.OnPush</code> is applied across portfolio components. The chat console (<code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">app-chat</code> / EVA.exe) uses writable signals for every UI-bound state:
+      </p>
+
+      <pre class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>// src/app/shared/components/chat/chat.ts
+public messages = signal&lt;Message[]&gt;([]);
+public userInput = signal&lt;string&gt;('');
+public isTyping = signal&lt;boolean&gt;(false);
+public isReconnecting = signal&lt;boolean&gt;(false);
+
+constructor() {
+  effect(() =&gt; {
+    if (this.messages().length || this.isTyping()) {
+      setTimeout(() =&gt; this.scrollToBottom(), 50);
+    }
+  });
+
+  this.geminiAI.message$.subscribe((response: GeminiResponse) =&gt; {
+    if (response.type === 'TEXT_CHUNK') {
+      this.messages.update(prev =&gt; {
+        const updatedList: Message[] = [...prev];
+        if (updatedList.length &gt; 0 &amp;&amp;
+            updatedList[updatedList.length - 1].type === 'TEXT_CHUNK') {
+          const lastIndex = updatedList.length - 1;
+          updatedList[lastIndex] = {
+            ...updatedList[lastIndex],
+            text: updatedList[lastIndex].text + (response.text || '')
+          };
+        } else {
+          updatedList.push({
+            id: window.crypto.randomUUID(),
+            sender: 'bot', type: response.type,
+            text: response.text || '', timestamp: new Date()
+          });
+        }
+        return updatedList;
+      });
+    }
+    this.streamIncomingChunk();
+  });
+}</code></pre>
+
+      <div class="mt-4 p-4 rounded-2xl bg-amber-500/5 border border-amber-500/10">
+        <p class="text-slate-900 dark:text-white font-semibold text-sm">Immutable updates inside signal <code class="font-mono text-xs">update()</code></p>
+        <p class="mt-2 text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
+          Angular's signal graph tracks referential equality. Mutating <code class="font-mono text-xs px-1 py-0.5 rounded bg-slate-200 dark:bg-slate-800">prev[last].text</code> in place would not re-render. Spreading into new objects guarantees the template flushes on every chunk.
+        </p>
+      </div>
+    </section>
+
+    <!-- FRONTEND PHASE 2 -->
+    <section class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+      <p class="text-xs font-bold tracking-widest uppercase text-secondary mb-2">Frontend · Phase 2</p>
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">NgRx Portfolio State &amp; the GeminiAi WebSocket Client</h2>
+
+      <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+        I deliberately split state tooling by update frequency. <strong class="text-slate-900 dark:text-white">NgRx</strong> owns long-lived portfolio data (skills, projects, experience, education) with route-scoped <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">provideState</code>. Chat session state stays in component signals — too ephemeral for action/reducer overhead.
+      </p>
+
+      <pre class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>// projects.ts — NgRx → Signals bridge
+isLoading = toSignal(this.store.select(ProjectsSelectors.isProjectsIsLoadingSelector), {
+  initialValue: true
+});
+projects = toSignal(this.store.select(ProjectsSelectors.getProjectsSelector), {
+  initialValue: []
+});
+
+ngOnInit(): void {
+  this.store.dispatch(ProjectsActions.getProjects());
+}</code></pre>
+
+      <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+        The <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">GeminiAi</code> injectable bridges the backend WebSocket contract using RxJS <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">webSocket</code>:
+      </p>
+
+      <pre class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>// src/app/services/gemini-ai.ts
+public connect(): void {
+  if (!this.socket$ || this.socket$.closed) {
+    this.socket$ = webSocket({
+      url: environment.WS_ENDPOINT + 'chat',
+      deserializer: (msg) =&gt; JSON.parse(msg.data),
+      serializer: (msg) =&gt; JSON.stringify(msg),
+    });
+    this.socket$.pipe(
+      retry({ count: 3, delay: () =&gt; timer(3000) }),
+      catchError(() =&gt; { this.handleFinalFailure(); return EMPTY; }),
+    ).subscribe({
+      next: (response: GeminiResponse) =&gt; this.messagesSubject.next(response),
+    });
+  }
+}
+
+public sendMessage(payload: any): void {
+  this.socket$.next(payload);
+}</code></pre>
+
+      <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+        Outbound from the chat UI: <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">this.geminiAI.sendMessage({ type: 'USER_MESSAGE', text: query })</code>. The floating nav opens the modal via a <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">chatOpen</code> signal synced to a native <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">&lt;dialog&gt;</code> with an <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">effect()</code>.
+      </p>
+    </section>
+
+    <!-- FRONTEND PHASE 3 -->
+    <section class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+      <p class="text-xs font-bold tracking-widest uppercase text-secondary mb-2">Frontend · Phase 3</p>
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">Web Workers &amp; IndexedDB Chat Caching</h2>
+
+      <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+        Every streamed chunk triggers a cache write. Doing IndexedDB I/O on the main thread competes with scroll animations and WebGL — so I offload persistence to a module Web Worker.
+      </p>
+
+      <pre class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>// chat.ts — worker wiring
+this.tabWorker = new Worker(
+  new URL('../../workers/chat.worker', import.meta.url),
+  { type: 'module' }
+);
+
+streamIncomingChunk() {
+  const uniqueId = 'msg_' + crypto.randomUUID();
+  this.tabWorker.postMessage({
+    action: 'PROCESS_AND_CACHE',
+    payload: { id: 'msg_' + uniqueId, data: this.messages() }
+  });
+  this.geminiAI.setItem('workerMessageId', uniqueId);
+}</code></pre>
+
+      <pre class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>// src/app/shared/workers/chat.worker.ts
+const DB_NAME = 'TabCacheDB';
+const STORE_NAME = 'chat_cache';
+
+addEventListener('message', async ({ data }) =&gt; {
+  const { action, payload } = data;
+  if (action === 'PROCESS_AND_CACHE') {
+    const cacheEntry = { id: payload.id, timestamp: Date.now(), raw: payload.data };
+    const db = await getDB();
+    await saveToCache(db, cacheEntry);
+    postMessage({ action: 'CACHE_SUCCESS', payload: cacheEntry });
+  }
+  if (action === 'FETCH_CACHE') {
+    const db = await getDB();
+    postMessage({ action: 'FETCH_SUCCESS', payload: await getAllFromCache(db) });
+  }
+  if (action === 'CLEAR_CACHE') {
+    const db = await getDB();
+    await clearCache(db);
+    postMessage({ action: 'CLEAR_SUCCESS', payload: [] });
+  }
+});</code></pre>
+    </section>
+
+    <!-- FRONTEND PHASE 4 -->
+    <section class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+      <p class="text-xs font-bold tracking-widest uppercase text-secondary mb-2">Frontend · Phase 4</p>
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">Three.js Visuals Alongside Live Chat</h2>
+
+      <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+        Eva's console is lightweight; the visual spectacle lives in seven Three.js components (particle sphere, hero skill icons, immersive slide backgrounds). They initialize inside <code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">afterNextRender()</code> with SSR guards, cap pixel ratio at 2, and dispose every GL resource on destroy — critical when chat streaming fires signal updates simultaneously.
+      </p>
+
+      <pre class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>// background-animation-three.component.ts
+afterNextRender(() =&gt; {
+  if (isPlatformBrowser(this.platformId)) {
+    this.initThree();
+    this.animate();
+  }
+});
+this.destroyRef.onDestroy(() =&gt; this.cleanup());
+
+private animate(): void {
+  this.animationFrameId = requestAnimationFrame(() =&gt; this.animate());
+  this.particles.material.uniforms['uTime'].value = this.timer.getElapsed();
+  this.particles.rotation.y += this.autoRotateSpeed;
+  this.renderer.render(this.scene, this.camera);
+}
+
+private cleanup(): void {
+  cancelAnimationFrame(this.animationFrameId);
+  this.renderer?.dispose();
+  this.particles?.geometry.dispose();
+  (this.particles?.material as THREE.Material).dispose();
+}</code></pre>
+    </section>
+
+    <!-- Conclusion -->
+    <section class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">Conclusion — Architectural Takeaways</h2>
+
+      <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+        EVA AI is the proof that a personal portfolio can run like an enterprise web app. The backend grounds every answer in retrievable truth; the frontend renders streams without blocking the paint thread; Docker and Nginx make it reproducible in production.
+      </p>
+
+      <ol class="mt-4 space-y-3 text-slate-700 dark:text-slate-300 leading-relaxed list-decimal list-inside">
+        <li><strong class="text-slate-900 dark:text-white">Ground before you generate.</strong> Function calling + chunked knowledge eliminated hallucination as a category of bug.</li>
+        <li><strong class="text-slate-900 dark:text-white">Stream before you wait.</strong> Gemini Live over WebSockets made follow-up questions snappy with persistent session context.</li>
+        <li><strong class="text-slate-900 dark:text-white">Match state tooling to update frequency.</strong> NgRx for portfolio data; signals for chat; workers for I/O.</li>
+        <li><strong class="text-slate-900 dark:text-white">Never allocate in RAF.</strong> Three.js and chat streaming share the same main thread — lifecycle discipline is non-negotiable.</li>
+        <li><strong class="text-slate-900 dark:text-white">Containerize before you deploy.</strong> Explicit knowledge file copy in Docker saved me from silent tool-call failures in production.</li>
+      </ol>
+
+      <div class="mt-6 p-5 rounded-2xl bg-primary/5 border border-primary/20 text-center">
+        <p class="text-slate-900 dark:text-white font-semibold">Try Eva live on my portfolio</p>
+        <p class="mt-2 text-slate-700 dark:text-slate-300 text-sm">Open the chat console from the floating nav and ask about my projects, skills, or experience.</p>
+        <a href="https://pranay.presmistique.in" target="_blank" rel="noopener noreferrer"
+          class="inline-flex mt-4 items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-primary to-secondary text-white font-medium text-sm hover:shadow-[0_0_20px_rgba(19,91,236,0.3)] transition-all">
+          <span class="material-symbols-outlined text-base">rocket_launch</span>
+          pranay.presmistique.in
+        </a>
+      </div>
+    </section>
+
+    <footer class="text-center text-sm text-slate-500 dark:text-slate-400 pt-4 pb-8">
+      <p>Source: <a href="https://github.com/Pranayd555/pranay-portfolio" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">github.com/Pranayd555/pranay-portfolio</a></p>
+      <p class="mt-1">Angular 21 · NgRx 21 · Gemini Live · Three.js r183 · Node.js 22</p>
+    </footer>
+
+  </div>
+</article>

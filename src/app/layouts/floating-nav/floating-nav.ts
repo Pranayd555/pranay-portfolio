@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { NavigationStart, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Chat } from '../../shared/components/chat/chat';
+import { GeminiAi } from '../../services/gemini-ai';
 
 @Component({
   selector: 'app-floating-nav',
@@ -23,6 +24,7 @@ export class FloatingNavComponent {
   projOpen = signal(false);
   chatOpen = signal(false);
   hasRoutedFromDefault = signal(false);
+  geminiAI = inject(GeminiAi);
 
   constructor() {
     this.router.events.pipe(
@@ -49,6 +51,12 @@ export class FloatingNavComponent {
       }
     }
   });
+  
+  this.geminiAI.showChat.pipe(
+    takeUntilDestroyed()
+  ).subscribe(v => {
+    this.chatOpen.set(v);
+  })
   }
 
  

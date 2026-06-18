@@ -5,6 +5,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { blogMap } from './proj-blog.config';
+import { GeminiAi } from '../../../../../services/gemini-ai';
 
 @Component({
   selector: 'app-proj-blog',
@@ -26,6 +27,7 @@ export class ProjBlog {
 
   private platformId = inject(PLATFORM_ID);
   isBrowser = signal(isPlatformBrowser(this.platformId));
+  GeminiAI = inject(GeminiAi);
 
 
   ngOnInit() {
@@ -34,6 +36,8 @@ export class ProjBlog {
     .subscribe((params) => {
       this.path = String(params['project'] ?? '');
       const file = blogMap[this.path] || '';
+
+      this.loadingMedia.set(this.path !== 'eva-ai');
 
       if (!file) {
         this.content.set(null);
@@ -78,5 +82,9 @@ export class ProjBlog {
 
     return null;
   });
+
+  showChat() {
+    this.GeminiAI.showChat.next(true);
+  }
 
 }

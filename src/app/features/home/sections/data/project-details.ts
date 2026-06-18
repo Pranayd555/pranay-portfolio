@@ -2,6 +2,78 @@ import { IProjectDetails } from "../projects/types/projectDetails.model";
 
 export const projectDetailsData: IProjectDetails[] = [
     {
+        id: 'eva-ai',
+        title: 'EVA AI – Personal Portfolio Chatbot',
+        shortDescription:
+            'A grounded, real-time AI assistant (Eva) embedded in my Angular portfolio with Gemini Live, WebSockets, and off-thread chat caching.',
+
+        overview: `
+        EVA AI is a full-stack conversational layer on top of my personal portfolio. Visitors ask questions about my experience, projects, and skills; Eva answers only from a curated markdown knowledge base via function calling — never from general world knowledge. The Angular 21 frontend streams token-by-token responses over WebSockets, caches conversations in a Web Worker + IndexedDB, and runs alongside immersive Three.js visuals without blocking the main thread.
+        `.trim(),
+
+        whyBuilt: `
+        Static portfolios force visitors to hunt for the one detail they care about. I built Eva so recruiters, founders, and developers could ask directly — and get accurate, portfolio-grounded answers at 2 AM when no one is online. The same pattern applies to any product that must guide users by company policy, not generic LLM knowledge.
+        `.trim(),
+
+        problemsSolved: [
+            'Eliminated AI hallucination on personal data via strict tool-gated retrieval',
+            'Delivered ChatGPT-style streaming UX with Gemini Live over WebSockets',
+            'Kept chat UI responsive under high-frequency updates using Angular Signals + zoneless CD',
+            'Persisted session history off the main thread with Web Workers and IndexedDB',
+            'Deployed a reproducible backend on Docker + Nginx behind Cloudflare',
+        ],
+
+        keyFeatures: [
+            'searchKnowledge function calling with chunked markdown sources',
+            'Gemini Live bidirectional sessions with TEXT_CHUNK streaming',
+            'Angular chat console (EVA.exe) with reconnect and reset flows',
+            'RxJS webSocket client with retry and session persistence',
+            'Multi-stage Docker image with explicit knowledge file copy',
+        ],
+
+        showcasedSkills: [
+            'AI agent design & prompt engineering',
+            'Real-time WebSocket architecture',
+            'Angular 21 signals & performance',
+            'Web Workers & browser storage',
+            'Containerized VPS deployment',
+        ],
+
+        bottlenecksFaced: [
+            'POST-based chat felt slow — users waited for full responses',
+            'Dumping entire knowledge base into context ballooned latency and token cost',
+            'IndexedDB writes on the main thread caused scroll jank during streaming',
+            'Markdown knowledge files not copied into Docker runtime image by default',
+        ],
+
+        howTheyWereSolved: [
+            'Upgraded to Gemini Live with persistent WebSocket sessions and progressive TEXT_CHUNK delivery',
+            'Split knowledge into domain-specific files with an enum-gated searchKnowledge tool',
+            'Moved cache read/write to a dedicated module Web Worker (TabCacheDB)',
+            'Explicit COPY of src/knowledge in Dockerfile; Nginx WebSocket upgrade headers with extended timeouts',
+        ],
+
+        demoGif: '',
+        liveUrl: 'https://pranay.presmistique.in',
+
+        technologies: [
+            'Angular 21',
+            'TypeScript',
+            'NgRx',
+            'Three.js',
+            'Node.js 22',
+            'Express',
+            'Gemini Live API',
+            'WebSockets',
+            'Web Workers',
+            'IndexedDB',
+            'Docker',
+            'Nginx',
+            'Cloudflare Pages',
+        ]
+    },
+
+    {
         id: 'presmistique',
         title: 'Presmistique – Resume Builder Platform',
         shortDescription:
