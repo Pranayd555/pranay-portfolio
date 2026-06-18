@@ -30,7 +30,7 @@ const cspMiddleware = (req: express.Request, res: express.Response, next: expres
     // Media sources
     "media-src 'self' https:",
     // Connect sources - API calls
-    "connect-src 'self' https: wss:",
+    "connect-src 'self' https: wss: ws://localhost:3000;",
     // Frame sources - allow YouTube embeds
     "frame-src https://www.youtube.com https://www.youtube-nocookie.com",
     // Frame ancestors - prevent clickjacking

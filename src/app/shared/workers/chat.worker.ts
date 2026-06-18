@@ -53,6 +53,16 @@ addEventListener('message', async ({ data }) => {
       postMessage({ action: 'FETCH_ERROR', error: 'Failed to read cache' });
     }
   }
+
+  if(action === 'CLEAR_CACHE') {
+    try {
+      const db = await getDB();
+      await clearCache(db);
+      postMessage({ action: 'CLEAR_SUCCESS', payload: [] });
+    } catch(error) {
+      postMessage({ action: 'CLEAR_ERROR', error: 'Failed to clear cache' });
+    }
+  }
 });
 
 // Helper: Write transactional data to database
@@ -89,4 +99,20 @@ function getAllFromCache(db: IDBDatabase): Promise<any[]> {
     };
   });
 
+}
+
+function clearCache(db: IDBDatabase): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE_NAME, 'readwrite');
+    const store = transaction.objectStore(STORE_NAME);
+    const request = store.clear();
+
+    request.onsuccess = () => {
+      resolve();
+    };
+
+    request.onerror = () => {
+      reject(transaction.error);
+    };
+  });
 }
