@@ -42,6 +42,15 @@
                      [class.opacity-0]="loadingMedia()"
                      [class.opacity-100]="!loadingMedia()">
             </div>
+        } @else if (path === 'eva-ai') {
+            <div class="demo-wrapper w-full text-center py-8">
+              <p class="text-slate-600 dark:text-slate-300 mb-4">Open the live chat and launch <strong class="text-slate-900 dark:text-white">EVA.exe</strong> from the floating navigation.</p>
+              <span (click)="showChat()"
+                class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-primary to-secondary text-white font-medium transition-all hover:shadow-[0_0_20px_rgba(19,91,236,0.3)] cursor-pointer">
+                <span class="material-symbols-outlined text-base">smart_toy</span>
+                Try EVA AI Live
+            </span>
+            </div>
         }
 </div>
 </div>

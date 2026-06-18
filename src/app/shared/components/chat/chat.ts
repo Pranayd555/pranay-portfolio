@@ -18,6 +18,7 @@ export class Chat {
   public isTyping = signal<boolean>(false);
   public isReconnecting = signal<boolean>(false);
   public isResetting = signal<boolean>(false);
+  public isStreaming = signal<boolean>(false);
 
   show = input<boolean>(false);
   close = output<boolean>();
@@ -60,19 +61,18 @@ export class Chat {
       if(response.type === "TEXT_CHUNK") {
         // append text chunk to current chat text paragraph.
         this.messages.update(prev => {
-         // 1. Create a shallow copy of the previous array immediately
+       
         const updatedList: Message[] = [...prev];
 
         if (updatedList.length > 0 && updatedList[updatedList.length - 1].type === "TEXT_CHUNK") {
           const lastIndex = updatedList.length - 1;
 
-          // 2. 💡 CRUCIAL: Create a new object reference for the item being updated
           updatedList[lastIndex] = {
             ...updatedList[lastIndex],
             text: updatedList[lastIndex].text + (response.text || '')
           };
         } else {
-          // 3. Creating a brand new message object
+         
           chatMsg = {
             id: window.crypto.randomUUID(),
             sender: 'bot',
@@ -82,13 +82,15 @@ export class Chat {
           };
           updatedList.push(chatMsg);
         }
-
-        // 4. Return the brand new array reference. Angular will immediately flush changes to the UI!
         return updatedList;
         });
+      } else {
+        this.streamIncomingChunk();
+      }
+      if(response.type === "TURN_COMPLETE") {
+        this.isStreaming.set(false);
       }
       
-    this.streamIncomingChunk();
     });
   }
 
@@ -150,10 +152,12 @@ export class Chat {
     this.streamIncomingChunk();
     this.userInput.set('');
     this.isTyping.set(true);
+    this.isStreaming.set(true);
 
     try{ 
     this.geminiAI.sendMessage({type:"USER_MESSAGE", text:query});  
     } catch (err) {
+      this.isStreaming.set(false);
       console.warn('Scroll anchor skipped:', err);
     }
   }

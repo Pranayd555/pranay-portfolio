@@ -29,6 +29,7 @@ export class GeminiAi {
   public message$: Observable<GeminiResponse> = this.messagesSubject?.asObservable();
   private pendingMessage: any = null;
   private isBrowser: boolean = false;
+  public showChat: Subject<boolean> = new Subject<boolean>();
 
   constructor(@Inject(PLATFORM_ID) private platformID : Object) {
     this.isBrowser = isPlatformBrowser(this.platformID)

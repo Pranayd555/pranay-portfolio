@@ -2,6 +2,18 @@ import { IProject } from "../projects/types/projects.model";
 
 export const projectsData: IProject[] = [
     {
+        "id": "eva-ai",
+        "title": "EVA AI - Personal Chatbot",
+        "description": "Grounded, real-time AI assistant embedded in my portfolio — Gemini Live streaming, function calling, Angular&nbsp;21 Signals, Web Workers, and Docker deployment.",
+        "icon": "smart_toy",
+        "technologies": ["Angular 21", "Gemini Live", "WebSockets", "NgRx", "Three.js", "Docker", "Node.js"],
+        "featured": true,
+        "links": {
+            "liveDemo": "https://pranay.presmistique.in",
+            "sourceCode": "https://github.com/Pranayd555/pranay-portfolio"
+        }
+    },
+    {
         "id": "presmistique",
         "title": "Resume Builder",
         "description": "AI-powered resume builder featuring Google Gemini 2.5 Flash integration for intelligent resume parsing, keyword enhancement, and ATS scoring.",
