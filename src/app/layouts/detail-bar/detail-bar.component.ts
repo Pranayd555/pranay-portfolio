@@ -26,7 +26,7 @@ import { Router, RouterLink } from '@angular/router';
     <!-- Floating back button: bottom-right -->
     <button
       (click)="goBack()"
-      class="fixed bottom-6 right-6 z-50 flex size-14 items-center justify-center rounded-full bg-white/10 dark:bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:border-primary transition-all shadow-lg hover:scale-105 cursor-pointer"
+      class="fixed top-4 right-6 z-50 flex size-12 items-center justify-center rounded-full bg-white/10 dark:bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 hover:border-primary transition-all shadow-lg hover:scale-105 cursor-pointer"
       aria-label="Back to previous"
     >
       <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">

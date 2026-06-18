@@ -1,22 +1,28 @@
-import { ChangeDetectionStrategy, Component, effect, HostListener, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, ElementRef, HostListener, inject, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavigationStart, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Chat } from '../../shared/components/chat/chat';
 
 @Component({
   selector: 'app-floating-nav',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterLinkActive, Chat],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './floating-nav.html',
   styleUrl: './floating-nav.css'
 })
 export class FloatingNavComponent {
 
+  @ViewChild('chatModal')
+  chatModalElement!: ElementRef<HTMLDialogElement>;
+
   private router = inject(Router);
  
   navOpen  = signal(false);
   projOpen = signal(false);
+  chatOpen = signal(false);
+  hasRoutedFromDefault = signal(false);
 
   constructor() {
     this.router.events.pipe(
@@ -26,7 +32,26 @@ export class FloatingNavComponent {
         this.closeNav();
       }
     })
+
+    
+  effect(() => {
+    const modal = this.chatModalElement?.nativeElement;
+
+    if (!modal) return;
+
+    if (this.chatOpen()) {
+      if (!modal.open) {
+        modal.showModal();
+      }
+    } else {
+      if (modal.open) {
+        modal.close();
+      }
+    }
+  });
   }
+
+ 
  
   toggleNav(): void {
     this.navOpen.update(v => !v);
@@ -39,6 +64,16 @@ export class FloatingNavComponent {
  
   toggleProjects(): void {
     this.projOpen.update(v => !v);
+  }
+
+  toggleChat(): void {
+    this.chatOpen.update(v => !v);
+  }
+
+  closeChat(close: boolean): void {
+    if(close) {
+      this.chatOpen.set(false);
+    }
   }
  
   /** Marks the Projects button active when any child route is active */
