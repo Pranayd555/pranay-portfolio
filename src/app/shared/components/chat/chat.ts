@@ -17,6 +17,7 @@ export class Chat {
   public userInput = signal<string>('');
   public isTyping = signal<boolean>(false);
   public isReconnecting = signal<boolean>(false);
+  public isResetting = signal<boolean>(false);
 
   show = input<boolean>(false);
   close = output<boolean>();
@@ -32,7 +33,10 @@ export class Chat {
 
     
     this.geminiAI.message$.subscribe((response: GeminiResponse) => {
-      if(response.type !== "AGENT_STEP") this.isTyping.set(false);
+      if(response.type !== "AGENT_STEP") {
+        this.isTyping.set(false);
+        this.isResetting.set(false);
+      }
       let chatMsg: Message;
       this.isReconnecting.set(false);
       if(response.type === "ERROR" || response.type === "WELCOME") {
@@ -50,6 +54,7 @@ export class Chat {
         if(response.step === "closed") {
           this.geminiAI.disconnect();
           this.isReconnecting.set(true);
+          this.scrollToBottom();
         }
       }
       if(response.type === "TEXT_CHUNK") {
@@ -101,17 +106,26 @@ export class Chat {
       this.tabWorker.onmessage = ({ data }) => {
         switch (data.action) {
           case 'CACHE_SUCCESS':
-            console.dir('CACHE_SUCCESS', data.payload[0].raw ? 
-              data.payload[0].raw : '');
+              if (data.payload.length > 0) {
+                console.log('CACHE_SUCCESS', data.payload[0]?.raw ? 
+                data.payload[0].raw : '');
+              }
             break;
             
           case 'FETCH_SUCCESS':
             if (data.payload.length > 0) {
               if (data.payload[0].raw && data.payload[0].raw.length > 0) this.messages.set(data.payload[0].raw);
+              console.log('FETCH_SUCCESS', data.payload[0].raw)
             }
+            break;
+
+          case 'CLEAR_SUCCESS': 
+          this.messages.set(data.payload ?? [])
             break;
             
           case 'CACHE_ERROR':
+            case 'FETCH_ERROR':
+              case 'CLEAR_ERROR':
             console.error(data.error);
             break;
         }
@@ -185,6 +199,19 @@ export class Chat {
         payload: { id: messageId }
       });
     }
+  }
+
+  resetConnection() {
+    this.isResetting.set(true);
+    this.geminiAI.disconnect();
+    this.tabWorker.postMessage({
+      action: 'CLEAR_CACHE',
+      payload: {}
+    })
+    const t = setTimeout(()=> {
+      this.reconnectChat();
+      clearTimeout(t);
+    }, 1000);
   }
 
   ngOnDestroy(): void {
