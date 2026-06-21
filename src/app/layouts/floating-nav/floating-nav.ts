@@ -4,6 +4,7 @@ import { NavigationStart, Router, RouterLink, RouterLinkActive } from '@angular/
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Chat } from '../../shared/components/chat/chat';
 import { GeminiAi } from '../../services/gemini-ai';
+import { ALLOWED_PROJECTS } from '../../core/config/project.config';
 
 @Component({
   selector: 'app-floating-nav',
@@ -18,7 +19,8 @@ export class FloatingNavComponent {
   @ViewChild('chatModal')
   chatModalElement!: ElementRef<HTMLDialogElement>;
 
-  private router = inject(Router);
+  readonly router = inject(Router);
+  readonly projects = ALLOWED_PROJECTS;
  
   navOpen  = signal(false);
   projOpen = signal(false);
@@ -38,19 +40,16 @@ export class FloatingNavComponent {
     
   effect(() => {
     const modal = this.chatModalElement?.nativeElement;
-
     if (!modal) return;
 
-    if (this.chatOpen()) {
-      if (!modal.open) {
-        modal.showModal();
-      }
-    } else {
-      if (modal.open) {
-        modal.close();
-      }
+    const isOpen = this.chatOpen();
+
+    if (isOpen && !modal.open) {
+      modal.showModal();
+    } else if (!isOpen && modal.open) {
+      modal.close();
     }
-  });
+});
   
   this.geminiAI.showChat.pipe(
     takeUntilDestroyed()

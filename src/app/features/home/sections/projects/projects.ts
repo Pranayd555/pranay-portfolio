@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IProject } from './types/projects.model';
 import { Store } from '@ngrx/store';
@@ -19,8 +19,9 @@ import { Router } from '@angular/router';
 })
 export class Projects implements OnInit {
 
-  private store = inject(Store<{ projects: IProjectsState }>);
-  private router = inject(Router);
+  readonly store = inject(Store<{ projects: IProjectsState }>);
+  readonly router = inject(Router);
+  readonly dialog = inject(Dialog);
 
   isLoading = toSignal(this.store.select(ProjectsSelectors.isProjectsIsLoadingSelector), {
     initialValue: true
@@ -37,8 +38,6 @@ export class Projects implements OnInit {
   projects = toSignal(this.store.select(ProjectsSelectors.getProjectsSelector), {
     initialValue: []
   })
-
-  constructor(private dialog: Dialog) { }
 
   ngOnInit(): void {
     this.store.dispatch(ProjectsActions.getProjects());

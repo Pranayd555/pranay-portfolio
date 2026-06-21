@@ -114,11 +114,11 @@
       @if (isReconnecting()) {
         <p
           class="text-[10px] font-mono text-white opacity-40 uppercase tracking-wider mt-auto pt-4"
-        >
-          <span (click)="reconnectChat()" class="cursor-pointer hover:opacity-100 hover:underline"
-            >Reconnect</span
+        > I am a sleppy cat, please
+          <span (click)="reconnectChat()" (keydown.enter)="reconnectChat()" class="cursor-pointer hover:opacity-100 hover:underline"
+            >wake me</span
           >
-          to the server
+          up
         </p>
       }
     </div>
