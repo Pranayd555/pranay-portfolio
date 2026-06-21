@@ -24,14 +24,14 @@ export interface GeminiResponse {
 })
 export class GeminiAi {
   private socket$!: WebSocketSubject<any>;
-  private messagesSubject: Subject<GeminiResponse> = new Subject<GeminiResponse>();
+  readonly messagesSubject: Subject<GeminiResponse> = new Subject<GeminiResponse>();
 
   public message$: Observable<GeminiResponse> = this.messagesSubject?.asObservable();
   private pendingMessage: any = null;
-  private isBrowser: boolean = false;
+  readonly isBrowser: boolean = false;
   public showChat: Subject<boolean> = new Subject<boolean>();
 
-  constructor(@Inject(PLATFORM_ID) private platformID : Object) {
+  constructor(@Inject(PLATFORM_ID) readonly platformID : Object) {
     this.isBrowser = isPlatformBrowser(this.platformID)
   }
 

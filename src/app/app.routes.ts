@@ -13,6 +13,7 @@ import { provideEffects } from '@ngrx/effects';
 import { ExperienceEffects } from './features/home/sections/experience/store/effects';
 import { EducationEffects } from './features/home/sections/education/store/effects';
 import { ProjectDetailsEffects } from './features/home/sections/projects/proj-des-modal/store/effects';
+import { projectGuard } from './core/guards/projects.guard';
 
 export const routes: Routes = [
   // Immersive landing experience (no header/footer)
@@ -69,7 +70,8 @@ export const routes: Routes = [
           import('./features/home/sections/projects/proj-blog/proj-blog').then(
             m => m.ProjBlog
           ),
-      }
+          canActivate: [projectGuard],
+      },
     ],
   },
   {
@@ -114,5 +116,6 @@ export const routes: Routes = [
   {
     path: '**',
     redirectTo: '',
+    pathMatch: 'full',
   },
 ];

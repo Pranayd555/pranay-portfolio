@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Building an Enterprise-Grade AI Chat Portfolio — Frontend Architecture Deep Dive</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --bg-elevated: #111827;
+      --surface: rgba(17, 24, 39, 0.72);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --accent: #00f3ff;
+      --accent-secondary: #135bec;
+      --code-bg: #0d1117;
+      --radius: 1.25rem;
+      --max-width: 48rem;
+      --font-sans: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: "Cascadia Code", "Fira Code", "JetBrains Mono", Consolas, monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      background: var(--bg);
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      font-size: 1.0625rem;
+      line-height: 1.75;
+      color: var(--text);
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(19, 91, 236, 0.18), transparent),
+        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(0, 243, 255, 0.08), transparent),
+        var(--bg);
+      min-height: 100vh;
+    }
+
+    article {
+      max-width: calc(var(--max-width) + 8rem);
+      margin: 0 auto;
+      padding: 3rem 1.5rem 5rem;
+    }
+
+    header.hero {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) * 1.5);
+      padding: 2.5rem 2rem;
+      backdrop-filter: blur(12px);
+      margin-bottom: 2.5rem;
+    }
+
+    .eyebrow {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 0 0 1rem;
+    }
+
+    h1 {
+      font-size: clamp(1.875rem, 5vw, 2.75rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin: 0 0 1.25rem;
+      background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .lead {
+      font-size: 1.125rem;
+      color: var(--text-muted);
+      max-width: 42rem;
+      margin: 0 0 1.5rem;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .tags li {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      background: rgba(0, 243, 255, 0.08);
+      color: var(--accent);
+      border: 1px solid rgba(0, 243, 255, 0.2);
+    }
+
+    section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem 1.75rem;
+      margin-bottom: 1.75rem;
+      backdrop-filter: blur(8px);
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #f8fafc;
+      margin: 0 0 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      margin: 1.75rem 0 0.75rem;
+    }
+
+    p { margin: 0 0 1rem; color: var(--text-muted); }
+    p strong { color: var(--text); font-weight: 600; }
+
+    ul, ol {
+      margin: 0 0 1rem;
+      padding-left: 1.35rem;
+      color: var(--text-muted);
+    }
+
+    li { margin-bottom: 0.4rem; }
+    li strong { color: var(--text); }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    code.inline {
+      font-family: var(--font-mono);
+      font-size: 0.85em;
+      background: rgba(0, 0, 0, 0.35);
+      padding: 0.15em 0.45em;
+      border-radius: 0.35rem;
+      color: var(--accent);
+    }
+
+    pre {
+      margin: 1.25rem 0;
+      padding: 0;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--code-bg);
+    }
+
+    pre code {
+      display: block;
+      padding: 1.25rem 1.35rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.8125rem;
+      line-height: 1.6;
+      color: #c9d1d9;
+      tab-size: 2;
+    }
+
+    .file-label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      padding: 0.5rem 1rem;
+      background: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .diagram {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      line-height: 1.5;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      overflow-x: auto;
+      color: #8b949e;
+      margin: 1.25rem 0;
+      white-space: pre;
+    }
+
+    .callout {
+      border-left: 3px solid var(--accent-secondary);
+      background: rgba(19, 91, 236, 0.08);
+      padding: 1rem 1.25rem;
+      border-radius: 0 0.5rem 0.5rem 0;
+      margin: 1.25rem 0;
+    }
+
+    .callout p:last-child { margin-bottom: 0; }
+
+    footer.conclusion {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    footer.conclusion strong { color: var(--accent); }
+
+    @media (max-width: 640px) {
+      article { padding: 1.5rem 1rem 3rem; }
+      header.hero, section { padding: 1.5rem 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+  <article>
+    <header class="hero">
+      <p class="eyebrow">Frontend Architecture · Technical Deep Dive</p>
+      <h1>How I Built a Real-Time AI Chat Interface Inside a High-Performance Angular 21 Portfolio</h1>
+      <p class="lead">
+        A personal portfolio is no longer a static brochure. Mine streams AI responses over WebSockets,
+        caches conversation history off the main thread, and renders immersive Three.js visuals — all while
+        keeping the UI frame budget under control. This is the step-by-step story of how I wired it together.
+      </p>
+      <ul class="tags">
+        <li>Angular 21</li>
+        <li>Signals</li>
+        <li>OnPush</li>
+        <li>NgRx</li>
+        <li>WebSocket</li>
+        <li>Web Workers</li>
+        <li>Three.js</li>
+      </ul>
+    </header>
+
+    <!-- Introduction -->
+    <section id="introduction">
+      <h2>Introduction &amp; The Frontend Challenge</h2>
+      <p>
+        When I decided to embed an AI-powered chat assistant directly into my portfolio, I knew the bar was
+        higher than dropping a third-party widget into a corner. Users expect <strong>instant feedback</strong>,
+        <strong>token-by-token streaming</strong> that feels like ChatGPT, and a visual layer that matches the
+        rest of the experience — not a jarring modal that tanks performance.
+      </p>
+      <p>My goals were explicit from day one:</p>
+      <ul>
+        <li><strong>Real-time UI updates</strong> — render each streamed text chunk as it arrives, without waiting for the full response.</li>
+        <li><strong>Non-blocking data operations</strong> — persist chat history without causing scroll jank or animation stutters.</li>
+        <li><strong>Zero-lag rendering</strong> — minimize change detection work so the DOM only updates when state actually changes.</li>
+        <li><strong>A jaw-dropping visual experience</strong> — WebGL particle systems and shader-driven backgrounds that coexist with live chat traffic.</li>
+      </ul>
+      <p>
+        The architecture I landed on splits concerns deliberately: <strong>NgRx</strong> owns long-lived portfolio
+        section data (projects, skills, experience), while the chat layer uses <strong>Angular Signals</strong> for
+        ephemeral, high-frequency state and a dedicated <strong>Web Worker</strong> for IndexedDB persistence.
+        The result is a system that feels instantaneous even under load.
+      </p>
+
+      <div class="diagram">┌─────────────────────────────────────────────────────────────┐
+│  FloatingNav (chatOpen signal → &lt;dialog&gt;)                │
+│    └── app-chat                                               │
+│          ├── Signals: messages, isTyping, isReconnecting    │
+│          ├── GeminiAi service (RxJS webSocket)                │
+│          └── chat.worker → IndexedDB (TabCacheDB)             │
+├─────────────────────────────────────────────────────────────┤
+│  Portfolio sections (Projects, Skills, …)                   │
+│    └── NgRx: actions → effects → reducers → selectors       │
+│          └── toSignal() bridge into OnPush components       │
+├─────────────────────────────────────────────────────────────┤
+│  Three.js canvas layers (background, hero, immersive slides)│
+│    └── afterNextRender() init · effect() theme uniforms     │
+└─────────────────────────────────────────────────────────────┘</div>
+    </section>
+
+    <!-- Phase 1 -->
+    <section id="phase-1">
+      <h2>Phase 1: The Modern Angular Foundation (Angular 21, Signals, &amp; OnPush)</h2>
+      <p>
+        I built this portfolio on <strong>Angular 21</strong> with <strong>zoneless change detection</strong>
+        enabled globally. Zone.js was the right tool for a decade, but for a chat UI that receives dozens of
+        WebSocket events per second, I wanted Angular to update the DOM only when signals change — not on every
+        async callback Zone.js happens to patch.
+      </p>
+
+      <h3>Zoneless + NgRx at the Root</h3>
+      <p>
+        My <code class="inline">app.config.ts</code> registers zoneless detection alongside the NgRx store,
+        effects, and devtools. This is the foundation everything else sits on:
+      </p>
+      <pre><span class="file-label">src/app/app.config.ts</span><code>export const appConfig: ApplicationConfig = {
+  providers: [
+    provideBrowserGlobalErrorListeners(),
+    provideZonelessChangeDetection(),
+    provideRouter(routes, withInMemoryScrolling({
+      anchorScrolling: 'enabled',
+      scrollPositionRestoration: 'enabled'
+    })),
+    provideClientHydration(withEventReplay()),
+    provideStore(),
+    provideEffects(),
+    provideStoreDevtools({
+      maxAge: 25,
+      logOnly: !isDevMode(),
+      trace: true,
+      traceLimit: 75
+    }),
+    provideHttpClient(withFetch()),
+  ]
+};</code></pre>
+
+      <h3>OnPush Everywhere It Matters</h3>
+      <p>
+        I apply <code class="inline">ChangeDetectionStrategy.OnPush</code> across portfolio components — the
+        root app, floating navigation, hero section, projects grid, and every Three.js canvas wrapper. OnPush
+        tells Angular: "only check this component when an <code class="inline">@Input()</code> reference changes,
+        an event fires from its template, or a signal it reads is updated."
+      </p>
+      <pre><span class="file-label">src/app/app.ts</span><code>@Component({
+  standalone: true,
+  selector: 'app-root',
+  imports: [RouterOutlet, FloatingNavComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  templateUrl: './app.html',
+  styleUrls: ['./app.css']
+})
+export class App {
+  protected readonly title = signal('my-portfolio');
+}</code></pre>
+
+      <h3>Signals as the Chat State Machine</h3>
+      <p>
+        The chat component (<code class="inline">app-chat</code>) is the heart of the real-time layer. I replaced
+        mutable class properties with <strong>writable signals</strong> for every piece of UI state the template
+        binds to. When a <code class="inline">TEXT_CHUNK</code> arrives over the socket, I call
+        <code class="inline">messages.update()</code> with a new array reference — Angular flushes that to the
+        DOM immediately under zoneless + signals.
+      </p>
+      <pre><span class="file-label">src/app/shared/components/chat/chat.ts</span><code>// Reactive state management using Signals
+public messages = signal&lt;Message[]&gt;([]);
+public userInput = signal&lt;string&gt;('');
+public isTyping = signal&lt;boolean&gt;(false);
+public isReconnecting = signal&lt;boolean&gt;(false);
+public isResetting = signal&lt;boolean&gt;(false);
+
+constructor() {
+  // Auto-scroll to bottom whenever the messages array updates
+  effect(() =&gt; {
+    if (this.messages().length || this.isTyping()) {
+      setTimeout(() =&gt; this.scrollToBottom(), 50);
+    }
+  });
+
+  this.geminiAI.message$.subscribe((response: GeminiResponse) =&gt; {
+  // ...
+  if (response.type === 'TEXT_CHUNK') {
+    this.messages.update(prev =&gt; {
+      const updatedList: Message[] = [...prev];
+      if (updatedList.length &gt; 0 &amp;&amp;
+          updatedList[updatedList.length - 1].type === 'TEXT_CHUNK') {
+        const lastIndex = updatedList.length - 1;
+        updatedList[lastIndex] = {
+          ...updatedList[lastIndex],
+          text: updatedList[lastIndex].text + (response.text || '')
+        };
+      } else {
+        updatedList.push({
+          id: window.crypto.randomUUID(),
+          sender: 'bot',
+          type: response.type,
+          text: response.text || '',
+          timestamp: new Date()
+        });
+      }
+      return updatedList;
+    });
+  }
+  this.streamIncomingChunk();
+  });
+}</code></pre>
+
+      <div class="callout">
+        <p>
+          <strong>Why immutable updates inside <code class="inline">update()</code>?</strong>
+          Angular's signal graph tracks referential equality. Mutating <code class="inline">prev[last].text</code>
+          in place would not trigger a re-render. Spreading into a new object and returning a new array guarantees
+          the signal consumer — and therefore the template — sees the change on every chunk.
+        </p>
+      </div>
+
+      <h3>Bridging NgRx Selectors into Signals</h3>
+      <p>
+        For portfolio sections, I bridge the RxJS-based NgRx store into signals using
+        <code class="inline">toSignal()</code>. Components stay OnPush while still reacting to store emissions:
+      </p>
+      <pre><span class="file-label">src/app/features/home/sections/projects/projects.ts</span><code>@Component({
+  selector: 'app-projects',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  // ...
+})
+export class Projects implements OnInit {
+  private store = inject(Store&lt;{ projects: IProjectsState }&gt;);
+
+  isLoading = toSignal(
+    this.store.select(ProjectsSelectors.isProjectsIsLoadingSelector),
+    { initialValue: true }
+  );
+  projects = toSignal(
+    this.store.select(ProjectsSelectors.getProjectsSelector),
+    { initialValue: [] }
+  );
+
+  ngOnInit(): void {
+    this.store.dispatch(ProjectsActions.getProjects());
+  }
+}</code></pre>
+    </section>
+
+    <!-- Phase 2 -->
+    <section id="phase-2">
+      <h2>Phase 2: Global State Management &amp; Real-Time Socket Connection</h2>
+      <p>
+        I use <strong>NgRx</strong> as the single source of truth for portfolio content — skills, projects,
+        experience, education, and project detail modals. Chat session state is intentionally <em>not</em> in the
+        store; it is too ephemeral and too high-frequency for action/reducer overhead. Instead, the chat lives in
+        component signals backed by a injectable WebSocket service.
+      </p>
+
+      <h3>Feature-Scoped NgRx Slices</h3>
+      <p>
+        Rather than one monolithic root reducer, I register feature states at the <strong>route level</strong> with
+        <code class="inline">provideState</code> and <code class="inline">provideEffects</code>. The projects route,
+        for example, loads three slices and three effect classes only when the user navigates there:
+      </p>
+      <pre><span class="file-label">src/app/app.routes.ts</span><code>{
+  path: 'projects',
+  component: MainLayoutComponent,
+  children: [{
+    path: '',
+    loadComponent: () =&gt;
+      import('./features/projects-page/projects-page.component')
+        .then(m =&gt; m.ProjectsPageComponent),
+    providers: [
+      provideState('projects', projectsReducers),
+      provideState('projectDetails', projectDetailsReducers),
+      provideState('skills', skillsReducers),
+      provideEffects(ProjectsEffects, ProjectDetailsEffects, SkillsEffects),
+    ],
+  }],
+}</code></pre>
+
+      <p>The global state shape is typed and predictable:</p>
+      <pre><span class="file-label">src/app/store/appState.interface.ts</span><code>export interface AppStateInterface {
+  skills: ISkillsState;
+  projects: IProjectsState;
+  experience: IExperienceState;
+  education: IEducationState;
+  projectDetails: IProjectDetailsState;
+}</code></pre>
+
+      <h3>Actions → Effects → Reducers → Selectors</h3>
+      <p>The projects feature follows the canonical NgRx unidirectional data flow:</p>
+      <pre><span class="file-label">src/app/features/home/sections/projects/store/actions.ts</span><code>export const getProjects = createAction('[Projects] Get Projects');
+export const getProjectsSuccess = createAction(
+  '[Projects] Get Projects Success',
+  props&lt;{ projects: IProject[] }&gt;()
+);
+export const getProjectsFailure = createAction(
+  '[Projects] Get Projects Failure',
+  props&lt;{ error: string }&gt;()
+);</code></pre>
+
+      <pre><span class="file-label">src/app/features/home/sections/projects/store/effects.ts</span><code>getProjects$ = createEffect(() =&gt;
+  this.actions$.pipe(
+    ofType(ProjectsActions.getProjects),
+    switchMap(() =&gt;
+      this.projectsService.getProjects().pipe(
+        map((projects) =&gt; ProjectsActions.getProjectsSuccess({ projects })),
+        catchError((error) =&gt; of(
+          ProjectsActions.getProjectsFailure({
+            error: error.message || 'Failed to load projects'
+          })
+        ))
+      )
+    )
+  )
+);</code></pre>
+
+      <pre><span class="file-label">src/app/features/home/sections/projects/store/reducers.ts</span><code>export const reducers = createReducer(initialState,
+  on(ProjectsActions.getProjects, (state) =&gt; ({ ...state, isLoading: true })),
+  on(ProjectsActions.getProjectsSuccess, (state, action) =&gt; ({
+    ...state, isLoading: false, projects: action.projects,
+    hasError: false, errorMessage: ''
+  })),
+  on(ProjectsActions.getProjectsFailure, (state, action) =&gt; ({
+    ...state, isLoading: false, hasError: true, errorMessage: action.error
+  })),
+);</code></pre>
+
+      <h3>The GeminiAi WebSocket Service</h3>
+      <p>
+        Real-time chat uses <strong>RxJS <code class="inline">webSocket</code></strong> — not Socket.IO. My
+        <code class="inline">GeminiAi</code> injectable opens a persistent connection to
+        <code class="inline">environment.WS_ENDPOINT + 'chat'</code>, deserializes JSON frames, and exposes them
+        as an Observable the chat component subscribes to.
+      </p>
+      <pre><span class="file-label">src/app/services/gemini-ai.ts</span><code>public connect(): void {
+  if (!this.socket$ || this.socket$.closed) {
+    this.socket$ = webSocket({
+      url: environment.WS_ENDPOINT + 'chat',
+      openObserver: {
+        next: () =&gt; {
+          if (this.pendingMessage !== null) {
+            this.socket$.next(this.pendingMessage);
+            this.pendingMessage = null;
+          }
+        },
+      },
+      deserializer: (msg) =&gt; JSON.parse(msg.data),
+      serializer: (msg) =&gt; JSON.stringify(msg),
+    });
+
+    this.socket$
+      .pipe(
+        retry({
+          count: 3,
+          delay: (error, retryCount) =&gt; timer(3000),
+        }),
+        catchError((error) =&gt; {
+          this.handleFinalFailure();
+          return EMPTY;
+        }),
+      )
+      .subscribe({
+        next: (response: GeminiResponse) =&gt; {
+          this.messagesSubject.next(response);
+        },
+      });
+  }
+}
+
+public sendMessage(payload: any): void {
+  if (!this.socket$ || this.socket$.closed) {
+    this.handleFinalFailure();
+  }
+  this.socket$.next(payload);
+}</code></pre>
+
+      <p>The chat UI handles four server message types:</p>
+      <ul>
+        <li><code class="inline">WELCOME</code> / <code class="inline">ERROR</code> — append a complete bot message.</li>
+        <li><code class="inline">TEXT_CHUNK</code> — stream-append to the last bot bubble (shown in Phase 1).</li>
+        <li><code class="inline">AGENT_STEP</code> with <code class="inline">step: "closed"</code> — disconnect and surface a reconnect affordance.</li>
+      </ul>
+
+      <p>Outbound messages are a simple JSON envelope:</p>
+      <pre><span class="file-label">src/app/shared/components/chat/chat.ts — sendMessage()</span><code>this.geminiAI.sendMessage({ type: 'USER_MESSAGE', text: query });</code></pre>
+
+      <h3>Launching Chat from the Floating Nav</h3>
+      <p>
+        The chat modal is mounted inside <code class="inline">FloatingNavComponent</code>, which uses its own
+        <code class="inline">chatOpen</code> signal and an <code class="inline">effect()</code> to sync the native
+        <code class="inline">&lt;dialog&gt;</code> element — no imperative DOM queries scattered across the app:
+      </p>
+      <pre><span class="file-label">src/app/layouts/floating-nav/floating-nav.ts</span><code>chatOpen = signal(false);
+
+effect(() =&gt; {
+  const modal = this.chatModalElement?.nativeElement;
+  if (!modal) return;
+  if (this.chatOpen()) {
+    if (!modal.open) modal.showModal();
+  } else {
+    if (modal.open) modal.close();
+  }
+});</code></pre>
+    </section>
+
+    <!-- Phase 3 -->
+    <section id="phase-3">
+      <h2>Phase 3: Offloading to the Background with Web Workers</h2>
+      <p>
+        Every time a message is sent or a chunk streams in, I need to persist the full conversation so a user
+        can reopen the chat modal without losing context. Writing to <strong>IndexedDB</strong> on the main
+        thread would block painting during long conversations — exactly when the typing indicator and scroll
+        animations need the most headroom.
+      </p>
+      <p>
+        My solution: a dedicated <strong>module Web Worker</strong> (<code class="inline">chat.worker.ts</code>)
+        that owns all IndexedDB transactions. The main thread sends lightweight <code class="inline">postMessage</code>
+        commands; the worker replies with success/error actions.
+      </p>
+
+      <h3>Worker Setup in the Chat Component</h3>
+      <pre><span class="file-label">src/app/shared/components/chat/chat.ts — ngOnInit()</span><code>ngOnInit() {
+  this.geminiAI.connect();
+  if (typeof Worker !== 'undefined') {
+    this.tabWorker = new Worker(
+      new URL('../../workers/chat.worker', import.meta.url),
+      { type: 'module' }
+    );
+
+    this.tabWorker.onmessage = ({ data }) =&gt; {
+      switch (data.action) {
+        case 'FETCH_SUCCESS':
+          if (data.payload[0]?.raw?.length &gt; 0) {
+            this.messages.set(data.payload[0].raw);
+          }
+          break;
+        case 'CLEAR_SUCCESS':
+          this.messages.set(data.payload ?? []);
+          break;
+        // CACHE_SUCCESS, CACHE_ERROR, FETCH_ERROR, CLEAR_ERROR ...
+      }
+    };
+
+    const workerMessageId = this.geminiAI.getItem&lt;string&gt;('workerMessageId');
+    if (workerMessageId) this.loadHistoricalMessage(workerMessageId);
+  }
+}</code></pre>
+
+      <h3>Main Thread → Worker Communication</h3>
+      <p>
+        After every message update (user send or streamed chunk), I cache the snapshot and store the cache key in
+        <code class="inline">sessionStorage</code> so the next page load can rehydrate:
+      </p>
+      <pre><span class="file-label">src/app/shared/components/chat/chat.ts</span><code>streamIncomingChunk() {
+  if (this.tabWorker) {
+    const uniqueId = 'msg_' + crypto.randomUUID();
+    this.tabWorker.postMessage({
+      action: 'PROCESS_AND_CACHE',
+      payload: {
+        id: 'msg_' + uniqueId,
+        data: this.messages()
+      }
+    });
+    this.geminiAI.setItem('workerMessageId', uniqueId);
+  }
+}
+
+loadHistoricalMessage(messageId: string) {
+  if (this.tabWorker) {
+    this.tabWorker.postMessage({
+      action: 'FETCH_CACHE',
+      payload: { id: messageId }
+    });
+  }
+}</code></pre>
+
+      <h3>IndexedDB Inside the Worker</h3>
+      <p>
+        The worker opens <code class="inline">TabCacheDB</code> with an object store named
+        <code class="inline">chat_cache</code>. Each write clears the store and replaces it with the latest
+        snapshot — a deliberate trade-off for simplicity over append-only history:
+      </p>
+      <pre><span class="file-label">src/app/shared/workers/chat.worker.ts</span><code>const DB_NAME = 'TabCacheDB';
+const STORE_NAME = 'chat_cache';
+
+addEventListener('message', async ({ data }) =&gt; {
+  const { action, payload } = data;
+
+  if (action === 'PROCESS_AND_CACHE') {
+    const cacheEntry = {
+      id: payload.id,
+      timestamp: Date.now(),
+      raw: payload.data,
+    };
+    const db = await getDB();
+    await saveToCache(db, cacheEntry);
+    postMessage({ action: 'CACHE_SUCCESS', payload: cacheEntry });
+  }
+
+  if (action === 'FETCH_CACHE') {
+    const db = await getDB();
+    const cachedData = await getAllFromCache(db);
+    postMessage({ action: 'FETCH_SUCCESS', payload: cachedData });
+  }
+
+  if (action === 'CLEAR_CACHE') {
+    const db = await getDB();
+    await clearCache(db);
+    postMessage({ action: 'CLEAR_SUCCESS', payload: [] });
+  }
+});</code></pre>
+
+      <div class="callout">
+        <p>
+          <strong>Lifecycle cleanup matters.</strong> When the chat component is destroyed, I call
+          <code class="inline">tabWorker.terminate()</code> in <code class="inline">ngOnDestroy()</code> so the
+          background thread does not leak across route changes. My Content Security Policy also explicitly
+          allows workers via <code class="inline">worker-src 'self' blob:</code>.
+        </p>
+      </div>
+    </section>
+
+    <!-- Phase 4 -->
+    <section id="phase-4">
+      <h2>Phase 4: Next-Gen Visuals with Three.js Animations</h2>
+      <p>
+        The chat console is intentionally lightweight — the visual spectacle lives in the portfolio itself. I
+        built <strong>seven Three.js components</strong> for immersive backgrounds: an orbiting particle sphere,
+        hero skill icons rendered as 3D sprites on a CSG parcel box, shader-driven wave particles, per-slide
+        ambient systems, and a text-scraper animation. They share a common lifecycle contract enforced across the
+        codebase.
+      </p>
+
+      <h3>SSR-Safe Initialization with <code class="inline">afterNextRender()</code></h3>
+      <p>
+        Three.js touches <code class="inline">window</code>, <code class="inline">document</code>, and WebGL
+        contexts — none of which exist during server-side rendering. I guard initialization behind
+        <code class="inline">isPlatformBrowser()</code> inside <code class="inline">afterNextRender()</code>, and
+        register cleanup on <code class="inline">DestroyRef</code>:
+      </p>
+      <pre><span class="file-label">src/app/shared/components/background-animation-three/background-animation-three.component.ts</span><code>@Component({
+  selector: 'app-background-animation-three',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `&lt;canvas #canvas class="background-canvas"&gt;&lt;/canvas&gt;`,
+})
+export class BackgroundAnimationThreeComponent implements OnDestroy {
+  private destroyRef = inject(DestroyRef);
+  private themeService = inject(ThemeService);
+
+  constructor() {
+    effect(() =&gt; {
+      const isDark = this.themeService.darkMode();
+      const color = isDark ? this.colorConfig.dark.dot : this.colorConfig.light.dot;
+      if (this.particles?.material instanceof THREE.ShaderMaterial) {
+        this.particles.material.uniforms['uColor'].value.copy(color);
+        this.particles.material.blending =
+          isDark ? THREE.AdditiveBlending : THREE.NormalBlending;
+      }
+    });
+
+    afterNextRender(() =&gt; {
+      if (isPlatformBrowser(this.platformId)) {
+        this.initThree();
+        this.animate();
+      }
+    });
+
+    this.destroyRef.onDestroy(() =&gt; this.cleanup());
+  }
+}</code></pre>
+
+      <h3>Scene Setup &amp; Capped Pixel Ratio</h3>
+      <p>
+        I cap <code class="inline">devicePixelRatio</code> at 2 to prevent 4K mobile screens from melting the GPU
+        budget, and keep particle counts conservative (140 points on the background sphere):
+      </p>
+      <pre><span class="file-label">background-animation-three — initThree()</span><code>private initThree(): void {
+  const canvas = this.canvasRef.nativeElement;
+  this.scene = new THREE.Scene();
+  this.camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 2500);
+  this.controls = new OrbitControls(this.camera, canvas);
+  this.controls.enableZoom = false;
+  this.controls.autoRotate = true;
+
+  this.renderer = new THREE.WebGLRenderer({
+    canvas, alpha: true, antialias: true,
+  });
+  this.renderer.setSize(window.innerWidth, window.innerHeight);
+  this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+  this.timer = new THREE.Timer();
+  this.timer.connect(this.document);
+  this.createParticles();
+}</code></pre>
+
+      <h3>The Animation Loop — No Allocations in RAF</h3>
+      <p>
+        The render loop updates shader uniforms and rotation angles only — it never allocates new geometries or
+        materials per frame. This is critical when chat streaming is simultaneously triggering signal updates:
+      </p>
+      <pre><span class="file-label">background-animation-three — animate()</span><code>private animate(): void {
+  if (!this.renderer || !this.scene || !this.camera || !this.timer) return;
+  this.animationFrameId = requestAnimationFrame(() =&gt; this.animate());
+  this.controls?.update();
+
+  this.timer.update();
+  const elapsedTime = this.timer.getElapsed();
+  if (this.particles?.material instanceof THREE.ShaderMaterial) {
+    this.particles.material.uniforms['uTime'].value = elapsedTime;
+  }
+
+  if (this.particles) {
+    this.particles.rotation.y += this.autoRotateSpeed;
+    this.particles.rotation.x += this.autoRotateSpeed * 0.4;
+  }
+
+  this.renderer.render(this.scene, this.camera);
+}</code></pre>
+
+      <h3>Full Resource Disposal</h3>
+      <p>
+        Memory leaks in WebGL apps are silent killers. My <code class="inline">cleanup()</code> cancels the RAF
+        handle, disposes the renderer, geometry, material, orbit controls, and timer — every GL resource is
+        explicitly released when the component is destroyed or the user navigates away:
+      </p>
+      <pre><span class="file-label">background-animation-three — cleanup()</span><code>private cleanup(): void {
+  if (this.animationFrameId) cancelAnimationFrame(this.animationFrameId);
+  this.timer?.dispose();
+  this.controls?.dispose();
+  if (this.renderer) this.renderer.dispose();
+  if (this.particles) {
+    this.particles.geometry.dispose();
+    (this.particles.material as THREE.Material).dispose();
+  }
+  this.scene?.clear();
+}</code></pre>
+
+      <p>
+        Theme changes propagate into GLSL uniforms via an Angular <code class="inline">effect()</code> tied to
+        <code class="inline">ThemeService.darkMode()</code> — the canvas reacts to light/dark mode without
+        reinitializing the entire scene.
+      </p>
+    </section>
+
+    <!-- Conclusion -->
+    <section id="conclusion">
+      <h2>Conclusion &amp; Architectural Takeaways</h2>
+      <p>
+        Building this portfolio taught me that "personal project" and "enterprise-grade frontend" are not
+        mutually exclusive. The combination I settled on — <strong>Angular 21 zoneless + OnPush + Signals</strong>
+        for surgical DOM updates, <strong>NgRx feature stores</strong> for predictable portfolio data flow,
+        <strong>RxJS WebSockets</strong> for token streaming, <strong>Web Workers + IndexedDB</strong> for
+        off-thread persistence, and <strong>Three.js with strict lifecycle management</strong> for immersive
+        visuals — produces an experience that feels fast, looks premium, and scales with complexity.
+      </p>
+      <p>Five principles I would carry to any future real-time UI:</p>
+      <ol>
+        <li><strong>Match state tooling to update frequency.</strong> NgRx for slow, shared server data; signals for fast, local UI state.</li>
+        <li><strong>Never block the main thread for I/O you can defer.</strong> Workers are not just for heavy computation — they are for any work that competes with rendering.</li>
+        <li><strong>Treat WebSocket streams as immutable event sources.</strong> Map each frame to a new signal value; let Angular's graph do the diffing.</li>
+        <li><strong>Guard WebGL behind browser checks and dispose everything.</strong> A portfolio that leaks GPU memory is worse than one without 3D at all.</li>
+        <li><strong>Enable zoneless early.</strong> It forces you to be explicit about what triggers updates — which is exactly what a streaming chat UI demands.</li>
+      </ol>
+      <p>
+        The result is a portfolio that does not just list my projects — it demonstrates, in real time, how I
+        think about frontend architecture under pressure.
+      </p>
+    </section>
+
+    <footer class="conclusion">
+      <p>Written from the <strong>my-portfolio</strong> codebase · Angular 21 · NgRx 21 · Three.js r183</p>
+    </footer>
+  </article>
+</body>
+</html>

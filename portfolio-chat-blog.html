@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="How I built Eva — a grounded, real-time AI chat assistant for my portfolio using Gemini Live, function calling, WebSockets, and Docker." />
+  <title>Building Eva: A Grounded, Real-Time AI Chat for My Portfolio</title>
+
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Syntax highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" />
+
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface-raised: #242836;
+      --border: #2e3345;
+      --text: #e8eaef;
+      --text-muted: #9ba3b5;
+      --accent: #6c8cff;
+      --accent-soft: rgba(108, 140, 255, 0.12);
+      --green: #4ade80;
+      --orange: #fb923c;
+      --max-width: 760px;
+      --radius: 12px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 18px;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Subtle grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(108, 140, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(108, 140, 255, 0.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page-wrap {
+      position: relative;
+      z-index: 1;
+      max-width: calc(var(--max-width) + 80px);
+      margin: 0 auto;
+      padding: 3rem 1.5rem 5rem;
+    }
+
+    article {
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+
+    /* ── Header ── */
+    header.article-header {
+      margin-bottom: 3rem;
+      padding-bottom: 2.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid rgba(108, 140, 255, 0.25);
+    }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 2.75rem);
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.03em;
+      margin: 0 0 1rem;
+    }
+
+    .subtitle {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      margin: 0 0 1.5rem;
+      line-height: 1.6;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .meta strong { color: var(--text); }
+
+    /* ── Sections ── */
+    section {
+      margin-bottom: 3.5rem;
+    }
+
+    h2 {
+      font-size: 1.65rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 0 0 1.25rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 2px solid var(--accent);
+      display: inline-block;
+    }
+
+    h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin: 2rem 0 0.75rem;
+      color: var(--text);
+    }
+
+    p { margin: 0 0 1.1rem; }
+
+    ul, ol {
+      margin: 0 0 1.25rem;
+      padding-left: 1.4rem;
+    }
+
+    li { margin-bottom: 0.45rem; }
+
+    strong { color: #fff; font-weight: 600; }
+
+    a {
+      color: var(--accent);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    a:hover { color: #9cb4ff; }
+
+    /* ── Callout boxes ── */
+    .callout {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      margin: 1.75rem 0;
+    }
+
+    .callout.warning {
+      border-left-color: var(--orange);
+    }
+
+    .callout.success {
+      border-left-color: var(--green);
+    }
+
+    .callout p:last-child { margin-bottom: 0; }
+
+    /* ── Phase badges ── */
+    .phase-label {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    /* ── Code blocks ── */
+    .code-block {
+      margin: 1.5rem 0;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .code-block header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 1rem;
+      background: var(--surface-raised);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.78rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-muted);
+    }
+
+    .code-block header span.dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-right: 0.5rem;
+      opacity: 0.7;
+    }
+
+    pre {
+      margin: 0;
+      padding: 1.25rem 1.5rem;
+      overflow-x: auto;
+      font-size: 0.82rem;
+      line-height: 1.65;
+    }
+
+    pre code {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      background: none;
+      padding: 0;
+    }
+
+    code:not(pre code) {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85em;
+      background: var(--surface-raised);
+      border: 1px solid var(--border);
+      padding: 0.15em 0.45em;
+      border-radius: 5px;
+      color: #c4d0ff;
+    }
+
+    /* ── Architecture diagram ── */
+    .diagram {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin: 1.75rem 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      line-height: 1.9;
+      color: var(--text-muted);
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .diagram .highlight { color: var(--accent); }
+
+    /* ── Event table ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.88rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+    }
+
+    th {
+      background: var(--surface-raised);
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    td { background: var(--surface); }
+    td code { font-size: 0.8em; }
+
+    /* ── Footer ── */
+    footer.article-footer {
+      margin-top: 4rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    footer.article-footer p { margin-bottom: 0.5rem; }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      html { font-size: 16px; }
+      .page-wrap { padding: 2rem 1rem 3rem; }
+      pre { padding: 1rem; font-size: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrap">
+    <article>
+      <header class="article-header">
+        <div class="tag-row">
+          <span class="tag">AI Engineering</span>
+          <span class="tag">Gemini Live</span>
+          <span class="tag">WebSockets</span>
+          <span class="tag">Docker</span>
+          <span class="tag">Portfolio</span>
+        </div>
+        <h1>Building Eva: How I Shipped a Grounded, Real-Time AI Chat Assistant on My Portfolio</h1>
+        <p class="subtitle">
+          A first-person walkthrough of the engineering journey behind my portfolio's intelligent chat console — from deterministic function calling to Gemini Live streaming, containerized on a VPS behind Nginx.
+        </p>
+        <div class="meta">
+          <span><strong>Author:</strong> Pranay Das</span>
+          <span><strong>Stack:</strong> Node.js 22 · Express 5 · TypeScript · Gemini Live · Docker</span>
+          <span><strong>Assistant:</strong> Eva</span>
+        </div>
+      </header>
+
+      <!-- ─────────────────────────────────────────── -->
+      <section id="introduction">
+        <h2>The &ldquo;Why&rdquo; &amp; The Problem</h2>
+
+        <p>
+          I started this project because I wanted something more than a static portfolio. I wanted an <strong>intelligent, knowledge-base-driven AI calling system</strong> embedded directly into my personal site — a system that could answer questions about my experience, projects, and technical decisions with the precision of a well-prepared interview, available at 2&nbsp;AM when no recruiter is online to take a call.
+        </p>
+
+        <p>
+          The user experience problem was obvious once I started watching how people actually used my portfolio. Visitors are busy. They don&rsquo;t have time to scroll through every project card, every skills badge, every case study paragraph, hunting for the one detail they care about. A recruiter wants to know about my Angular migration work. A founder wants the Presmistique architecture story. A fellow developer wants the CKEditor deep dive. They all land on the same page, but they all need <em>different</em> slices of the same data.
+        </p>
+
+        <p>
+          A chat console solves that instantly. Instead of navigating, they ask. Instead of guessing, they get the exact data they care about — pulled from a curated knowledge base I control.
+        </p>
+
+        <div class="callout">
+          <p>
+            The same pattern applies far beyond personal portfolios. Any company platform — internal docs, HR policies, product onboarding, support portals — benefits from an intelligent chat system that guides users according to <strong>company policies and instructions</strong>, not generic internet knowledge. I built Eva as a proof of concept for that broader idea, scoped tightly to my own professional narrative.
+          </p>
+        </div>
+
+        <p>
+          But here was the engineering constraint that kept me up at night: the agent had to be trained on <strong>particular data and tasks</strong>. It <strong>must not hallucinate</strong>. It <strong>must not</strong> provide false, imaginative, or confidently invented responses. On a personal portfolio, a single fabricated project detail is worse than no chat at all. I needed deterministic grounding — not a creative writing engine wearing a chat widget.
+        </p>
+
+        <p>
+          That constraint shaped every architectural decision that followed.
+        </p>
+      </section>
+
+      <!-- ─────────────────────────────────────────── -->
+      <section id="phase-1">
+        <p class="phase-label">Phase 1</p>
+        <h2>Deterministic AI with Function Calling &amp; Token Optimization</h2>
+
+        <p>
+          My first approach was a classic request/response pattern: a POST endpoint on Express that accepted a user message, called the Gemini API, and returned a structured answer. I wired up an Express router for it — you can still see the skeleton in my codebase today, commented out in <code>chat.routes.ts</code>, a fossil from the first iteration:
+        </p>
+
+        <div class="code-block">
+          <header><span><span class="dot"></span>src/routes/chat.routes.ts</span><span>TypeScript</span></header>
+          <pre><code class="language-typescript">// import { Router } from 'express';
+// import { sendMessage } from '../controllers/chat.controller';
+
+// const router = Router();
+
+// router.post('/', sendMessage);
+
+// export default router;</code></pre>
+        </div>
+
+        <p>
+          That POST flow worked. But &ldquo;worked&rdquo; and &ldquo;worked well&rdquo; are different things. The real breakthrough in Phase&nbsp;1 wasn&rsquo;t the HTTP method — it was <strong>function calling</strong>.
+        </p>
+
+        <h3>The anti-hallucination strategy</h3>
+
+        <p>
+          Instead of stuffing my entire résumé into a system prompt and hoping the model wouldn&rsquo;t invent details, I gave the model a single tool: <code>searchKnowledge</code>. The system prompt I wrote is aggressive about boundaries — no world knowledge, no inference, no guessing, no fabrication. Tool results are the sole source of truth.
+        </p>
+
+        <div class="code-block">
+          <header><span><span class="dot"></span>src/services/gemini.service.ts</span><span>System prompt &amp; tool definition</span></header>
+          <pre><code class="language-typescript">const SYSTEM_PROMPT = `
+You are Eva.
+
+You may ONLY answer using information returned by the searchKnowledge tool.
+
+If a question requires information not present in tool results:
+
+"I couldn't find information about that in Pranay's portfolio knowledge base."
+
+If a question is unrelated to Pranay Das:
+
+"I'm designed exclusively to discuss Pranay Das, his experience, projects, skills, and professional work. Please ask a relevant question."
+
+Do not answer from your own knowledge.
+Do not use world knowledge.
+Do not infer.
+Do not guess.
+Do not fabricate.
+Do not provide general assistance.
+
+Use searchKnowledge whenever information is needed.
+
+Tool results are the sole source of truth.
+`;
+
+const searchKnowledgeTool: FunctionDeclaration = {
+  name: "searchKnowledge",
+  description: "Retrieve information from Pranay's knowledge base",
+  parametersJsonSchema: {
+    type: 'object',
+    properties: {
+      source: {
+        type: 'string',
+        description: 'The exact knowledge source to read from.',
+        enum: [
+          'ckeditor5',
+          'ngrx',
+          'skills',
+          'experience',
+          'presmistique',
+          'projects_overview',
+        ],
+      },
+    },
+    required: ['source'],
+  },
+};</code></pre>
+        </div>
+
+        <p>
+          The model doesn&rsquo;t get to freestyle. It must <em>plan</em> which knowledge source to read, <em>observe</em> the returned content, and only then produce a final answer grounded in that observation. I surface this loop to the client as structured <code>AGENT_STEP</code> events — <code>planning</code> when the tool call is initiated, <code>observation</code> when the result is fed back to the model.
+        </p>
+
+        <div class="code-block">
+          <header><span><span class="dot"></span>src/services/gemini.service.ts</span><span>Planning → Observation → Output loop</span></header>
+          <pre><code class="language-typescript">onmessage: async (message: any) =&gt; {
+  if (message.toolCall?.functionCalls) {
+    for (const call of message.toolCall.functionCalls) {
+      onStep('planning', { message: `AI is planning to run tool: ${call.name}` });
+
+      const result = await executeTool(call.name, call.args);
+
+      onStep('observation', {
+        message: 'Tool output received and fed back to model.',
+        resultPreview: JSON.stringify(result).substring(0, 150) + '...'
+      });
+
+      await session.sendToolResponse({
+        functionResponses: [{
+          id: call.id,
+          name: call.name,
+          response: result,
+        }]
+      });
+    }
+  }
+
+  if (message.serverContent?.modelTurn?.parts) {
+    for (const part of message.serverContent.modelTurn.parts) {
+      if (part.text) {
+        onTextChunk(part.text);
+      }
+    }
+  }
+  // ...
+}</code></pre>
+        </div>
+
+        <h3>Token optimization through document chunking</h3>
+
+        <p>
+          Early on, I tried dumping everything into one giant context window. Response times ballooned. Token costs climbed. The model got slower and noisier. So I broke my documentation into <strong>smaller, purpose-specific markdown files</strong> — one per knowledge domain — and let the model select only the file it needs via the <code>source</code> enum.
+        </p>
+
+        <div class="code-block">
+          <header><span><span class="dot"></span>src/services/knowledge.service.ts</span><span>Chunked knowledge sources</span></header>
+          <pre><code class="language-typescript">private fileMap: Record&lt;KnowledgeSource, string&gt; = {
+  ckeditor5: 'project_ckeditor_deepdive.md',
+  ngrx: 'project_ngrx_deepdive.md',
+  presmistique: 'project_presmistique_deepdive.md',
+  projects_overview: 'projects_overview.md',
+  skills: 'skills.md',
+  experience: 'experience.md'
+};
+
+async getContent(source: KnowledgeSource): Promise&lt;string&gt; {
+  if (this.cache.has(source)) {
+    return this.cache.get(source)!;
+  }
+
+  const filePath = path.join(
+    __dirname, '..', '..', 'src', 'knowledge', this.fileMap[source]
+  );
+
+  const content = await fs.readFile(filePath, 'utf8');
+  this.cache.set(source, content);
+  return content;
+}</code></pre>
+        </div>
+
+        <p>
+          A question about my CKEditor work pulls <code>project_ckeditor_deepdive.md</code> — not the entire knowledge base. A skills question pulls <code>skills.md</code> only. Combined with an in-memory cache, repeat lookups within a session are essentially free. Smaller payloads, faster tool execution, lower token burn. This was one of those optimizations that felt obvious in hindsight but made a measurable difference in latency.
+        </p>
+
+        <div class="callout success">
+          <p><strong>Phase 1 outcome:</strong> Eva answered from my data, refused to invent, and could explain <em>which</em> document it consulted. The POST API proved the concept. But users still waited for the full response to arrive before seeing anything. I wanted progressive output.</p>
+        </div>
+      </section>
+
+      <!-- ─────────────────────────────────────────── -->
+      <section id="phase-2">
+        <p class="phase-label">Phase 2</p>
+        <h2>Upgrading to Real-Time Streaming with Gemini Live &amp; WebSockets</h2>
+
+        <p>
+          Once the POST-based function-calling flow was solid, the UX gap became impossible to ignore. Users stared at a loading spinner while the model planned, retrieved, and composed — only then did the full answer appear. I wanted <strong>faster, progressive outputs</strong>. Token by token. Chunk by chunk. The way modern chat interfaces feel.
+        </p>
+
+        <p>
+          That&rsquo;s when I discovered the <strong>Gemini Live API</strong> — a persistent, bidirectional session model designed for real-time interaction. I upgraded the architecture: instead of stateless POST round-trips, I opened a long-lived Gemini Live session per browser connection and bridged it to the frontend over WebSockets.
+        </p>
+
+        <p>
+          The model I landed on is <code>gemini-3.1-flash-live-preview</code>. I configure it with audio as the primary response modality, but enable <code>outputAudioTranscription</code> so the transcribed text streams back to my chat UI — giving visitors a familiar text experience without me having to pipe raw audio through a portfolio widget.
+        </p>
+
+        <div class="code-block">
+          <header><span><span class="dot"></span>src/services/gemini.service.ts</span><span>Gemini Live session config</span></header>
+          <pre><code class="language-typescript">const model = "gemini-3.1-flash-live-preview";
+const config = {
+  responseModalities: [Modality.AUDIO],
+  outputAudioTranscription: {},
+  systemInstruction: SYSTEM_PROMPT,
+  tools: [
+    {
+      functionDeclarations: [searchKnowledgeTool],
+    },
+  ],
+};
+
+export async function runPortfolioAgent(
+  socketId: string,
+  onTextChunk: (text: string) =&gt; void,
+  onStep: (step: string, detail: any) =&gt; void,
+  onTurnComplete: () =&gt; void
+) {
+  const session = await ai.live.connect({ model, config, callbacks: { /* ... */ } });
+  return session;
+}</code></pre>
+        </div>
+
+        <h3>Backend: Express + native WebSockets on one port</h3>
+
+        <p>
+          Express doesn&rsquo;t handle WebSocket upgrades out of the box. I created a raw <code>http.Server</code> from my Express app and intercepted <code>upgrade</code> events before they hit Express routing. Origin verification happens at upgrade time — only origins listed in <code>ALLOWED_ORIGINS</code> get through. This keeps my Gemini API key safely server-side while my Angular portfolio on Cloudflare Pages connects as a trusted client.
+        </p>
+
+        <div class="code-block">
+          <header><span><span class="dot"></span>src/server.ts</span><span>HTTP upgrade → WebSocket handoff</span></header>
+          <pre><code class="language-typescript">const server = createServer(app);
+
+server.on('upgrade', (request, socket, head) =&gt; {
+  const { pathname } = new URL(request.url || '', `http://${request.headers.host}`);
+  const origin = request.headers.origin || '';
+
+  if (!env.allowedOrigins.includes(origin)) {
+    console.warn(`WS upgrade rejected for origin: ${origin}`);
+    socket.write('HTTP/1.1 403 Forbidden\r\n\r\n');
+    socket.destroy();
+    return;
+  }
+
+  if (pathname === '/api/chat') {
+    chatWss.handleUpgrade(request, socket, head, (ws) =&gt; {
+      chatWss.emit('connection', ws, request);
+    });
+  } else {
+    socket.destroy();
+  }
+});</code></pre>
+        </div>
+
+        <p>
+          Each WebSocket connection gets a UUID, a dedicated Gemini Live session stored in a <code>liveSessions</code> map, and clean teardown on disconnect. When a visitor sends a message, I forward it into the live session via <code>sendClientContent</code>. When Gemini streams back text, I emit <code>TEXT_CHUNK</code> events. When a turn finishes, I emit <code>TURN_COMPLETE</code>.
+        </p>
+
+        <div class="code-block">
+          <header><span><span class="dot"></span>src/controllers/chat.controller.ts</span><span>Session bridge &amp; message relay</span></header>
+          <pre><code class="language-typescript">const liveSessions = new Map&lt;string, any&gt;();
+
+chatWss.on('connection', async (ws: WebSocket, request: IncomingMessage) =&gt; {
+  const connectionId = randomUUID();
+
+  const geminiSession = await runPortfolioAgent(
+    connectionId,
+    (textChunk) =&gt; {
+      ws.send(JSON.stringify({ type: 'TEXT_CHUNK', text: textChunk }));
+    },
+    (step, detail) =&gt; {
+      ws.send(JSON.stringify({ type: 'AGENT_STEP', step, detail }));
+    },
+    () =&gt; {
+      ws.send(JSON.stringify({ type: 'TURN_COMPLETE' }));
+    }
+  );
+
+  liveSessions.set(connectionId, geminiSession);
+
+  ws.on('message', (message: string) =&gt; {
+    const data = JSON.parse(message.toString());
+
+    if (data?.type === 'USER_MESSAGE' &amp;&amp; typeof data.text === 'string') {
+      const session = liveSessions.get(connectionId);
+      session.sendClientContent({
+        turns: [{ role: 'user', parts: [{ text: data.text }] }],
+        turnComplete: true,
+      });
+    }
+  });
+
+  ws.on('close', () =&gt; {
+    const session = liveSessions.get(connectionId);
+    if (session) {
+      session.close();
+      liveSessions.delete(connectionId);
+    }
+  });
+});</code></pre>
+        </div>
+
+        <h3>Frontend: the WebSocket contract my Angular app consumes</h3>
+
+        <p>
+          My portfolio frontend is a separate Angular application hosted on Cloudflare Pages. It doesn&rsquo;t live in this backend repo, but it speaks a strict JSON protocol that this server defines. On connect, Eva sends a branded <code>WELCOME</code> message. The client sends user input as:
+        </p>
+
+        <div class="code-block">
+          <header><span><span class="dot"></span>Client → Server</span><span>JSON message</span></header>
+          <pre><code class="language-json">{
+  "type": "USER_MESSAGE",
+  "text": "Tell me about your Angular experience"
+}</code></pre>
+        </div>
+
+        <p>The server streams back typed events my Angular chat component handles:</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Event</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>SYSTEM</code></td><td>Connection status</td></tr>
+            <tr><td><code>WELCOME</code></td><td>Branded intro + <code>connectionId</code></td></tr>
+            <tr><td><code>TEXT_CHUNK</code></td><td>Incremental streamed text — appended live in the UI</td></tr>
+            <tr><td><code>AGENT_STEP</code></td><td>Tool-call progress (<code>planning</code>, <code>observation</code>)</td></tr>
+            <tr><td><code>TURN_COMPLETE</code></td><td>Model finished its turn — re-enable input</td></tr>
+            <tr><td><code>ERROR</code></td><td>Parse failures, missing session, connection errors</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          On the frontend, I open a native <code>WebSocket</code> to <code>wss://&lt;api-host&gt;/api/chat</code>, subscribe to incoming events, append each <code>TEXT_CHUNK</code> to the current assistant message bubble, toggle a thinking indicator on <code>AGENT_STEP</code> with <code>step: 'planning'</code>, and auto-scroll the message list on every chunk. Input is disabled until <code>TURN_COMPLETE</code> arrives.
+        </p>
+
+        <div class="callout">
+          <p>
+            <strong>Why persistent sessions matter:</strong> Because the Gemini Live connection stays open for the entire chat, follow-up questions reuse established context. &ldquo;Tell me more about that CKEditor project&rdquo; after an initial skills question is dramatically faster — the session already exists, the knowledge was already retrieved, and the model doesn&rsquo;t cold-start from zero every turn.
+          </p>
+        </div>
+
+        <div class="diagram"><span class="highlight">Angular Portfolio</span>  ──WebSocket──▶  <span class="highlight">Nginx</span>  ──proxy──▶  <span class="highlight">Express + ws</span>  ──Live API──▶  <span class="highlight">Gemini</span>
+                                                      │                              │
+                                                      │                              ▼
+                                                      │                    <span class="highlight">searchKnowledge</span>
+                                                      │                              │
+                                                      │                              ▼
+                                                      │                    <span class="highlight">Markdown KB</span>
+                                                      ▼
+                                              TEXT_CHUNK stream
+                                              back to browser</div>
+      </section>
+
+      <!-- ─────────────────────────────────────────── -->
+      <section id="phase-3">
+        <p class="phase-label">Phase 3</p>
+        <h2>Containerization &amp; VPS Deployment</h2>
+
+        <p>
+          Local development was smooth. Production needed to be boring — predictable, reproducible, and environment-agnostic. I packaged the entire backend into a <strong>multi-stage Docker image</strong> and deployed it on an <strong>InterServer VPS</strong>, fronted by <strong>Nginx</strong> as a reverse proxy to handle SSL termination and route both HTTP health checks and WebSocket upgrade traffic from Cloudflare.
+        </p>
+
+        <h3>Multi-stage Dockerfile</h3>
+
+        <p>
+          The build stage compiles TypeScript. The runtime stage ships only production dependencies and compiled output. Critically, markdown knowledge files aren&rsquo;t compiled by <code>tsc</code> — so I copy them explicitly into the runtime image at a path my <code>KnowledgeService</code> resolves at startup.
+        </p>
+
+        <div class="code-block">
+          <header><span><span class="dot"></span>Dockerfile</span><span>Multi-stage build</span></header>
+          <pre><code class="language-dockerfile"># Build stage
+FROM node:22-alpine AS builder
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+RUN npm run build
+
+# Runtime stage
+FROM node:22-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+COPY --from=builder /app/dist ./dist
+
+# Copy the static knowledge folder into the runtime image
+COPY --from=builder /app/src/knowledge ./src/knowledge
+
+EXPOSE 3000
+
+CMD ["npm", "start"]</code></pre>
+        </div>
+
+        <h3>Docker Compose</h3>
+
+        <p>
+          On the VPS, a single <code>docker compose up --build -d</code> brings everything online. Environment secrets come from a <code>.env</code> file on the host — API keys never get baked into the image layers.
+        </p>
+
+        <div class="code-block">
+          <header><span><span class="dot"></span>docker-compose.yml</span><span>Production service</span></header>
+          <pre><code class="language-yaml">version: '3.8'
+
+services:
+  backend-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: portfolio-backend-runtime
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    restart: always</code></pre>
+        </div>
+
+        <h3>Environment &amp; origin security</h3>
+
+        <div class="code-block">
+          <header><span><span class="dot"></span>src/config/env.ts</span><span>Secrets &amp; allowed origins</span></header>
+          <pre><code class="language-typescript">dotenv.config({ path: '.env.local' });
+dotenv.config({ path: '.env' });
+
+const originsString = process.env.ALLOWED_ORIGINS || 'http://localhost:4200';
+export const ALLOWED_ORIGINS_ARRAY = originsString.split(',').map(origin =&gt; origin.trim());
+
+export const env = {
+  port: process.env.PORT || 3000,
+  geminiApiKey: process.env.GEMINI_API_KEY || '',
+  nodeEnv: process.env.NODE_ENV || 'development',
+  allowedOrigins: ALLOWED_ORIGINS_ARRAY || ['http://pranay.presmistique.in'],
+};</code></pre>
+        </div>
+
+        <h3>Nginx reverse proxy (production)</h3>
+
+        <p>
+          Nginx sits between Cloudflare and my Docker container. Standard HTTP proxying handles the health endpoint. WebSocket upgrades require explicit <code>Upgrade</code> and <code>Connection</code> headers, plus an extended read timeout — Gemini Live sessions are long-lived and default Nginx timeouts will kill them.
+        </p>
+
+        <div class="code-block">
+          <header><span><span class="dot"></span>/etc/nginx/sites-available/portfolio-api</span><span>Representative config</span></header>
+          <pre><code class="language-nginx">server {
+    listen 443 ssl http2;
+    server_name api.yourdomain.com;
+
+    # SSL certs (or Cloudflare origin cert)
+    ssl_certificate     /etc/ssl/certs/origin.pem;
+    ssl_certificate_key /etc/ssl/private/origin.key;
+
+    location /api/health {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /api/chat {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 3600s;
+        proxy_send_timeout 3600s;
+    }
+}</code></pre>
+        </div>
+
+        <p>
+          The final production topology:
+        </p>
+
+        <div class="diagram">Visitor Browser
+      │
+      ▼
+<span class="highlight">Cloudflare</span> (CDN + DNS + Pages frontend)
+      │
+      ├──▶ Cloudflare Pages ──▶ Angular portfolio (static)
+      │
+      └──▶ <span class="highlight">InterServer VPS</span>
+                │
+                ▼
+            <span class="highlight">Nginx</span> (SSL + reverse proxy)
+                │
+                ▼
+            <span class="highlight">Docker Compose</span>
+                │
+                ▼
+            portfolio-backend-runtime :3000
+                │
+                ▼
+            Gemini Live API + Markdown KB</div>
+
+        <div class="callout warning">
+          <p><strong>Lesson learned:</strong> The knowledge path resolution in Docker was a gotcha. TypeScript compiles to <code>dist/</code>, but <code>.md</code> files don&rsquo;t compile. My <code>KnowledgeService</code> resolves paths relative to <code>src/knowledge/</code> at runtime, and the Dockerfile explicitly copies that directory. Without that copy step, Eva would connect fine but every tool call would fail silently on missing files.</p>
+        </div>
+      </section>
+
+      <!-- ─────────────────────────────────────────── -->
+      <section id="conclusion">
+        <h2>Key Takeaways &amp; Conclusion</h2>
+
+        <p>
+          Building Eva changed how I think about portfolio interactivity. A static site tells your story. A grounded, real-time AI agent <em>participates</em> in the conversation about your story — on your terms, with your data, under your constraints.
+        </p>
+
+        <p>Three principles carried me through:</p>
+
+        <ol>
+          <li><strong>Ground before you generate.</strong> Function calling with a strict system prompt and chunked knowledge files eliminated hallucination as a category of bug — not just reduced its likelihood.</li>
+          <li><strong>Stream before you wait.</strong> Gemini Live over WebSockets turned a functional chat into a <em>feelable</em> one. Progressive <code>TEXT_CHUNK</code> delivery and persistent session context made follow-up queries snappy.</li>
+          <li><strong>Containerize before you deploy.</strong> Docker + Compose on a VPS with Nginx in front gave me a production setup I can reproduce on any machine with a single command.</li>
+        </ol>
+
+        <p>
+          The same architecture scales beyond portfolios. Any platform that needs to guide users according to specific policies, documentation, or product knowledge — without inventing answers — can adopt this pattern: chunked knowledge sources, tool-gated retrieval, strict system instructions, real-time streaming, and containerized deployment behind a reverse proxy.
+        </p>
+
+        <p>
+          Real-time AI agents are not a gimmick on a personal website. They are a new interaction layer — one where visitors don&rsquo;t browse, they <em>ask</em>. And when the agent is built right, every answer is yours.
+        </p>
+
+        <p>
+          If you&rsquo;re a developer considering this for your own portfolio or product, start with the constraint: <strong>what must the agent never get wrong?</strong> Build the guardrails first. The streaming UX and Docker deployment are the rewarding parts — but the grounding is what makes the whole thing trustworthy.
+        </p>
+      </section>
+
+      <footer class="article-footer">
+        <p><strong>Pranay Das</strong> — Senior Software Engineer</p>
+        <p>Angular · React · Node.js · AWS · AI-powered applications</p>
+        <p><a href="https://pranay.presmistique.in">pranay.presmistique.in</a></p>
+      </footer>
+    </article>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/typescript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/docker.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/nginx.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

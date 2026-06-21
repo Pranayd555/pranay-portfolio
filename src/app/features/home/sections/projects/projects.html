@@ -7,7 +7,7 @@
     <!-- Loading Skeleton State -->
     @if (isLoading()) {
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        @for (item of [1, 2, 3]; track $index) {
+        @for (item of [1, 2, 3, 4]; track $index) {
         <div class="relative">
             <div
                 class="glass-card rounded-[2rem] p-8 h-full flex flex-col bg-white/50 dark:bg-slate-900/40 animate-pulse">
@@ -89,7 +89,7 @@
     @if (projects().length > 0) {
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         @for (project of projects(); track project.id) {
-        <div class="tilt-card group relative cursor-pointer" (click)="routeToBlog($event, project)">
+        <div class="tilt-card group relative cursor-pointer" (keydown.enter)="routeToBlog($event, project)" (click)="routeToBlog($event, project)">
             <div
                 class="glass-card rounded-[2rem] p-8 h-full flex flex-col hover:border-primary/50 transition-all duration-300 relative z-10 bg-white/50 dark:bg-slate-900/40">
                 <div

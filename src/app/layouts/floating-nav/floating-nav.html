@@ -2,7 +2,8 @@
 <div
   class="nav-overlay"
   [class.visible]="navOpen() || chatOpen()"
-  (click)="closeNav()">
+  (click)="closeNav()"
+  (keydown.escape)="closeNav()">
 </div>
 
 <!-- Trigger pill -->
@@ -39,9 +40,9 @@
 
 <!-- Panel: always in DOM, shown/hidden via class for CSS transitions to work -->
 <div
+  #navPanel
   class="nav-panel"
   [class.show]="navOpen()"
-  role="dialog"
   aria-label="Site navigation">
 
   <!-- Header -->
@@ -92,29 +93,15 @@
         <div class="submenu-inner">
           <div class="submenu-list">
 
-            <a class="sub-link" [routerLink]="['/projects/presmistique']" routerLinkActive="active" (click)="closeNav()">
-              <span class="material-symbols-outlined ni">description</span>
-              <div class="sub-label">
-                <span class="sub-title">Presmistique</span>
-                <span class="sub-sub">AI Resume Builder</span>
-              </div>
-            </a>
-
-            <a class="sub-link" [routerLink]="['/projects/ckeditor-plugin']" routerLinkActive="active" (click)="closeNav()">
-              <span class="material-symbols-outlined ni">edit_note</span>
-              <div class="sub-label">
-                <span class="sub-title">CKEditor 5</span>
-                <span class="sub-sub">Custom plugin</span>
-              </div>
-            </a>
-
-            <a class="sub-link" [routerLink]="['/projects/fruit-basket']" routerLinkActive="active" (click)="closeNav()">
-              <span class="material-symbols-outlined ni">inventory_2</span>
-              <div class="sub-label">
-                <span class="sub-title">Fruit Basket</span>
-                <span class="sub-sub">NgRx implementation</span>
-              </div>
-            </a>
+            @for (project of projects; track project.slug) {
+              <a class="sub-link" [routerLink]="['/', 'projects', project.slug]" routerLinkActive="active" (click)="closeNav()">
+                <span class="material-symbols-outlined ni">description</span>
+                <div class="sub-label">
+                  <span class="sub-title">{{project.title}}</span>
+                  <span class="sub-sub">{{project.subtitle}}</span>
+                </div>
+              </a>
+            }
 
           </div>
         </div>
