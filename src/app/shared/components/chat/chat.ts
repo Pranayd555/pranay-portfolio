@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, signal, effect, input, EventEmitter, output, inject } from '@angular/core';
+import { Component, ElementRef, ViewChild, signal, effect, input, output, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GeminiAi, GeminiResponse, Message } from '../../../services/gemini-ai';
@@ -8,8 +8,9 @@ import { GeminiAi, GeminiResponse, Message } from '../../../services/gemini-ai';
   templateUrl: './chat.html',
   styleUrl: './chat.css',
 })
-export class Chat {
-@ViewChild('scrollContainer') private scrollContainer!: ElementRef;
+export class Chat implements OnInit, OnDestroy {
+@ViewChild('scrollContainer') readonly scrollContainer!: ElementRef;
+readonly reconnectText = viewChild<ElementRef<HTMLElement>>('ReconnectText');
 
   private tabWorker!: Worker;
   // Reactive state management using Signals
@@ -21,14 +22,24 @@ export class Chat {
   public isStreaming = signal<boolean>(false);
 
   show = input<boolean>(false);
-  close = output<boolean>();
-  private geminiAI = inject(GeminiAi);
+  isCloseModal = output<boolean>();
+  readonly geminiAI = inject(GeminiAi);
 
   constructor() {
     // Auto-scroll to bottom whenever the messages array updates
     effect(() => {
       if (this.messages().length || this.isTyping()) {
         setTimeout(() => this.scrollToBottom(), 50);
+      }
+    });
+
+    // Automatically scroll to reconnecting block
+    effect(() => {
+      const textElement = this.reconnectText(); // Tracks element appearance
+      
+      if (this.isReconnecting() && textElement?.nativeElement) {
+        // No timeouts required anymore!
+        this.scrolltoReconnect(textElement.nativeElement);
       }
     });
 
@@ -43,19 +54,19 @@ export class Chat {
       if(response.type === "ERROR" || response.type === "WELCOME") {
         // handle error message.
         chatMsg = {
-        id: window.crypto.randomUUID(),
+        id: globalThis.crypto.randomUUID(),
         sender: 'bot',
         type: response.type,
         text: response.message || '',
         timestamp: new Date()
         }
+        if(response.type === 'ERROR') this.isReconnecting.set(true);
       this.messages.update(prev => [...prev, chatMsg]);
       }
       if(response.type === "AGENT_STEP") {
         if(response.step === "closed") {
           this.geminiAI.disconnect();
           this.isReconnecting.set(true);
-          this.scrollToBottom();
         }
       }
       if(response.type === "TEXT_CHUNK") {
@@ -64,7 +75,7 @@ export class Chat {
        
         const updatedList: Message[] = [...prev];
 
-        if (updatedList.length > 0 && updatedList[updatedList.length - 1].type === "TEXT_CHUNK") {
+        if (updatedList.length > 0 && updatedList.at(-1)?.type === "TEXT_CHUNK") {
           const lastIndex = updatedList.length - 1;
 
           updatedList[lastIndex] = {
@@ -74,7 +85,7 @@ export class Chat {
         } else {
          
           chatMsg = {
-            id: window.crypto.randomUUID(),
+            id: globalThis.crypto.randomUUID(),
             sender: 'bot',
             type: response.type,
             text: response.text || '',
@@ -109,15 +120,14 @@ export class Chat {
         switch (data.action) {
           case 'CACHE_SUCCESS':
               if (data.payload.length > 0) {
-                console.log('CACHE_SUCCESS', data.payload[0]?.raw ? 
-                data.payload[0].raw : '');
+                console.log('CHAT_CACHE_SUCCESS');
               }
             break;
             
           case 'FETCH_SUCCESS':
             if (data.payload.length > 0) {
               if (data.payload[0].raw && data.payload[0].raw.length > 0) this.messages.set(data.payload[0].raw);
-              console.log('FETCH_SUCCESS', data.payload[0].raw)
+              console.log('CHAT_FETCH_SUCCESS')
             }
             break;
 
@@ -142,7 +152,7 @@ export class Chat {
     if (!query) return;
 
     const userMsg: Message = {
-      id: window.crypto.randomUUID(),
+      id: globalThis.crypto.randomUUID(),
       sender: 'user',
       text: query,
       type: 'message',
@@ -163,17 +173,29 @@ export class Chat {
   }
 
   public closeModal(): void {
-    this.close.emit(true);
+    this.isCloseModal.emit(true);
   }
 
   private scrollToBottom(): void {
     try {
       if (this.scrollContainer?.nativeElement) {
-        this.scrollContainer.nativeElement.scrollTop = this.scrollContainer.nativeElement.scrollHeight;
+        const element = this.scrollContainer.nativeElement;
+    
+        element.scrollTo({
+          top: element.scrollHeight,
+          behavior: 'smooth' 
+        });
       }
     } catch (err) {
       console.warn('Scroll anchor skipped:', err);
     }
+  }
+
+  private scrolltoReconnect(element: HTMLElement) {
+    element.scrollIntoView({ 
+      behavior: 'smooth', 
+      block: 'start' 
+    });
   }
 
   /**

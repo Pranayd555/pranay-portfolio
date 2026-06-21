@@ -112,10 +112,10 @@
       }
 
       @if (isReconnecting()) {
-        <p
+        <p #ReconnectText
           class="text-[10px] font-mono text-white opacity-40 uppercase tracking-wider mt-auto pt-4"
         > I am a sleppy cat, please
-          <span (click)="reconnectChat()" (keydown.enter)="reconnectChat()" class="cursor-pointer hover:opacity-100 hover:underline"
+          <span (click)="reconnectChat()" (keydown.enter)="reconnectChat()" class=" animate-pulse cursor-pointer hover:opacity-100 hover:underline"
             >wake me</span
           >
           up

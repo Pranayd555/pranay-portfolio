@@ -77,7 +77,7 @@ export class FloatingNavComponent {
     this.chatOpen.update(v => !v);
   }
 
-  closeChat(close: boolean): void {
+  closeChat(close: Event): void {
     if(close) {
       this.chatOpen.set(false);
     }
