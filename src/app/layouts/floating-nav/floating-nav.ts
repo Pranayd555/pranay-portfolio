@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, effect, ElementRef, HostListener, inject, signal, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, inject, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavigationStart, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -17,7 +17,7 @@ import { ALLOWED_PROJECTS } from '../../core/config/project.config';
 export class FloatingNavComponent {
 
   @ViewChild('chatModal')
-  chatModalElement!: ElementRef<HTMLDialogElement>;
+  chatComponent!: Chat;
 
   readonly router = inject(Router);
   readonly projects = ALLOWED_PROJECTS;
@@ -38,18 +38,6 @@ export class FloatingNavComponent {
     })
 
     
-  effect(() => {
-    const modal = this.chatModalElement?.nativeElement;
-    if (!modal) return;
-
-    const isOpen = this.chatOpen();
-
-    if (isOpen && !modal.open) {
-      modal.showModal();
-    } else if (!isOpen && modal.open) {
-      modal.close();
-    }
-});
   
   this.geminiAI.showChat.pipe(
     takeUntilDestroyed()
@@ -77,7 +65,7 @@ export class FloatingNavComponent {
     this.chatOpen.update(v => !v);
   }
 
-  closeChat(close: Event): void {
+  closeChat(close:boolean): void {
     if(close) {
       this.chatOpen.set(false);
     }
