@@ -40,6 +40,10 @@ import { ThemeService } from '../../core/services/theme.service';
              class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors font-medium text-sm uppercase tracking-wide cursor-pointer">
             Projects
           </a>
+          <a routerLink="/projects/codelens-graph"
+             class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors font-medium text-sm uppercase tracking-wide cursor-pointer">
+            CodeLens Blog
+          </a>
           <a routerLink="/contact"
              class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors font-medium text-sm uppercase tracking-wide cursor-pointer">
             Contact
@@ -71,6 +75,7 @@ import { ThemeService } from '../../core/services/theme.service';
           <a (click)="closeMenu()" routerLink="/about"      class="text-slate-900 dark:text-white hover:text-primary font-medium text-lg">About</a>
           <a (click)="closeMenu()" routerLink="/experience" class="text-slate-900 dark:text-white hover:text-primary font-medium text-lg">Experience</a>
           <a (click)="closeMenu()" routerLink="/projects"   class="text-slate-900 dark:text-white hover:text-primary font-medium text-lg">Projects</a>
+          <a (click)="closeMenu()" routerLink="/projects/codelens-graph" class="text-slate-900 dark:text-white hover:text-primary font-medium text-lg">CodeLens Blog</a>
           <a (click)="closeMenu()" routerLink="/contact"    class="text-slate-900 dark:text-white hover:text-primary font-medium text-lg">Contact</a>
         </div>
       </div>

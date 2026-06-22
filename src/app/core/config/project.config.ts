@@ -8,6 +8,7 @@ export interface ProjectConfig {
     { slug: 'eva-ai', title: 'EVA AI Chatbot', subtitle: 'Personal Chatbot' },
     { slug: 'presmistique', title: 'Presmistique', subtitle: 'AI Resume Builder' },
     { slug: 'ckeditor-plugin', title: 'CKEditor Plugin', subtitle: 'Rich Text Extension' },
+    { slug: 'codelens-graph', title: 'CodeLens Graph', subtitle: 'AI Codebase Indexer' },
     { slug: 'fruit-basket', title: 'Fruit Basket', subtitle: 'E-commerce App' }
   ];
   

@@ -168,12 +168,36 @@
   transition: grid-template-rows 0.24s ease;
 }
 .submenu-wrap.open { grid-template-rows: 1fr; }
-.submenu-inner     { overflow: hidden; }
+.submenu-inner {
+  overflow-y: auto;
+  max-height: 11.5rem;
+  padding-right: 4px;
+}
+.submenu-inner::-webkit-scrollbar {
+  width: 10px;
+}
+.submenu-inner::-webkit-scrollbar-track {
+  background: rgba(148, 163, 184, 0.08);
+  border-radius: 9999px;
+}
+.submenu-inner::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.32);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.submenu-inner::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.55);
+}
+.submenu-inner {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(99, 102, 241, 0.32) rgba(148, 163, 184, 0.08);
+}
 .submenu-list {
   margin: 4px 0 4px 14px;
   padding: 0 0 4px 12px;
   border-left: 1px solid rgba(255, 255, 255, 0.07);
-  display: flex; flex-direction: column; gap: 2px;
+  display: flex; flex-direction: column; gap: 8px;
 }
 
 .sub-link {
