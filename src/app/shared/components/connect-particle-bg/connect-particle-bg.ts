@@ -4,7 +4,6 @@ import {
   DestroyRef,
   ElementRef,
   inject,
-  OnDestroy,
   PLATFORM_ID,
   ViewChild,
   afterNextRender,
@@ -12,13 +11,13 @@ import {
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { AfterimagePass } from 'three/examples/jsm/postprocessing/AfterimagePass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { HDRLoader } from 'three/examples/jsm/loaders/HDRLoader.js';
 
 const ASSETS = {
   hdr: '/assets/animations/GRADIENT_01_01_comp.hdr',
@@ -77,12 +76,12 @@ function easeInOutCubic(x: number): number {
   template: `<canvas #canvas class="w-full h-full block"></canvas>`,
   styleUrl: './connect-particle-bg.css',
 })
-export class ConnectParticleBg implements OnDestroy {
+export class ConnectParticleBg {
   @ViewChild('canvas') canvasRef!: ElementRef<HTMLCanvasElement>;
 
-  private destroyRef = inject(DestroyRef);
-  private platformId = inject(PLATFORM_ID);
-  private document = inject(DOCUMENT);
+  readonly destroyRef = inject(DestroyRef);
+  readonly platformId = inject(PLATFORM_ID);
+  readonly document = inject(DOCUMENT);
 
   private scene!: THREE.Scene;
   private camera!: THREE.PerspectiveCamera;
@@ -139,7 +138,7 @@ export class ConnectParticleBg implements OnDestroy {
 
     this.scene.fog = new THREE.FogExp2(0x050a14, 0.4);
 
-    const hdrLoader = new RGBELoader();
+    const hdrLoader = new HDRLoader();
     hdrLoader.load(
       ASSETS.hdr,
       (texture) => {
@@ -245,8 +244,7 @@ export class ConnectParticleBg implements OnDestroy {
       }
       this.transitionStartCameraPosition.copy(this.camera.position);
       this.transitionStartCameraQuaternion.copy(this.camera.quaternion);
-    } else {
-      if (this.transitionProgress < 1) {
+    } else if (this.transitionProgress < 1) {
         this.transitionProgress += this.transitionIncrement;
         const eased = easeInOutCubic(this.transitionProgress);
         this.camera.position.lerpVectors(
@@ -261,11 +259,11 @@ export class ConnectParticleBg implements OnDestroy {
         this.camera.position.copy(targetPosition);
         this.camera.quaternion.copy(targetQuaternion);
       }
-    }
+    
     this.camera.lookAt(this.scene.position);
   }
 
-  private animate = (): void => {
+  readonly animate = (): void => {
     if (!this.renderer?.domElement?.isConnected) return;
     this.animationFrameId = requestAnimationFrame(this.animate);
     this.controls?.update();
@@ -303,7 +301,7 @@ export class ConnectParticleBg implements OnDestroy {
             (Array.isArray(mesh.material)
               ? mesh.material
               : [mesh.material]
-            ).forEach((m) => (m as THREE.Material).dispose());
+            ).forEach((m) => (m).dispose());
           }
         }
       });
@@ -325,5 +323,4 @@ export class ConnectParticleBg implements OnDestroy {
     this.scene?.clear();
   }
 
-  ngOnDestroy(): void {}
 }

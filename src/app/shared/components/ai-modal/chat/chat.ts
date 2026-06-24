@@ -1,7 +1,7 @@
-import { Component, ElementRef, ViewChild, signal, effect, input, output, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild, signal, effect, input, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { GeminiAi, GeminiResponse, Message } from '../../../services/gemini-ai';
+import { GeminiAi, GeminiResponse, Message } from '../../../../services/gemini-ai';
 @Component({
   selector: 'app-chat',
   imports: [CommonModule, FormsModule],
@@ -18,11 +18,9 @@ readonly reconnectText = viewChild<ElementRef<HTMLElement>>('ReconnectText');
   public userInput = signal<string>('');
   public isTyping = signal<boolean>(false);
   public isReconnecting = signal<boolean>(false);
-  public isResetting = signal<boolean>(false);
   public isStreaming = signal<boolean>(false);
+  public serverConnected = signal<boolean>(false);
 
-  show = input<boolean>(false);
-  isCloseModal = output<boolean>();
   readonly geminiAI = inject(GeminiAi);
 
   constructor() {
@@ -47,10 +45,10 @@ readonly reconnectText = viewChild<ElementRef<HTMLElement>>('ReconnectText');
     this.geminiAI.message$.subscribe((response: GeminiResponse) => {
       if(response.type !== "AGENT_STEP") {
         this.isTyping.set(false);
-        this.isResetting.set(false);
       }
       let chatMsg: Message;
       this.isReconnecting.set(false);
+      this.serverConnected.set(true);
       if(response.type === "ERROR" || response.type === "WELCOME") {
         // handle error message.
         chatMsg = {
@@ -106,13 +104,18 @@ readonly reconnectText = viewChild<ElementRef<HTMLElement>>('ReconnectText');
   }
 
   reconnectChat() {
+    this.geminiAI.disconnect();
+    this.serverConnected.set(false);
+    const t = setTimeout(()=> {
+      clearTimeout(t);
     this.geminiAI.connect();
+    }, 1000);
   }
 
   ngOnInit() {
     this.geminiAI.connect();
     if (typeof Worker !== 'undefined') {
-      this.tabWorker = new Worker(new URL('../../workers/chat.worker', import.meta.url), {
+      this.tabWorker = new Worker(new URL('../../../workers/chat.worker', import.meta.url), {
         type: 'module'
       });
 
@@ -172,10 +175,6 @@ readonly reconnectText = viewChild<ElementRef<HTMLElement>>('ReconnectText');
     }
   }
 
-  public closeModal(): void {
-    this.isCloseModal.emit(true);
-  }
-
   private scrollToBottom(): void {
     try {
       if (this.scrollContainer?.nativeElement) {
@@ -228,16 +227,11 @@ readonly reconnectText = viewChild<ElementRef<HTMLElement>>('ReconnectText');
   }
 
   resetConnection() {
-    this.isResetting.set(true);
     this.geminiAI.disconnect();
     this.tabWorker.postMessage({
       action: 'CLEAR_CACHE',
       payload: {}
     })
-    const t = setTimeout(()=> {
-      this.reconnectChat();
-      clearTimeout(t);
-    }, 1000);
   }
 
   ngOnDestroy(): void {

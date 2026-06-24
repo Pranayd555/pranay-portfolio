@@ -148,6 +148,8 @@
   <div class="panel-foot hidden md:block">Press <kbd>Esc</kbd> to close</div>
 
 </div>
+@defer(when chatOpen()) {
 @if(chatOpen()) {
-<app-chat #chatModal [show]="chatOpen()" (isCloseModal)="closeChat($event)" />
+<app-ai-modal #aiModal [show]="chatOpen()" (isCloseModal)="closeChat($event)" />
+}
 }

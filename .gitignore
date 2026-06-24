@@ -45,3 +45,6 @@ Thumbs.db
 
 # Windows reserved device name (created when redirecting to nul in project dir)
 nul
+
+# CodeLens Graph local index
+.codelens/

@@ -92,7 +92,7 @@ export class GeminiAi {
   public sendMessage(payload: any): void {
     if (!this.socket$ || this.socket$.closed) {
       this.handleFinalFailure();
-    }
+    } else
     this.socket$.next(payload);
   }
 

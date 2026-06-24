@@ -209,6 +209,65 @@ export const projectDetailsData: IProjectDetails[] = [
             "CSS",
         ]
     },
+    {
+        id: 'codelens-graph',
+        title: 'CodeLens Graph — AI Codebase Knowledge Graph',
+        shortDescription: 'A VS Code extension that indexes source code into a graph and exposes MCP tools for safe AI-assisted reasoning.',
+
+        overview: `
+        CodeLens Graph builds an indexed knowledge graph of a codebase and exposes it through a Model Context Protocol toolset. It uses Tree-sitter for AST parsing, sql.js for compact graph persistence, and MCP to let AI assistants query only the symbols and references they need.
+        `.trim(),
+
+        whyBuilt: `
+        The goal was to avoid asking an LLM to read full source files. Instead, the extension enables agents to perform safe, deterministic queries against a code graph and reduces hallucination risk by keeping the tool output small and precise.
+        `.trim(),
+
+        problemsSolved: [
+            'Reduced LLM token cost by providing graph-driven query tools instead of raw file dumps',
+            'Created reliable symbol extraction using Tree-sitter WASM, with a regex fallback for unsupported languages',
+            'Persisted workspace graph state in a cross-platform SQLite WASM database',
+            'Offered an MCP interface so AI assistants can triage, search, and inspect code safely',
+        ],
+
+        keyFeatures: [
+            'Language-aware AST parsing with Tree-sitter and fallback parsing rules',
+            'Graph storage of nodes, edges, and call references using `sql.js`',
+            'Model Context Protocol tools like `codelens_triage`, `codelens_search`, and `codelens_context`',
+            'Skill generation for agents to keep tool usage aligned with the graph',
+        ],
+
+        showcasedSkills: [
+            'Code analysis architecture',
+            'MCP / tool-based AI integration',
+            'WASM-based persistence and parsing',
+            'Graph data modeling',
+            'VS Code extension design',
+        ],
+
+        bottlenecksFaced: [
+            'Tree-sitter WASM grammars increase bundle complexity and require careful loading',
+            'sql.js stores the graph in memory, which can grow for large repositories',
+            'Balancing precise tool outputs with enough context for agents to make decisions',
+        ],
+
+        howTheyWereSolved: [
+            'Added a regex fallback parser for unsupported languages',
+            'Kept the graph schema compact and focused on essential metadata',
+            'Used a triage tool to force the agent to select the smallest next step',
+        ],
+
+        demoGif: '',
+        liveUrl: '',
+        repoUrl: 'https://github.com/Pranayd555/codelens-graph',
+
+        technologies: [
+            'TypeScript',
+            'Tree-sitter',
+            'sql.js',
+            'MCP',
+            'VS Code',
+        ]
+    },
 
     {
         id: 'fruit-basket',

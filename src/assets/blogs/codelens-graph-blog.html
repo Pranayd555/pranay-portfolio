@@ -1,0 +1,253 @@
+<article class="max-w-5xl mx-auto px-4 py-10 md:py-14">
+  <header class="glass-card rounded-[2rem] p-6 md:p-10 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+    <p class="text-xs md:text-sm font-semibold tracking-wider uppercase text-slate-600 dark:text-slate-400">
+      Case study
+    </p>
+
+    <h1 class="mt-3 text-3xl md:text-5xl font-extrabold leading-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-slate-700 to-slate-500 dark:from-white dark:via-slate-200 dark:to-slate-400">
+      CodeLens Graph — Knowledge & Design
+    </h1>
+
+    <p class="mt-5 text-base md:text-lg leading-relaxed text-slate-700 dark:text-slate-300 max-w-3xl">
+      A VS Code extension that indexes a codebase into a symbol graph, persists it with SQLite WASM, and exposes lightweight tools for AI assistants using MCP. This post explains the architecture, trade-offs, and the design decisions behind the parser, graph DB, and toolchain.
+    </p>
+
+    <div class="mt-6 flex flex-wrap gap-2">
+      <span class="text-[10px] md:text-xs uppercase tracking-wider px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
+        AI tooling
+      </span>
+      <span class="text-[10px] md:text-xs uppercase tracking-wider px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300/70 dark:border-white/5">
+        VS Code extension
+      </span>
+      <span class="text-[10px] md:text-xs uppercase tracking-wider px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300/70 dark:border-white/5">
+        Model Context Protocol
+      </span>
+      <span class="text-[10px] md:text-xs uppercase tracking-wider px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300/70 dark:border-white/5">
+        Tree-sitter / WASM
+      </span>
+      <span class="text-[10px] md:text-xs uppercase tracking-wider px-3 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300/70 dark:border-white/5">
+        SQLite / sql.js
+      </span>
+    </div>
+  </header>
+
+  <div class="mt-8 space-y-6">
+    <section class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+        Overview
+      </h2>
+
+      <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+        CodeLens Graph combines a background indexing pipeline with a lightweight graph database and an MCP server to offer safe, low-token tools for AI assistants. It is built to help agents reason about a codebase without reading the entire repository directly.
+      </p>
+
+      <div class="mt-5 grid gap-4 md:grid-cols-2">
+        <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white">Primary features</h3>
+          <ul class="mt-3 space-y-2 text-slate-700 dark:text-slate-300 leading-relaxed">
+            <li>Background indexing of symbols, relationships, imports, and call references</li>
+            <li>Persistent graph storage using `sql.js` and WASM SQLite</li>
+            <li>Tree-sitter grammars with a regex fallback for unsupported languages</li>
+            <li>MCP tools like `codelens_triage`, `codelens_search`, and `codelens_context`</li>
+            <li>Skill generation for AI agents and tooling that minimizes token cost</li>
+          </ul>
+        </div>
+        <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white">Why it exists</h3>
+          <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+            To make codebase analysis precise and predictable for LLMs, the extension shifts from full-file reading to a graph-driven toolset. This reduces hallucinations and helps assistants operate with only the exact symbols and references they need.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+        High-level architecture
+      </h2>
+
+      <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+        The project is split into three core layers: indexing, persistence, and AI tooling. Each layer is kept modular so the extension can be extended with new languages, new graph queries, or new agent tools without rewriting the whole stack.
+      </p>
+
+      <div class="mt-5 grid gap-4 md:grid-cols-3">
+        <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+          <p class="text-sm uppercase tracking-wider text-slate-500 dark:text-slate-400">Parser</p>
+          <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+            Uses Tree-sitter WASM grammars and a regex fallback to extract symbols, declarations, imports, and call expressions.
+          </p>
+        </div>
+        <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+          <p class="text-sm uppercase tracking-wider text-slate-500 dark:text-slate-400">Graph DB</p>
+          <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+            Persists nodes, edges, and call references using `sql.js`, providing a compact workspace database that can be queried quickly.
+          </p>
+        </div>
+        <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+          <p class="text-sm uppercase tracking-wider text-slate-500 dark:text-slate-400">MCP and Skills</p>
+          <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+            Exposes deterministic agent tools via Model Context Protocol and generates skill files to keep tool usage aligned with the graph.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+        Build & development workflow
+      </h2>
+
+      <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+        This is a TypeScript extension project with a dev workflow centered on `esbuild`. The build pipeline supports both fast watch builds and production packaging via `vsce`.
+      </p>
+
+      <div class="mt-5 grid gap-4 md:grid-cols-2">
+        <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white">Development</h3>
+          <ul class="mt-3 space-y-2 text-slate-700 dark:text-slate-300 leading-relaxed">
+            <li><code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">npm run watch</code></li>
+            <li><code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">npm run compile</code></li>
+            <li><code class="font-mono text-xs px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800">npm run package</code></li>
+          </ul>
+        </div>
+        <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+          <h3 class="text-lg font-bold text-slate-900 dark:text-white">Standards</h3>
+          <p class="mt-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+            The extension is designed for reproducibility: dev watch builds, a production bundle, and a standalone MCP entrypoint for CLI tool use.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+        Dependencies and why they matter
+      </h2>
+
+      <div class="mt-5 space-y-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+        <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+          <h3 class="font-semibold text-slate-900 dark:text-white">@modelcontextprotocol/sdk</h3>
+          <p>The MCP SDK is used for exposing tool definitions and server transport so AI assistants can call graph queries deterministically.</p>
+        </div>
+        <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+          <h3 class="font-semibold text-slate-900 dark:text-white">sql.js</h3>
+          <p>sqlite in WASM makes graph persistence cross-platform without native binaries, using a compact in-memory database that can be exported to disk.</p>
+        </div>
+        <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+          <h3 class="font-semibold text-slate-900 dark:text-white">web-tree-sitter + tree-sitter-wasms</h3>
+          <p>These packages give the parser language-aware AST extraction, with a fallback for unsupported files to preserve robustness.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+        Key design decisions & trade-offs
+      </h2>
+
+      <div class="mt-5 space-y-4">
+        <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+          <h3 class="font-semibold text-slate-900 dark:text-white">WASM parsing over regex whenever possible</h3>
+          <p>Tree-sitter delivers more accurate symbol extraction and call analysis than regex. The trade-off is bundle complexity and WASM loading, so a regex fallback is included for unsupported cases.</p>
+        </div>
+        <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+          <h3 class="font-semibold text-slate-900 dark:text-white">`sql.js` persistence instead of native SQLite</h3>
+          <p>This avoids native dependencies and keeps the extension sandbox-friendly. The downside is higher memory use for large graphs, but it remains the safest cross-platform option.</p>
+        </div>
+        <div class="p-5 rounded-2xl bg-slate-100/70 dark:bg-white/5 border border-slate-200/60 dark:border-white/5">
+          <h3 class="font-semibold text-slate-900 dark:text-white">MCP tools to reduce token cost</h3>
+          <p>Instead of reading raw files, the extension exposes small query tools and a triage step. This design minimizes unnecessary reads and forces the agent to work from exact graph results.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+        Reproduce it
+      </h2>
+
+      <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+        The repository is intended to be easy to build and inspect. The development workflow is a standard TypeScript build with watch mode and packaging support.
+      </p>
+
+      <pre class="mt-5 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>npm install
+npm run watch
+npm run compile
+npm run package</code></pre>
+
+      <p class="mt-4 text-slate-700 dark:text-slate-300 leading-relaxed">
+        After building, run the MCP server with:
+      </p>
+
+      <pre class="mt-4 overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100 p-4 text-xs md:text-sm"><code>node dist/mcp.js /path/to/workspace</code></pre>
+    </section>
+
+    <section class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+        Troubleshooting & common issues
+      </h2>
+
+      <ul class="mt-4 space-y-3 text-slate-700 dark:text-slate-300 leading-relaxed">
+        <li>
+          <strong>Tree-sitter fails to initialize:</strong> ensure `tree-sitter.wasm` and language WASM files are available in `dist/wasm` or from `node_modules/tree-sitter-wasms/out`.
+        </li>
+        <li>
+          <strong>sql.js WASM path errors:</strong> the graph loader resolves `dist/wasm` first then `node_modules/sql.js/dist`.
+        </li>
+        <li>
+          <strong>Large repo memory use:</strong> limit the indexed workspace or consider a native SQLite fallback if RAM becomes a problem.
+        </li>
+      </ul>
+    </section>
+
+    <section class="glass-card rounded-[2rem] p-6 md:p-8 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5">
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
+        Example excerpts
+      </h2>
+
+      <div class="space-y-4">
+        <div class="rounded-2xl overflow-hidden border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100">
+          <div class="px-4 py-3 bg-slate-900/80 text-slate-200 text-sm font-semibold">Parser mapping</div>
+          <pre class="overflow-x-auto p-4 text-xs md:text-sm"><code>const EXTENSION_MAP: Record<string, { language: string; wasm: string }> = {
+  '.ts':   { language: 'typescript', wasm: 'tree-sitter-typescript.wasm' },
+  '.tsx':  { language: 'tsx',        wasm: 'tree-sitter-tsx.wasm'        },
+  '.js':   { language: 'javascript', wasm: 'tree-sitter-javascript.wasm' },
+  '.jsx':  { language: 'javascript', wasm: 'tree-sitter-javascript.wasm' },
+  '.mjs':  { language: 'javascript', wasm: 'tree-sitter-javascript.wasm' },
+  '.py':   { language: 'python',     wasm: 'tree-sitter-python.wasm'     },
+  '.go':   { language: 'go',         wasm: 'tree-sitter-go.wasm'         },
+  '.rs':   { language: 'rust',       wasm: 'tree-sitter-rust.wasm'       },
+  '.java': { language: 'java',       wasm: 'tree-sitter-java.wasm'       },
+  '.cs':   { language: 'c_sharp',    wasm: 'tree-sitter-c_sharp.wasm'    },
+};</code></pre>
+        </div>
+
+        <div class="rounded-2xl overflow-hidden border border-slate-200/60 dark:border-white/5 bg-slate-950 text-slate-100">
+          <div class="px-4 py-3 bg-slate-900/80 text-slate-200 text-sm font-semibold">MCP triage handler</div>
+          <pre class="overflow-x-auto p-4 text-xs md:text-sm"><code>tool(
+  'codelens_triage',
+  'CALL THIS FIRST before any file operation or other CodeLens tool.',
+  { task: z.string().describe('What you are about to do, in plain English') },
+  async ({ task }: { task: string }) => {
+    const r     = classifyTask(task);
+    const stats = this.db.getStats();
+    const next  = r.tier === 1
+      ? '✅ No CodeLens call needed. Proceed directly.'
+      : '→ Next: ' + r.nextTool;
+    return txt([
+      '## CodeLens Triage',
+      'Task: "' + task + '"',
+      'Tier ' + r.tier + ' — ' + r.label + ' | Cost: ' + r.cost,
+      'Action: ' + r.instruction,
+      '',
+      next,
+      '',
+      'Graph: ' + stats.totalNodes + ' symbols · ' + stats.fileCount + ' files indexed',
+    ].join('\n'));
+  }
+);</code></pre>
+        </div>
+      </div>
+    </section>
+  </div>
+</article>

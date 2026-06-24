@@ -36,6 +36,16 @@ export const projectsData: IProject[] = [
         }
     },
     {
+        "id": "codelens-graph",
+        "title": "CodeLens Graph",
+        "description": "A VS Code extension that builds an indexed symbol graph of source code and exposes AI-safe query tools via MCP.",
+        "icon": "insights",
+        "technologies": ["TypeScript", "Tree-sitter", "sql.js", "MCP", "VS Code"],
+        "links": {
+            "sourceCode": "https://github.com/Pranayd555/codelens-graph"
+        }
+    },
+    {
         "id": "fruit-basket",
         "title": "Fruit Basket",
         "description": "Full-stack e-commerce simulation with NgRx state management, custom directives, and reactive forms.",
