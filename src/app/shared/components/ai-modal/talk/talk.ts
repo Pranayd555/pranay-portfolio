@@ -1,12 +1,13 @@
-import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, effect, ElementRef, OnDestroy, output, signal, ViewChild } from '@angular/core';
-import * as THREE from 'three';
-import { WebGLRenderer, Scene, PerspectiveCamera, Points, Clock, Color } from 'three';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { afterNextRender, AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, effect, ElementRef, inject, OnDestroy, output, PLATFORM_ID, signal, ViewChild } from '@angular/core';
+import { WebGLRenderer, Scene, PerspectiveCamera, Points, Clock, Color, IcosahedronGeometry,  PointsMaterial, AdditiveBlending, Material} from 'three';
 @Component({
   selector: 'app-talk',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './talk.html',
   styleUrl: './talk.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Talk implements AfterViewInit, OnDestroy {
   @ViewChild('threeCanvas') canvasRef!: ElementRef<HTMLCanvasElement>;
@@ -17,6 +18,8 @@ export class Talk implements AfterViewInit, OnDestroy {
   userTranscript = signal<string>('');
   evaResponseText = signal<string>('');
   isMuted = signal<boolean>(false);
+  readonly platformId = inject(PLATFORM_ID);
+  private destroyRef = inject(DestroyRef);
 
   // Three.js Core Engines
   private renderer!: WebGLRenderer;
@@ -60,10 +63,19 @@ export class Talk implements AfterViewInit, OnDestroy {
           break;
       }
     });
+
+    afterNextRender(() => {
+            if (isPlatformBrowser(this.platformId)) {
+                this.initThreeEngine();
+            }
+        });
+
+        this.destroyRef.onDestroy(() => {
+            this.cleanup();
+        });
   }
 
   ngAfterViewInit() {
-    this.initThreeEngine();
   }
 
   ngOnDestroy() {
@@ -82,17 +94,17 @@ export class Talk implements AfterViewInit, OnDestroy {
     const height = canvas.parentElement!.clientHeight;
 
     // 1. Scene & Camera Setup
-    this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+    this.scene = new Scene();
+    this.camera = new PerspectiveCamera(45, width / height, 0.1, 100);
     this.camera.position.z = 5;
 
     // 2. WebGL Renderer
-    this.renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    this.renderer = new WebGLRenderer({ canvas, alpha: true, antialias: true });
     this.renderer.setSize(width, height);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
     // 3. Build Holographic Particle Geometry
-    const geometry = new THREE.IcosahedronGeometry(1.5, 4); // Subdivided point structure
+    const geometry = new IcosahedronGeometry(1.5, 4); // Subdivided point structure
     
     // Backup original positions for procedural wave calculations
     const positionAttribute = geometry.attributes['position'];
@@ -103,16 +115,16 @@ export class Talk implements AfterViewInit, OnDestroy {
     (geometry as any).userData = { originalPositions };
 
     // 4. Particle Texture / Styling Material
-    const material = new THREE.PointsMaterial({
+    const material = new PointsMaterial({
       size: 0.035,
       color: this.currentColor,
       transparent: true,
       opacity: 0.85,
-      blending: THREE.AdditiveBlending,
+      blending: AdditiveBlending,
       depthWrite: false
     });
 
-    this.particleMesh = new THREE.Points(geometry, material);
+    this.particleMesh = new Points(geometry, material);
     this.scene.add(this.particleMesh);
 
     // 5. Handle Resize Listeners
@@ -136,7 +148,7 @@ export class Talk implements AfterViewInit, OnDestroy {
     this.currentColor.lerp(this.targetColor, 0.1);
     
     // Update active particle coloring
-    (this.particleMesh.material as THREE.PointsMaterial).color.copy(this.currentColor);
+    (this.particleMesh.material as PointsMaterial).color.copy(this.currentColor);
 
     // Constant structural rotations
     this.particleMesh.rotation.y = elapsed * 0.15;
@@ -196,4 +208,17 @@ export class Talk implements AfterViewInit, OnDestroy {
 
   toggleSystemMute() { this.isMuted.set(!this.isMuted()); }
   switchToChatMode() { /* State controller logic back to text-chat */ }
+
+  private cleanup(): void {
+          if (this.animationFrameId) cancelAnimationFrame(this.animationFrameId);
+  
+          this.camera.clear();
+  
+          if (this.renderer) this.renderer.dispose();
+          if (this.particleMesh) {
+              this.particleMesh.geometry.dispose();
+              (this.particleMesh.material as Material).dispose();
+          }
+          this.scene?.clear();
+      }
 }
