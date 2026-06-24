@@ -2,22 +2,22 @@ import { ChangeDetectionStrategy, Component, HostListener, inject, signal, ViewC
 import { CommonModule } from '@angular/common';
 import { NavigationStart, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Chat } from '../../shared/components/chat/chat';
 import { GeminiAi } from '../../services/gemini-ai';
 import { ALLOWED_PROJECTS } from '../../core/config/project.config';
+import { AiModal } from "../../shared/components/ai-modal/ai-modal";
 
 @Component({
   selector: 'app-floating-nav',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, Chat],
+  imports: [CommonModule, RouterLink, RouterLinkActive, AiModal],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './floating-nav.html',
   styleUrl: './floating-nav.css'
 })
 export class FloatingNavComponent {
 
-  @ViewChild('chatModal')
-  chatComponent!: Chat;
+  @ViewChild('aiModal')
+  chatComponent!: AiModal;
 
   readonly router = inject(Router);
   readonly projects = ALLOWED_PROJECTS;

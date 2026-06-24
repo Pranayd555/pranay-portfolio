@@ -149,5 +149,5 @@
 
 </div>
 @if(chatOpen()) {
-<app-chat #chatModal [show]="chatOpen()" (isCloseModal)="closeChat($event)" />
+<app-ai-modal #aiModal [show]="chatOpen()" (isCloseModal)="closeChat($event)" />
 }
