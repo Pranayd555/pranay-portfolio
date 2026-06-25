@@ -5,7 +5,7 @@
   <div class="absolute inset-0 pointer-events-none bg-radial-gradient from-purple-500/5 via-transparent to-transparent blur-3xl"></div>
   
   <!-- WebGL Render Node -->
-  <canvas #threeCanvas class="absolute inset-0 w-full h-full block z-0"></canvas>
+  <app-talk-animation-bg class="absolute inset-0 w-full h-full block z-0" #talkAnimationBg [state]="currentState()"/>
   
   <!-- Immersive Subtext Display Overlay -->
   <div class="absolute inset-x-6 z-10 flex flex-col items-center text-center space-y-3 select-none">
