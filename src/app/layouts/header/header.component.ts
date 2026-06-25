@@ -16,7 +16,6 @@ import { ThemeService } from '../../core/services/theme.service';
           <div class="flex size-10 shrink-0 items-center overflow-hidden rounded-full border-2 border-primary cursor-pointer" (click)="routeToHome()">
             <img src="/pranay_logo.png"
                  alt="Pranay Das Logo"
-                 loading="lazy"
                  class="w-full h-full object-cover">
           </div>
           <h2 class="text-lg font-bold leading-tight tracking-tight text-slate-900 dark:text-white">Pranay Das</h2>

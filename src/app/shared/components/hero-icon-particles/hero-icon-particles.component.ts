@@ -230,11 +230,12 @@ export class HeroIconParticlesComponent implements OnDestroy {
   }
 
   private getIconUrls(): string[] {
-    return skillsData
+    const skillIcons = skillsData
       .flatMap((c) => c.skills)
       .filter((s) => (s.icon ?? '').trim() !== '')
       .map((s) => (s.icon.startsWith('/') ? s.icon : '/' + s.icon))
       .slice(0, MAX_ICONS);
+      return skillIcons;
   }
 
   private loadIconsAndCreateSprites(): void {
@@ -243,22 +244,69 @@ export class HeroIconParticlesComponent implements OnDestroy {
     if (urls.length === 0) return;
 
     const doc = typeof document !== 'undefined' ? document : null;
-    const base = doc?.querySelector('base')?.href ?? '';
-    const load = (path: string) =>
-      new Promise<THREE.Texture>((resolve, reject) => {
-        const url = base ? new URL(path, base).href : path;
-        this.textureLoader!.load(url, resolve, undefined, reject);
-      });
 
-    Promise.all(urls.map((url) => load(url)))
-      .then((textures) => {
-        textures.forEach((tex) => {
-          tex.colorSpace = THREE.SRGBColorSpace;
-          tex.needsUpdate = true;
-        });
-        this.createIconSprites(textures);
-      })
-      .catch(() => {});
+const load = (path: string) =>
+  new Promise<THREE.Texture>((resolve, reject) => {
+    const url = path;
+
+    // Create an HTMLImageElement and rasterize the SVG into a canvas.
+    // This avoids race conditions and provides explicit, valid image data
+    // for WebGL uploads (also allows forcing power-of-two dimensions).
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const w = img.width || 256;
+        const h = img.height || 256;
+
+        const nextPOT = (v: number) => {
+          let p = 1;
+          while (p < v) p <<= 1;
+          return p;
+        };
+
+        // Use power-of-two dimensions for maximum WebGL compatibility
+        const canvas = document.createElement('canvas');
+        canvas.width = nextPOT(w);
+        canvas.height = nextPOT(h);
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Could not get 2D context for SVG rasterization'));
+          return;
+        }
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        const tex = new THREE.CanvasTexture(canvas);
+        // Preserve color space like previous code expects
+        try {
+          // newer three.js exposes colorSpace
+          (tex as any).colorSpace = (THREE as any).SRGBColorSpace ?? (THREE as any).SRGBColorSpace;
+        } catch {
+          // fallback to encoding for older three.js
+          (tex as any).encoding = (THREE as any).sRGBEncoding ?? (THREE as any).sRGBEncoding;
+        }
+        tex.needsUpdate = true;
+        resolve(tex);
+      } catch (err) {
+        reject(err);
+      }
+    };
+    img.onerror = (e) => reject(e);
+    img.src = url;
+  });
+
+Promise.all(urls.map((url) => load(url)))
+  .then((textures) => {
+    textures.forEach((tex) => {
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.needsUpdate = true; // Safe to call now
+    });
+    this.createIconSprites(textures);
+  })
+  .catch((err) => console.error("Error loading SVG textures:", err));
+
   }
 
   private createIconSprites(textures: THREE.Texture[]): void {

@@ -18,7 +18,6 @@ import { Router, RouterLink } from '@angular/router';
       <img
         src="/pranay_logo.png"
         alt="Pranay Das"
-        loading="lazy"
         class="h-full w-full object-cover"
       />
     </a>
