@@ -26,7 +26,7 @@ export const projectDetailsData: IProjectDetails[] = [
         keyFeatures: [
             'searchKnowledge function calling with chunked markdown sources',
             'Gemini Live bidirectional sessions with TEXT_CHUNK streaming',
-            'Angular chat console (EVA.exe) with reconnect and reset flows',
+            'Angular chat console (EVA.cat) with reconnect and reset flows',
             'RxJS webSocket client with retry and session persistence',
             'Multi-stage Docker image with explicit knowledge file copy',
         ],

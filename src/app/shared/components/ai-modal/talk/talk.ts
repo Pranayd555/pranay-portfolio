@@ -14,7 +14,6 @@ export class Talk {
   openChat = output<boolean>();
 
   // Component states
-  talkState = signal<'IDLE' | 'LISTENING' | 'THINKING' | 'SPEAKING'>('LISTENING');
   userTranscript = signal<string>('');
   evaResponseText = signal<string>('');
   isMuted = signal<boolean>(false);
@@ -22,5 +21,20 @@ export class Talk {
 
   toggleSystemMute() { this.isMuted.set(!this.isMuted()); }
   switchToChatMode() { /* State controller logic back to text-chat */ }
+
+  startVoiceListening() {
+    this.currentState.set('listening');
+  }
+  stopVoiceListening() {
+    this.currentState.set('thinking');
+    const t = setTimeout(()=> {
+      clearTimeout(t);
+      const i = setTimeout(()=> {
+      clearTimeout(i);
+      this.currentState.set('idle');
+    }, 2000)
+      this.currentState.set('talking');
+    }, 2000)
+  }
 
 }

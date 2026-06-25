@@ -2,7 +2,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { afterNextRender, AfterViewInit, Component, DestroyRef, effect, ElementRef, inject, input, NgZone, OnDestroy, PLATFORM_ID, ViewChild } from '@angular/core';
 import * as THREE from 'three';
 
-export type AvatarState = 'idle' | 'listening' | 'talking';
+export type AvatarState = 'idle' | 'listening' | 'thinking' | 'talking';
 
 @Component({
   selector: 'app-talk-animation-bg',
@@ -113,10 +113,19 @@ export class TalkAnimationBg {
         this.targetC2.set(0x00ff88);
         this.targetGlowColor.set(0x008888);
         break;
+      case 'thinking':
+        this.targetTransition = 0.0;
+        this.targetAmplitude = 0.2;
+        this.targetFrequency = 0.8;
+        this.targetGlow = 1.4;
+        this.targetC1.set(0xFFD300);
+        this.targetC2.set(0x000000);
+        this.targetGlowColor.set(0x53FF00);
+        break;
     }
   }
 
-  private initializeThree() {
+   private initializeThree() {
     const canvas = this.canvasRef?.nativeElement;
     const container = this.containerRef?.nativeElement;
 

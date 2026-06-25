@@ -33,16 +33,16 @@
   </div>
 
   <!-- Top Floating HUD State Badge -->
-  <!-- <div class="absolute top-6 z-10 pointer-events-none select-none">
+  <div class="absolute top-6 z-10 pointer-events-none select-none">
     <span class="text-[10px] font-mono tracking-widest uppercase text-purple-400 bg-purple-500/10 px-3 py-1.5 rounded-full border border-purple-500/20 shadow-sm backdrop-blur-sm">
-      System.Eva.exe: {{ talkState() }}
+      System.Eva.cat: {{ currentState() }}
     </span>
   </div>
-</div> -->
+</div>
 
 <!-- BOTTOM OPERATIONAL INTERACTIVE DECK -->
-<!-- <div class="p-5 bg-slate-950/60 border-t border-slate-900/50 backdrop-blur-md flex flex-col items-center gap-3">
-  <div class="flex items-center justify-center gap-4 w-full">
+<div class="p-5 bg-slate-950/60 border-t border-slate-900/50 backdrop-blur-md flex flex-col items-center gap-3">
+  <div class="flex items-center justify-between w-full">
     
     <button 
       type="button"
@@ -60,16 +60,19 @@
       (touchstart)="$event.preventDefault(); startVoiceListening()"
       (touchend)="$event.preventDefault(); stopVoiceListening()"
       [ngClass]="{
-        'from-rose-600 to-pink-600 scale-110 shadow-rose-500/20': talkState() === 'LISTENING',
-        'from-amber-500 to-orange-600': talkState() === 'THINKING',
-        'from-emerald-500 to-cyan-600': talkState() === 'SPEAKING',
-        'from-purple-600 to-indigo-600 shadow-purple-500/20': talkState() === 'IDLE'
+        'from-emerald-500 to-cyan-600': currentState() === 'listening',
+        'from-amber-500 to-orange-600': currentState() === 'thinking',
+        'from-rose-600 to-pink-600 scale-110 shadow-rose-500/20': currentState() === 'talking',
+        'from-purple-600 to-indigo-600 shadow-purple-500/20': currentState() === 'idle'
       }"
       class="w-16 h-16 rounded-full bg-gradient-to-tr border-none flex items-center justify-center text-white relative shadow-xl transition-all duration-300 cursor-pointer select-none active:scale-95"
     >
-      <span [ngClass]="talkState() === 'LISTENING' ? 'scale-[1.35] opacity-100' : 'scale-100 opacity-0'" class="absolute inset-0 rounded-full bg-rose-500/20 transition-all duration-300 pointer-events-none"></span>
+      <span 
+        [ngClass]="currentState() === 'listening' ? 'animate-ping opacity-100' : 'scale-100 opacity-0'" 
+        class="absolute inset-0 rounded-full bg-rose-500/20 transition-all duration-300 pointer-events-none">
+      </span>
       <span class="material-symbols-outlined text-2xl z-10">
-        {{ talkState() === 'LISTENING' ? 'mic' : talkState() === 'SPEAKING' ? 'volume_up' : talkState() === 'THINKING' ? 'hourglass_empty' : 'mic' }}
+        {{ currentState() === 'listening' ? 'mic' : currentState() === 'talking' ? 'stop_circle' : currentState() === 'thinking' ? 'hourglass_empty' : 'mic' }}
       </span>
     </button>
 
@@ -87,6 +90,9 @@
   </div>
 
   <p class="text-[10px] text-slate-500 font-mono tracking-wider uppercase text-center mt-1">
-    {{ talkState() === 'LISTENING' ? 'Release button to process voice matrix' : 'Hold trigger to speak with EVA' }}
+    {{ currentState() === 'listening' ? 'Release button to process voice matrix' :
+    currentState() === 'talking' ? 'Stop current querry' :
+    currentState() === 'thinking' ? 'Gathering information about your query' :
+    currentState() === 'idle' ? 'Hold trigger to speak with EVA' : '' }}
   </p>
-</div> -->
+</div>
