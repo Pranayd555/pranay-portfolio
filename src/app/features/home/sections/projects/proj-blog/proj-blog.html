@@ -30,9 +30,9 @@
               </iframe>
             </div>
           </div>
-        } @else if (path === 'ckeditor-plugin' || path === 'fruit-basket'){
+        } @else if (path === 'ckeditor-plugin' || path === 'fruit-basket' || path === 'codelens-graph'){
             <div class="demo-wrapper">
-                <img [src]="path == 'ckeditor-plugin'? '/assets/projects-demo/ckeditor_demo.gif' : '/assets/projects-demo/fruit-basket_demo.gif'" 
+                <img [src]="path == 'ckeditor-plugin'? '/assets/projects-demo/ckeditor_demo.gif' : path ==='fruit-basket'? '/assets/projects-demo/fruit-basket_demo.gif' : '/assets/projects-demo/codelens-graph_demo.gif' " 
                      [alt]="'ckeditor'" 
                      loading="eager"
                      (load)="loadingMedia.set(false)"

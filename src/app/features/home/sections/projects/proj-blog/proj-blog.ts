@@ -37,7 +37,7 @@ export class ProjBlog {
       this.path = String(params['project'] ?? '');
       const file = blogMap[this.path] || '';
 
-      this.loadingMedia.set(this.path !== 'eva-ai');
+      this.loadingMedia.set(['codelens-graph', 'presmistique', 'fruit-basket', 'ckeditor-plugin'].includes(this.path));
 
       if (!file) {
         this.content.set(null);
