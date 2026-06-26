@@ -256,7 +256,7 @@ export const projectDetailsData: IProjectDetails[] = [
             'Used a triage tool to force the agent to select the smallest next step',
         ],
 
-        demoGif: '',
+        demoGif: '/assets/projects-demo/codelens-graph_demo.gif',
         liveUrl: '',
         repoUrl: 'https://github.com/Pranayd555/codelens-graph',
 
