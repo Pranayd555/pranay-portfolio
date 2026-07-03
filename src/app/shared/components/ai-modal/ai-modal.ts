@@ -18,6 +18,7 @@ export class AiModal implements OnDestroy {
   isCloseModal = output<boolean>();
   readonly geminiAI = inject(GeminiAi);
   readonly chatref = viewChild(Chat);
+  readonly talkRef = viewChild(Talk);
 
   isChatSelected = signal<boolean>(false);
   isTalkSelected = signal<boolean>(false);
@@ -28,8 +29,12 @@ export class AiModal implements OnDestroy {
 
   resetConnection() {
     const chat = this.chatref();
+    const talk = this.talkRef();
     if(chat) {
       chat.resetConnection();
+    } 
+    if(talk) {
+      talk.resetConnection();
     }
 
     this.isChatSelected.set(false);

@@ -1,7 +1,97 @@
-.no-content{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    font-size: 18px;
+.no-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 18px;
+}
+
+/* Modern High-Tech Media Loader Styles */
+.media-loader-container {
+  position: relative;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.dark .media-loader-container {
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* Horizontal Moving Scanning Laser Beam */
+.media-loader-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--color-secondary), var(--color-accent), transparent);
+  animation: tech-scan 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  opacity: 0.7;
+}
+
+@keyframes tech-scan {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  10%, 90% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(20rem); /* Fits the height h-80 (20rem) */
+    opacity: 0;
+  }
+}
+
+/* Concentric Orbital Ring Rotations */
+@keyframes spin-clockwise {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spin-counter-clockwise {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes core-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 15px var(--color-primary), 0 0 25px var(--color-primary);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.2);
+    box-shadow: 0 0 25px var(--color-secondary), 0 0 35px var(--color-secondary);
+    opacity: 1;
+  }
+}
+
+.animate-spin-clockwise {
+  animation: spin-clockwise 8s linear infinite;
+}
+
+.animate-spin-fast {
+  animation: spin-clockwise 2.5s linear infinite;
+}
+
+.animate-spin-reverse-fast {
+  animation: spin-counter-clockwise 2s linear infinite;
+}
+
+.animate-core-pulse {
+  animation: core-pulse 2s ease-in-out infinite;
 }

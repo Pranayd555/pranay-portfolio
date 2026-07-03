@@ -1,8 +1,7 @@
 import { isPlatformBrowser } from '@angular/common';
 import { afterNextRender, AfterViewInit, Component, DestroyRef, effect, ElementRef, inject, input, NgZone, OnDestroy, PLATFORM_ID, ViewChild } from '@angular/core';
 import * as THREE from 'three';
-
-export type AvatarState = 'idle' | 'listening' | 'thinking' | 'talking';
+import { AvatarState } from '../../../services/gemini-talk';
 
 @Component({
   selector: 'app-talk-animation-bg',

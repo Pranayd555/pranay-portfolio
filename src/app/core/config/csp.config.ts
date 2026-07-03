@@ -141,7 +141,7 @@ export const SECURITY_HEADERS = {
    * Permissions-Policy: Disable unused browser features
    * Reduces attack surface by disabling features you don't use
    */
-  'Permissions-Policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()',
+  'Permissions-Policy': 'geolocation=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()',
 };
 
 /**
