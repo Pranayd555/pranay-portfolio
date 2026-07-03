@@ -1,83 +1,160 @@
+@if (path && content()) {
+  <div class="max-w-5xl mx-auto px-4">
+    <h1 class="text-4xl md:text-5xl font-bold mb-12 text-slate-900 dark:text-white">{{ path }}</h1>
+    <div
+      class="glass-card rounded-[2rem] p-6 md:p-10 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5 flex items-center justify-center"
+    >
+      @if (loadingMedia()) {
+        <div
+          class="media-loader-container flex flex-col justify-center items-center h-80 w-full relative overflow-hidden rounded-lg"
+        >
+          <!-- Ambient glowing background blobs -->
+          <div
+            class="absolute w-32 h-32 bg-primary/10 rounded-full blur-2xl animate-pulse-glow"
+            style="top: 25%; left: 35%"
+          ></div>
+          <div
+            class="absolute w-32 h-32 bg-secondary/10 rounded-full blur-2xl animate-pulse-glow"
+            style="bottom: 25%; right: 35%; animation-delay: 1.5s"
+          ></div>
 
+          <!-- Futuristic Loader Graphic -->
+          <div class="relative w-24 h-24 mb-6 flex items-center justify-center">
+            <!-- Outer Tech Ring -->
+            <div
+              class="absolute inset-0 rounded-full border-2 border-dashed border-primary/20 animate-spin-clockwise"
+            ></div>
 
-@if(path && content()) {
-<div class="max-w-5xl mx-auto px-4">
-    <h1 class="text-4xl md:text-5xl font-bold mb-12 text-slate-900 dark:text-white">{{path}}</h1>
-<div class="glass-card rounded-[2rem] p-6 md:p-10 bg-white/50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-white/5 flex items-center justify-center">
+            <!-- Middle Glowing Ring (Glow effect) -->
+            <div
+              class="absolute inset-2 rounded-full border-t-2 border-r-2 border-secondary animate-spin-fast filter drop-shadow-[0_0_8px_rgba(0,243,255,0.6)]"
+            ></div>
 
-    @if(loadingMedia()){
-        <div class="flex justify-center items-center h-64">
-            <div class="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full"></div>
+            <!-- Inner Ring -->
+            <div
+              class="absolute inset-4 rounded-full border-b-2 border-l-2 border-accent animate-spin-reverse-fast filter drop-shadow-[0_0_8px_rgba(255,0,255,0.6)]"
+            ></div>
+
+            <!-- Center Glowing Core -->
+            <div
+              class="w-4 h-4 rounded-full bg-gradient-to-r from-primary to-secondary animate-core-pulse"
+            ></div>
           </div>
-    }
-    
-    @if (path == 'presmistique' && isBrowser() && sanitizedDemoUrl()) {
+
+          <!-- Tech Loading Text -->
+          <div class="text-center z-10 select-none">
+            <h3
+              class="text-sm font-semibold tracking-widest text-slate-800 dark:text-slate-200 uppercase font-display flex items-center gap-2 justify-center"
+            >
+              <span>Initializing Demo Media</span>
+              <span class="flex gap-1">
+                <span
+                  class="w-1.5 h-1.5 rounded-full bg-primary animate-bounce"
+                  style="animation-delay: 0s"
+                ></span>
+                <span
+                  class="w-1.5 h-1.5 rounded-full bg-secondary animate-bounce"
+                  style="animation-delay: 0.2s"
+                ></span>
+                <span
+                  class="w-1.5 h-1.5 rounded-full bg-accent animate-bounce"
+                  style="animation-delay: 0.4s"
+                ></span>
+              </span>
+            </h3>
+            <p class="text-xs text-slate-400 dark:text-slate-500 mt-2 font-mono tracking-wider">
+              Buffering background resources...
+            </p>
+          </div>
+        </div>
+      }
+
+      @if (path == 'presmistique' && isBrowser() && sanitizedDemoUrl()) {
         <div class="demo-wrapper w-full" style="animation-delay: 0.1s">
-            <div class="relative w-full overflow-hidden rounded-xs aspect-video">
-              <iframe 
-                [src]="sanitizedDemoUrl()" 
-                (load)="loadingMedia.set(false)"
-                class="absolute top-0 left-0 w-full h-full transition-opacity duration-500"
-                [class.opacity-0]="loadingMedia()"
-                [class.opacity-100]="!loadingMedia()"
-                [attr.title]="'Presmistique - Demo Video'"
-                sandbox="allow-scripts allow-same-origin allow-presentation"
-                allow="accelerometer; autoplay; encrypted-media; picture-in-picture; clipboard-write"
-                referrerpolicy="strict-origin-when-cross-origin"
-                loading="eager"
-                fetchpriority="high"
-                allowfullscreen>
-              </iframe>
-            </div>
+          <div class="relative w-full overflow-hidden rounded-xs aspect-video">
+            <iframe
+              [src]="sanitizedDemoUrl()"
+              (load)="loadingMedia.set(false)"
+              class="absolute top-0 left-0 w-full h-full transition-opacity duration-500"
+              [class.opacity-0]="loadingMedia()"
+              [class.opacity-100]="!loadingMedia()"
+              [attr.title]="'Presmistique - Demo Video'"
+              sandbox="allow-scripts allow-same-origin allow-presentation"
+              allow="accelerometer; autoplay; encrypted-media; picture-in-picture; clipboard-write"
+              referrerpolicy="strict-origin-when-cross-origin"
+              loading="eager"
+              fetchpriority="high"
+              allowfullscreen
+            >
+            </iframe>
           </div>
-        } @else if (path === 'ckeditor-plugin' || path === 'fruit-basket' || path === 'codelens-graph'){
-            <div class="demo-wrapper">
-                <img [src]="path == 'ckeditor-plugin'? '/assets/projects-demo/ckeditor_demo.gif' : path ==='fruit-basket'? '/assets/projects-demo/fruit-basket_demo.gif' : '/assets/projects-demo/codelens-graph_demo.gif' " 
-                     [alt]="'ckeditor'" 
-                     loading="eager"
-                     (load)="loadingMedia.set(false)"
-                     fetchpriority="high"
-                     class="demo-img"
-                     [class.opacity-0]="loadingMedia()"
-                     [class.opacity-100]="!loadingMedia()">
-            </div>
-        } @else if (path === 'eva-ai') {
-            <div class="demo-wrapper w-full text-center py-8">
-              <p class="text-slate-600 dark:text-slate-300 mb-4">Open the live chat and launch <strong class="text-slate-900 dark:text-white">EVA.cat</strong> from the floating navigation.</p>
-              <span (click)="showChat()"
-              (keydown.enter)="showChat()"
-                class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-primary to-secondary text-white font-medium transition-all hover:shadow-[0_0_20px_rgba(19,91,236,0.3)] cursor-pointer">
-                <span class="material-symbols-outlined text-base">smart_toy</span>
-                Try EVA AI Live
-            </span>
-            </div>
-        }
-</div>
-</div>
+        </div>
+      } @else if (
+        path === 'ckeditor-plugin' || path === 'fruit-basket' || path === 'codelens-graph'
+      ) {
+        <div class="demo-wrapper">
+          <img
+            [src]="
+              path == 'ckeditor-plugin'
+                ? '/assets/projects-demo/ckeditor_demo.gif'
+                : path === 'fruit-basket'
+                  ? '/assets/projects-demo/fruit-basket_demo.gif'
+                  : '/assets/projects-demo/codelens-graph_demo.gif'
+            "
+            [alt]="'ckeditor'"
+            loading="eager"
+            (load)="loadingMedia.set(false)"
+            fetchpriority="high"
+            class="demo-img"
+            [class.opacity-0]="loadingMedia()"
+            [class.opacity-100]="!loadingMedia()"
+          />
+        </div>
+      } @else if (path === 'eva-ai') {
+        <div class="demo-wrapper w-full text-center py-8">
+          <p class="text-slate-600 dark:text-slate-300 mb-4">
+            Open the live chat and launch
+            <strong class="text-slate-900 dark:text-white">EVA.cat</strong> from the floating
+            navigation.
+          </p>
+          <span
+            (click)="showChat()"
+            (keydown.enter)="showChat()"
+            class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-primary to-secondary text-white font-medium transition-all hover:shadow-[0_0_20px_rgba(19,91,236,0.3)] cursor-pointer"
+          >
+            <span class="material-symbols-outlined text-base">smart_toy</span>
+            Try EVA AI Live
+          </span>
+        </div>
+      }
+    </div>
+  </div>
 
-<div class="transition-opacity duration-500" [class.opacity-0]="!content()" [class.opacity-100]="content()">
+  <div
+    class="transition-opacity duration-500"
+    [class.opacity-0]="!content()"
+    [class.opacity-100]="content()"
+  >
     <div [innerHTML]="content()"></div>
   </div>
 } @else {
-    <div class="max-w-5xl mx-auto px-4">
+  <div class="max-w-5xl mx-auto px-4">
     <div class="animate-pulse space-y-6 mt-6 md:mt-8">
+      <!-- Title -->
+      <div class="h-8 md:h-10 w-3/4 md:w-2/3 bg-slate-700/50 rounded"></div>
 
-        <!-- Title -->
-        <div class="h-8 md:h-10 w-3/4 md:w-2/3 bg-slate-700/50 rounded"></div>
-      
-        <!-- Subtitle -->
-        <div class="h-3 md:h-4 w-2/3 md:w-1/2 bg-slate-700/40 rounded"></div>
-      
-        <!-- Image / Banner -->
-        <div class="h-48 sm:h-56 md:h-64 lg:h-72 w-full bg-slate-800/60 rounded-xl"></div>
-      
-        <!-- Paragraphs -->
-        <div class="space-y-2 md:space-y-3">
-          <div class="h-3 md:h-4 w-full bg-slate-700/40 rounded"></div>
-          <div class="h-3 md:h-4 w-5/6 bg-slate-700/40 rounded"></div>
-          <div class="h-3 md:h-4 w-4/6 bg-slate-700/40 rounded"></div>
-        </div>
-      
+      <!-- Subtitle -->
+      <div class="h-3 md:h-4 w-2/3 md:w-1/2 bg-slate-700/40 rounded"></div>
+
+      <!-- Image / Banner -->
+      <div class="h-48 sm:h-56 md:h-64 lg:h-72 w-full bg-slate-800/60 rounded-xl"></div>
+
+      <!-- Paragraphs -->
+      <div class="space-y-2 md:space-y-3">
+        <div class="h-3 md:h-4 w-full bg-slate-700/40 rounded"></div>
+        <div class="h-3 md:h-4 w-5/6 bg-slate-700/40 rounded"></div>
+        <div class="h-3 md:h-4 w-4/6 bg-slate-700/40 rounded"></div>
       </div>
     </div>
+  </div>
 }

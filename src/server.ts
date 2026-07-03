@@ -67,7 +67,7 @@ const securityHeadersMiddleware = (req: express.Request, res: express.Response, 
   
   // Feature policy / Permissions policy
   res.setHeader('Permissions-Policy', 
-    'geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()'
+    'geolocation=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()'
   );
   
   next();
