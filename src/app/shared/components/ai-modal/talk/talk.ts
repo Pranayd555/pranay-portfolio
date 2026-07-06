@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, ElementRef, inject, output, signal, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, inject, OnDestroy, output, signal, ViewChild, HostListener } from '@angular/core';
 import { TalkAnimationBg } from '../../talk-animation-bg/talk-animation-bg';
 import { AvatarState, GeminiTalk } from '../../../../services/gemini-talk';
 @Component({
@@ -10,7 +10,7 @@ import { AvatarState, GeminiTalk } from '../../../../services/gemini-talk';
   styleUrl: './talk.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Talk {
+export class Talk implements OnDestroy {
   @ViewChild('threeCanvas') canvasRef!: ElementRef<HTMLCanvasElement>;
   openChat = output<boolean>();
 
@@ -89,7 +89,9 @@ export class Talk {
     this.geminiTalkService.setMute(newMutedState);
   }
 
-  switchToChatMode() { /* State controller logic back to text-chat */ }
+  switchToChatMode() {
+    this.openChat.emit(true);
+  }
 
   async startVoiceListening() {
     // Don't allow talking until system is ready
@@ -119,8 +121,6 @@ export class Talk {
 
       // Pass native stream down to the service to start chopping into binary frames
       this.geminiTalkService.sendAudioChunk(this.userMediaStream);
-      
-      this.currentState.set('listening');
     } catch (error: any) {
       console.error('Failed to initialize microphone:', error);
       if (error.name === 'NotAllowedError') {
@@ -133,14 +133,9 @@ export class Talk {
 
   public async stopVoiceSession(): Promise<void> {
     // 1. Tell service to stop processing nodes and get feedback on whether audio was recorded
-    const hasAudio = await this.geminiTalkService.stopRecording();
+    await this.geminiTalkService.stopRecording();
 
-    // 2. If no audio was recorded, reset state to idle instead of staying in thinking
-    if (!hasAudio) {
-      this.currentState.set('idle');
-    }
-
-    // 3. Explicitly stop browser hardware recording tracks (turns off the red recording light)
+    // 2. Explicitly stop browser hardware recording tracks (turns off the red recording light)
     if (this.userMediaStream) {
       this.userMediaStream.getTracks().forEach(track => track.stop());
       this.userMediaStream = null;
@@ -148,12 +143,43 @@ export class Talk {
   }
 
   stopVoiceListening() {
-    this.currentState.set('thinking');
     this.stopVoiceSession();
+  }
+
+  @HostListener('window:mouseup', ['$event'])
+  onWindowMouseUp(event: MouseEvent) {
+    if (this.currentState() === 'listening') {
+      this.stopVoiceListening();
+    }
+  }
+
+  @HostListener('window:touchend', ['$event'])
+  onWindowTouchEnd(event: TouchEvent) {
+    if (this.currentState() === 'listening') {
+      this.stopVoiceListening();
+    }
+  }
+
+  @HostListener('window:touchcancel', ['$event'])
+  onWindowTouchCancel(event: TouchEvent) {
+    if (this.currentState() === 'listening') {
+      this.stopVoiceListening();
+    }
   }
 
   resetConnection() {
     this.geminiTalkService.disconnect();
+  }
+
+  ngOnDestroy(): void {
+    // Clean up socket connection and media stream when component is destroyed
+    this.geminiTalkService.disconnect();
+    
+    // Stop any active microphone recording
+    if (this.userMediaStream) {
+      this.userMediaStream.getTracks().forEach(track => track.stop());
+      this.userMediaStream = null;
+    }
   }
 
 }

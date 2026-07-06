@@ -33,6 +33,35 @@ export class GeminiTalk {
   private evaHasSpokenOnce = false; // Track if Eva has spoken for the first time
   readonly destroyRef = inject(DestroyRef);
   isRecording: boolean = false;
+  private thinkingTimeout?: any;
+
+  private updateState(state: AvatarState): void {
+    const currentState = this.currentState();
+    if (currentState === state) return;
+
+    this.currentState.set(state);
+
+    if (state === 'thinking') {
+      this.startThinkingTimeout();
+    } else {
+      this.clearThinkingTimeout();
+    }
+  }
+
+  private startThinkingTimeout() {
+    this.clearThinkingTimeout();
+    this.thinkingTimeout = setTimeout(() => {
+      console.warn('[GeminiTalk] Thinking timeout reached, resetting state to idle');
+      this.updateState('idle');
+    }, 8000); // 8 seconds safety timeout
+  }
+
+  private clearThinkingTimeout() {
+    if (this.thinkingTimeout) {
+      clearTimeout(this.thinkingTimeout);
+      this.thinkingTimeout = undefined;
+    }
+  }
 
   public currentState = signal<AvatarState>('idle');
   public isConnected = signal<boolean>(false);
@@ -50,11 +79,11 @@ export class GeminiTalk {
       // Pass upstream objects directly through the raw wire unchanged
       serializer: (data) => data,
       openObserver: { next: () => {
-        this.currentState.set('idle');
+        this.updateState('idle');
         this.isConnected.set(true);
       }},
       closingObserver: { next: () => {
-        this.currentState.set('idle');
+        this.updateState('idle');
         this.isConnected.set(false);
         this._connectionClosed$.next();
       }},
@@ -65,12 +94,12 @@ export class GeminiTalk {
       next: (data: string) => this.handleInboundData(data),
       error: (err) => {
         console.error('WebSocket encountered an error:', err);
-        this.currentState.set('idle');
+        this.updateState('idle');
         this.isConnected.set(false);
         this._connectionClosed$.next();
       },
       complete: () => {
-        this.currentState.set('idle');
+        this.updateState('idle');
         this.isConnected.set(false);
         this._connectionClosed$.next();
       },
@@ -79,6 +108,7 @@ export class GeminiTalk {
 
   public async sendAudioChunk(stream: MediaStream): Promise<void> {
     console.log('media stream', stream);
+    this.updateState('listening');
     if (!this.socket$ || this.socket$.closed) {
       this.connect();
     }
@@ -134,9 +164,12 @@ export class GeminiTalk {
         duration: recordingDuration,
         chunksReceived: this.audioChunksSent
       });
+      this.updateState('idle');
       await this.stopAudioSession();
       return false; // Signal that no valid audio was recorded
     }
+
+    this.updateState('thinking');
 
     // Wait 500ms debounce to allow all pending audio chunks to be sent
     // This prevents race condition where TURN_COMPLETE arrives before final chunks
@@ -161,6 +194,10 @@ export class GeminiTalk {
   private handleInboundData(data: string | ArrayBuffer): void {
     // Handle binary audio response data
     if (data instanceof ArrayBuffer) {
+      if (this.currentState() === 'listening') {
+        console.log('[GeminiTalk] Discarded binary audio chunk because user is currently listening');
+        return;
+      }
       this.playGeminiChunk(data);
       return;
     }
@@ -175,7 +212,7 @@ export class GeminiTalk {
     }
 
     if (response.type === 'ERROR') {
-      // handle error message.
+      this.updateState('idle');
       this.ErrorSubject.next(response);
     }
     
@@ -185,7 +222,28 @@ export class GeminiTalk {
       }
     }
 
+    if (response.type === 'TURN_COMPLETE') {
+      if (this.currentState() === 'listening') {
+        console.log('[GeminiTalk] Discarded TURN_COMPLETE because user is currently listening');
+        return;
+      }
+      // If we are not playing any audio, reset state to idle
+      if (this.activeSources.length === 0) {
+        this.updateState('idle');
+      }
+    }
+
+    if (response.type === 'INTERRUPT') {
+      console.log('[GeminiTalk] Interrupted by user');
+      this.mutePlaybackImmediately();
+      this.updateState('idle');
+    }
+
     if (response.type === 'AUDIO_RESPONSE') {
+      if (this.currentState() === 'listening') {
+        console.log('[GeminiTalk] Discarded AUDIO_RESPONSE because user is currently listening');
+        return;
+      }
       // Handle both ArrayBuffer and base64 encoded string responses
       if (response.response instanceof ArrayBuffer) {
         this.playGeminiChunk(response.response);
@@ -232,7 +290,7 @@ export class GeminiTalk {
     }
 
     // Set state to talking when starting playback
-    this.currentState.set('talking');
+    this.updateState('talking');
 
     const playbackContext = this.getPlaybackContext();
     const gainNode = this.playbackGainNode!;
@@ -266,7 +324,7 @@ export class GeminiTalk {
         this.activeSources.length === 0 &&
         playbackContext.currentTime >= this.nextPlayTime - 0.05
       ) {
-        this.currentState.set('idle');
+        this.updateState('idle');
       }
     };
   }

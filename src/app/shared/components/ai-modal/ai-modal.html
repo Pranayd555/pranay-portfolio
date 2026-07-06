@@ -41,7 +41,7 @@
           type="button"
           [attr.data-tooltip]="'Close Chat'"
           data-tooltip-position="bottom"
-          (click)="isCloseModal.emit(true)"
+          (click)="closeAndTerminateConnection(); isCloseModal.emit(true)"
           class="w-10 h-10 sm:w-11 sm:h-11 relative rounded-full bg-slate-800/50 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 border border-slate-700/50 hover:border-rose-500/30 disabled:opacity-20 disabled:hover:bg-transparent disabled:text-slate-600 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer shadow-lg flex items-center justify-center"
           aria-label="Close chat modal"
           [attr.aria-expanded]="show()"

@@ -235,6 +235,9 @@ readonly reconnectText = viewChild<ElementRef<HTMLElement>>('ReconnectText');
   }
 
   ngOnDestroy(): void {
+    // Clean up socket connection
+    this.geminiAI.disconnect();
+    
     // When this tab kills the component, clean up the dedicated background thread
     if (this.tabWorker) {
       this.tabWorker.terminate();

@@ -41,6 +41,13 @@ export class AiModal implements OnDestroy {
     this.isTalkSelected.set(false);
   }
 
+  closeAndTerminateConnection() {
+    // Terminate both chat and talk socket connections
+    this.resetConnection();
+    // Also disconnect the services directly to ensure all connections are closed
+    this.geminiAI.disconnect();
+  }
+
   openChatModal(open: boolean) {
     if(open){
     this.isTalkSelected.set(false);
@@ -49,5 +56,7 @@ export class AiModal implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    // Ensure all socket connections are terminated when modal component is destroyed
+    this.closeAndTerminateConnection();
   }
 }
